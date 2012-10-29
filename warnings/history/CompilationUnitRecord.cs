@@ -9,106 +9,84 @@ using warnings.util;
 
 namespace warnings.source.history
 {
-
     public interface ICodeHistoryRecord : IEquatable<ICodeHistoryRecord>
     {
-        String GetSolution();
-        String GetNameSpace();
-        String GetFile();
+        String GetUniqueName();
+        String GetSimpleName();
         String GetSource();
-        String GetKey();
-        SyntaxTree GetSyntaxTree();
         long GetTime();
         bool HasPreviousRecord();
         ICodeHistoryRecord GetPreviousRecord();
         ICodeHistoryRecord CreateNextRecord(string source);
         IDocument Convert2Document();
-        void Delete();
     }
 
-    class CompilationUnitRecord : ICodeHistoryRecord
+    internal class CompilationUnitRecord : ICodeHistoryRecord
     {
-        /* The metadata describing this souce version. */
-        private readonly IRecordMetaData metaData;
-
         /* The root folder to where this file is stored. */
         public static readonly String ROOT = "Source";
+
+        /* The metadata describing this souce version. */
+        private readonly IRecordMetaData metaData;
 
         /* File extension for the source record. */
         private static readonly String EXTENSION = ".rec";
 
-        public static ICodeHistoryRecord CreateNewCodeRecord(String solution, String package, String file,
+        public static ICodeHistoryRecord CreateNewCodeRecord(String uniqueName,
                 String source){
-
             // current time in ticks
             long time = DateTime.Now.Ticks;
 
             // record file name
-            string recordfilename = file + time + EXTENSION;
+            string recordfilename = time + EXTENSION;
             string sourcePath = ROOT + Path.DirectorySeparatorChar + recordfilename;
             FileUtil.WriteToFileStream(FileUtil.CreateFile(sourcePath), source);
             IRecordMetaData metaData =
-                RecordMetaData.createMetaData(solution, package, file, sourcePath, "", time);
+                RecordMetaData.CreateMetaData(uniqueName, sourcePath, "", time);
             return new CompilationUnitRecord(metaData);
         }
 
-
-        public string GetSolution()
+        public string GetUniqueName()
         {
-            return metaData.getSolution();
+            return metaData.GetUniqueName();
         }
 
-        public string GetNameSpace()
+        public string GetSimpleName()
         {
-            return metaData.getNameSpace();
-        }
-
-        public string GetFile()
-        {
-            return metaData.getFile();
+            return Path.GetFileName(GetUniqueName());
         }
 
         public string GetSource()
         {
-            return FileUtil.ReadAllText(metaData.getSourcePath());
-        }
-
-        public string GetKey()
-        {
-            return GetSolution() + GetNameSpace() + GetFile();
-        }
-
-        public SyntaxTree GetSyntaxTree()
-        {
-            throw new NotImplementedException();
+            return FileUtil.ReadAllText(metaData.GetSourcePath());
         }
 
         public long GetTime()
         {
-            return metaData.getTime();
+            return metaData.GetTime();
         }
 
         public bool HasPreviousRecord()
         {
-            return File.Exists(metaData.getPreviousMetaPath());
+            return File.Exists(metaData.GetPreviousMetaPath());
         }
 
         public ICodeHistoryRecord GetPreviousRecord()
         {      
-            IRecordMetaData previousMetaData = RecordMetaData.readMetaData(metaData.getPreviousMetaPath());
+            IRecordMetaData previousMetaData = RecordMetaData.ReadMetaData(metaData.GetPreviousMetaPath());
             return new CompilationUnitRecord(previousMetaData);
         }
 
+
         public ICodeHistoryRecord CreateNextRecord(string source)
         {
-            long time = DateTime.Now.Ticks;
-            string recordfilename = metaData.getFile() + time + EXTENSION;
-            string sourcePath = ROOT + Path.DirectorySeparatorChar + recordfilename;
-            FileStream fs = FileUtil.CreateFile(sourcePath);
+            var time = DateTime.Now.Ticks;
+            var recordfilename = time + EXTENSION;
+            var sourcePath = ROOT + Path.DirectorySeparatorChar + recordfilename;
+            var fs = FileUtil.CreateFile(sourcePath);
             FileUtil.WriteToFileStream(fs, source);
-            IRecordMetaData nextMetaData =
-                RecordMetaData.createMetaData(metaData.getSolution(), metaData.getNameSpace(), metaData.getFile(),
-                    sourcePath, metaData.getMetaDataPath(), time);
+            var nextMetaData =
+                RecordMetaData.CreateMetaData(GetUniqueName(), sourcePath, metaData.GetMetaDataPath(), time);
             return new CompilationUnitRecord(nextMetaData);
         }
 
@@ -119,17 +97,10 @@ namespace warnings.source.history
             return (IDocument)converter.Convert(GetSource(), null, null, null);
         }
 
-        public void Delete()
-        {
-            FileUtil.Delete(metaData.getSourcePath());
-            FileUtil.Delete(metaData.getMetaDataPath());
-        }
-
         private CompilationUnitRecord(IRecordMetaData metaData)
         {
             this.metaData = metaData;
         }
-
 
         public bool Equals(ICodeHistoryRecord other)
         {

@@ -35,7 +35,7 @@ namespace warnings.refactoring.detection
 
         private abstract class InMethodInlineDetector : IInMethodInlineDetector
         {
-            protected readonly List<IManualRefactoring> refactorings;
+            protected readonly List<ManualRefactoring> refactorings;
             protected SyntaxNode methodBefore;
             protected SyntaxNode methodAfter;
             protected SyntaxNode methodRemoved;
@@ -45,10 +45,10 @@ namespace warnings.refactoring.detection
 
             internal InMethodInlineDetector()
             {
-                refactorings = new List<IManualRefactoring>();
+                refactorings = new List<ManualRefactoring>();
             }
 
-            public IEnumerable<IManualRefactoring> GetRefactorings()
+            public IEnumerable<ManualRefactoring> GetRefactorings()
             {
                 return refactorings;
             }

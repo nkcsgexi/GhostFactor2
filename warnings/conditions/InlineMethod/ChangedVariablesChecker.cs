@@ -49,15 +49,16 @@ namespace warnings.conditions
                 {
                     logger.Info("Additional changed symbols: " + StringUtil.ConcatenateAll(",", addedSymbols.Select(s => s.Name)));
                     logger.Info("Missing changed symbols: " + StringUtil.ConcatenateAll(",", missingSymbols.Select(s => s.Name)));
-                    return new ModifiedFlowOutData(refactoring.CallerMethodAfter, refactoring.InlinedMethod, refactoring.InlinedMethodInvocation,
-                        refactoring.InlinedStatementsInMethodAfter, addedSymbols, missingSymbols);
+                    return new ModifiedFlowOutData(refactoring.CallerMethodAfter, refactoring.InlinedMethod, 
+                            refactoring.InlinedMethodInvocation, refactoring.InlinedStatementsInMethodAfter,
+                                addedSymbols, missingSymbols, refactoring.MetaData.DocumentUniqueName);
                 }
                 return new NullCodeIssueComputer();
             }
 
     
 
-            private class ModifiedFlowOutData : ValidCodeIssueComputer
+            private class ModifiedFlowOutData : SingleDocumentValidCodeIssueComputer
             {
                 private readonly IEnumerable<ISymbol> missingSymbols;
                 private readonly IEnumerable<ISymbol> addedSymbols;
@@ -68,7 +69,8 @@ namespace warnings.conditions
           
 
                 internal ModifiedFlowOutData(SyntaxNode methodAfter, SyntaxNode inlinedMethod, SyntaxNode inlinedMethodInvocation,
-                    IEnumerable<SyntaxNode> inlinedStatements, IEnumerable<ISymbol> addedSymbols, IEnumerable<ISymbol> missingSymbols)
+                    IEnumerable<SyntaxNode> inlinedStatements, IEnumerable<ISymbol> addedSymbols, IEnumerable<ISymbol> missingSymbols,
+                        string uniqueName): base(uniqueName)
                 {
                     this.methodAfter = methodAfter;
                     this.inlinedMethod = inlinedMethod;
@@ -98,6 +100,7 @@ namespace warnings.conditions
                 {
                     get { return RefactoringType.INLINE_METHOD; }
                 }
+
 
                 public override IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
                 {

@@ -14,7 +14,7 @@ namespace warnings.refactoring.detection
     {
         private readonly Logger logger;
         private readonly IInMethodInlineDetector inMethodDetector;
-        private readonly List<IManualRefactoring> refactorings;
+        private readonly List<ManualRefactoring> refactorings;
 
         private string sourceAfter;
         private string sourceBefore;
@@ -27,7 +27,7 @@ namespace warnings.refactoring.detection
         internal InlineMethodDetector(IInMethodInlineDetector inMethodDetector)
         {
             this.logger = NLoggerUtil.GetNLogger(typeof (InlineMethodDetector));
-            this.refactorings = new List<IManualRefactoring>();
+            this.refactorings = new List<ManualRefactoring>();
             this.inMethodDetector = inMethodDetector;
         }
 
@@ -73,7 +73,7 @@ namespace warnings.refactoring.detection
             return refactorings.Any();
         }
 
-        public IEnumerable<IManualRefactoring> GetRefactorings()
+        public IEnumerable<ManualRefactoring> GetRefactorings()
         {
             return refactorings;
         }
@@ -112,7 +112,7 @@ namespace warnings.refactoring.detection
         private class InClassInlineMethodDetector : IInternalRefactoringDetector
         {
             private readonly Logger logger;
-            private readonly List<IManualRefactoring> refactorings;
+            private readonly List<ManualRefactoring> refactorings;
             private readonly SyntaxTree treeBefore;
             private readonly SyntaxTree treeAfter;
             private readonly IInMethodInlineDetector inMethodDetector;
@@ -125,7 +125,7 @@ namespace warnings.refactoring.detection
                 IInMethodInlineDetector inMethodDetector)
             {
                 logger = NLoggerUtil.GetNLogger(typeof (InClassInlineMethodDetector));
-                refactorings = new List<IManualRefactoring>();
+                refactorings = new List<ManualRefactoring>();
                 this.treeBefore = treeBefore;
                 this.treeAfter = treeAfter;
                 this.inMethodDetector = inMethodDetector;
@@ -175,7 +175,7 @@ namespace warnings.refactoring.detection
                 return refactorings.Any();
             }
 
-            public IEnumerable<IManualRefactoring> GetRefactorings()
+            public IEnumerable<ManualRefactoring> GetRefactorings()
             {
                 return refactorings;
             }

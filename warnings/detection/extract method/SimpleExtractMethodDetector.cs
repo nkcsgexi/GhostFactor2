@@ -19,7 +19,7 @@ namespace warnings.detection
      */
     internal class SimpleExtractMethodDetector : IExternalRefactoringDetector
     {
-        private readonly List<IManualRefactoring> refactorings;
+        private readonly List<ManualRefactoring> refactorings;
 
         private string sourceBefore;
         private string sourceAfter;
@@ -28,7 +28,7 @@ namespace warnings.detection
 
         public SimpleExtractMethodDetector()
         {
-            refactorings = new List<IManualRefactoring>();
+            refactorings = new List<ManualRefactoring>();
         }
 
         public bool HasRefactoring()
@@ -75,7 +75,7 @@ namespace warnings.detection
             return refactorings.Any();
         }
 
-        public IEnumerable<IManualRefactoring> GetRefactorings()
+        public IEnumerable<ManualRefactoring> GetRefactorings()
         {
             return refactorings;
         }
@@ -115,7 +115,7 @@ namespace warnings.detection
             private readonly Logger logger;
             private readonly SyntaxTree treeBefore;
             private readonly SyntaxTree treeAfter;
-            private readonly List<IManualRefactoring> refactorings; 
+            private readonly List<ManualRefactoring> refactorings; 
             
             private SyntaxNode classAfter;
             private SyntaxNode classBefore;
@@ -126,7 +126,7 @@ namespace warnings.detection
                 this.logger = NLoggerUtil.GetNLogger(typeof (InClassExtractMethodDetector));
                 this.treeBefore = treeBefore;
                 this.treeAfter = treeAfter;
-                this.refactorings = new List<IManualRefactoring>();
+                this.refactorings = new List<ManualRefactoring>();
             }
 
             public bool HasRefactoring()
@@ -165,7 +165,7 @@ namespace warnings.detection
                 return refactorings.Any();
             }
 
-            public IEnumerable<IManualRefactoring> GetRefactorings()
+            public IEnumerable<ManualRefactoring> GetRefactorings()
             {
                 return refactorings.AsEnumerable();
             }

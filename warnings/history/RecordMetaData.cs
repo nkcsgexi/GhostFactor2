@@ -8,103 +8,80 @@ using warnings.util;
 
 namespace warnings.source.history
 {
-
     public interface IRecordMetaData
     {
-        String getPreviousMetaPath();
-        String getNameSpace();
-        String getSolution();
-        String getFile();
-        String getSourcePath();
-        String getMetaDataPath();
-        long getTime();
+        String GetPreviousMetaPath();
+        String GetUniqueName();
+        String GetSourcePath();
+        String GetMetaDataPath();
+        long GetTime();
     }
     internal class RecordMetaData : IRecordMetaData
     {
-        private static readonly int RECORD_COUNT = 6;
         public static readonly String ROOT = "MetaData";
+
+        private static readonly int RECORD_COUNT = 4;
         private static readonly String EXTENSION = ".met";
 
+        private readonly String uniqueName;
         private readonly String sourePath;
         private readonly String previousMetaPath;
-        private readonly String nameSpace;
-        private readonly String solution;
-        private readonly String file;
         private readonly long time;
-
         private readonly String metaDataPath;
 
-        public static IRecordMetaData createMetaData(String solution, String nameSpace, String file,
-                                                     String sourcePath, String previousMetaPath, long time)
+        public static IRecordMetaData CreateMetaData(String uniqueName, String sourcePath, String previousMetaPath, long time)
         {
-            String metaDataPath = ROOT + Path.DirectorySeparatorChar + file + time + EXTENSION;
-            StringBuilder sb = new StringBuilder();
+            String metaDataPath = ROOT + Path.DirectorySeparatorChar + time + EXTENSION;
+            var sb = new StringBuilder();
             sb.AppendLine(sourcePath);
             sb.AppendLine(previousMetaPath);
-            sb.AppendLine(nameSpace);
-            sb.AppendLine(solution);
-            sb.AppendLine(file);
+            sb.AppendLine(uniqueName);
             sb.AppendLine(Convert.ToString(time));
             FileUtil.WriteToFileStream(FileUtil.CreateFile(metaDataPath), sb.ToString());
-            return new RecordMetaData(solution, nameSpace, file, sourcePath, previousMetaPath, time, metaDataPath);
+            return new RecordMetaData(uniqueName, sourcePath, previousMetaPath, time, metaDataPath);
         }
 
-        public static RecordMetaData readMetaData(String metaDataPath)
+        public static RecordMetaData ReadMetaData(String metaDataPath)
         {
             String[] lines = FileUtil.ReadFileLines(metaDataPath, 0, RECORD_COUNT - 1);
             String sourcePath = lines[0];
             String previousMetaPath = lines[1];
-            String nameSpace = lines[2];
-            String solution = lines[3];
-            String file = lines[4];
-            long time = Convert.ToInt64(lines[5]);
-            return new RecordMetaData(solution, nameSpace, file, sourcePath, previousMetaPath, time, metaDataPath);
+            String uniqueName = lines[2];
+            long time = Convert.ToInt64(lines[3]);
+            return new RecordMetaData(uniqueName, sourcePath, previousMetaPath, time, metaDataPath);
         }
 
-        private RecordMetaData(String solution, String nameSpace, String file, String sourePath,
+        private RecordMetaData(String uniqueName, String sourePath,
                                String previousMetaPath, long time, String metaDataPath)
         {
+            this.uniqueName = uniqueName;
             this.sourePath = sourePath;
             this.previousMetaPath = previousMetaPath;
-            this.nameSpace = nameSpace;
-            this.solution = solution;
-            this.file = file;
             this.time = time;
             this.metaDataPath = metaDataPath;
-
         }
 
-        public string getSourcePath()
+        public string GetUniqueName()
+        {
+            return uniqueName;
+        }
+
+        public string GetSourcePath()
         {
             return sourePath;
         }
 
-        public string getMetaDataPath()
+        public string GetMetaDataPath()
         {
             return metaDataPath;
         }
 
-        public string getPreviousMetaPath()
+        public string GetPreviousMetaPath()
         {
             return previousMetaPath;
         }
 
-        public string getNameSpace()
-        {
-            return nameSpace;
-        }
-
-        public string getSolution()
-        {
-            return solution;
-        }
-
-        public string getFile()
-        {
-            return file;
-        }
-
-        public long getTime()
+        public long GetTime()
         {
             return time;
         }

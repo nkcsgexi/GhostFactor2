@@ -277,7 +277,7 @@ namespace warnings.components
             private readonly IDocument document;
             private readonly SyntaxNode node;
             private readonly IEnumerable<ICodeIssueComputer> computers;
-            private IEnumerable<CodeIssue> results;
+            private readonly List<CodeIssue> results;
 
             internal GetDocumentNodeCodeIssueWorkItem(IDocument document, SyntaxNode node, 
                 IEnumerable<ICodeIssueComputer> computers)
@@ -285,12 +285,19 @@ namespace warnings.components
                 this.document = document;
                 this.node = node;
                 this.computers = computers;
+                results = new List<CodeIssue>();
             }
 
             public override void Perform()
             {
-                results = computers.SelectMany(c => c.ComputeCodeIssues(document, node));
-             }
+                foreach (var computer in computers)
+                {
+                    if (computer.IsDocumentCorrect(document))
+                    {
+                        results.AddRange(computer.ComputeCodeIssues(document, node));
+                    }
+                }
+            }
 
             public IEnumerable<CodeIssue> GetCodeIssues()
             {
@@ -298,8 +305,10 @@ namespace warnings.components
             }
         }
 
-     
-        /* Work item for getting all the refactoring addWarningsEvent in a given solution and a set of computers. */
+        /* 
+         * Work item for getting all the refactoring addWarningsEvent in a given solution and a set of computers.
+         * used to add element to the refactoring warning window.
+         */
         private class GetSolutionRefactoringWarningsWorkItem : WorkItem
         {
             private readonly IEnumerable<ICodeIssueComputer> computers;
@@ -335,16 +344,19 @@ namespace warnings.components
                     // For each computer in the given list.
                     foreach (ICodeIssueComputer computer in computers)
                     {
-                        // Find all the issues in the document. 
-                        var issues = nodes.SelectMany(n => computer.ComputeCodeIssues(document, n));
-                        
-                        // For each code issue in the document, create a warning message and add it to the list.
-                        foreach (CodeIssue issue in issues)
+                        if (computer.IsDocumentCorrect(document))
                         {
-                            var warningMessage = RefactoringWarningMessageFactory.
-                                CreateRefactoringWarningMessage(document, issue, computer);
-                            messagesList.Add(warningMessage);
-                            logger.Info("Create a refactoring warning.");
+                            // Find all the issues in the document. 
+                            var issues = nodes.SelectMany(n => computer.ComputeCodeIssues(document, n));
+
+                            // For each code issue in the document, create a warning message and add it to the list.
+                            foreach (CodeIssue issue in issues)
+                            {
+                                var warningMessage = RefactoringWarningMessageFactory.
+                                    CreateRefactoringWarningMessage(document, issue, computer);
+                                messagesList.Add(warningMessage);
+                                logger.Info("Create a refactoring warning.");
+                            }
                         }
                     }
                 }

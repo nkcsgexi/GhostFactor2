@@ -13,7 +13,6 @@ using warnings.util;
 namespace GitRevisionAnalyzer
 {
     /* Detect refactoring by a given ICodeHistoryRecord instance to look back.*/
-
     public class RecordRefactoringDetector
     {
         /* Look back count. */
@@ -37,8 +36,7 @@ namespace GitRevisionAnalyzer
 
         private readonly Logger logger;
 
-        private string solutionName;
-        private string fileName;
+        private string uniqueName;
 
         // The count of all refactorings detected in this head chain.
         private int refactoringsCount;
@@ -65,10 +63,6 @@ namespace GitRevisionAnalyzer
 
         private void LookBackToDetectRefactorings(ICodeHistoryRecord head)
         {
-            // Retriever the solution and file names.
-            this.solutionName = head.GetSolution();
-            this.fileName = head.GetFile();
-
             var currentRecord = head;
 
             // Look back until no parent or reach the search depth.
@@ -168,11 +162,11 @@ namespace GitRevisionAnalyzer
         }
 
         /* Handle a detected refactoring by saveing it at an independent file. */
-        private string HandleDetectedRefactoring(string before, string after, IManualRefactoring refactoring)
+        private string HandleDetectedRefactoring(string before, string after, ManualRefactoring refactoring)
         {
             // Get the folder and the file name for this detected refactoring.
-            string refactoringDirectory = DETECTED_REFACTORINGS_ROOT + solutionName + "/" + GetRefactoringType(refactoring);
-            string refactoringFilePath = refactoringDirectory + "/" + fileName + refactoringsCount + ".txt";
+            string refactoringDirectory = DETECTED_REFACTORINGS_ROOT + GetSolutionName() + "/" + GetRefactoringType(refactoring);
+            string refactoringFilePath = refactoringDirectory + "/" + GetSimpleFileName() + refactoringsCount + ".txt";
 
             // If the directory does not exist, create it.
             if(!Directory.Exists(refactoringDirectory))
@@ -195,10 +189,20 @@ namespace GitRevisionAnalyzer
             return refactoringFilePath;
         }
 
-        private string GetRefactoringType(IManualRefactoring refactoring)
+        private string GetRefactoringType(ManualRefactoring refactoring)
         {
             var converter = new RefactoringType2StringConverter();
             return (string)converter.Convert(refactoring.RefactoringType, null, null, null);
+        }
+
+        private string GetSolutionName()
+        {
+            return "";
+        }
+
+        private string GetSimpleFileName()
+        {
+            return "";
         }
 
     }

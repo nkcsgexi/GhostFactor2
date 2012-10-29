@@ -51,7 +51,7 @@ namespace warnings.conditions
                 if (missing.Any())
                 {
                     return new ReturnTypeCheckingResult(input.ExtractedMethodDeclaration,
-                        ConditionCheckersUtils.GetTypeNameTuples(missing));
+                        ConditionCheckersUtils.GetTypeNameTuples(missing), input.MetaData.DocumentUniqueName);
                 }
                 return new NullCodeIssueComputer();
             }
@@ -63,7 +63,7 @@ namespace warnings.conditions
                 statementsDataFlowAnalyzer.SetStatements(statements);
                 var flowOuts = statementsDataFlowAnalyzer.GetFlowOutData();
                 logger.Info("Statements Flowing Out Data: " + StringUtil.ConcatenateAll(", ",
-                                                                                        flowOuts.Select(s => s.Name)));
+                    flowOuts.Select(s => s.Name)));
                 return flowOuts;
             }
 
@@ -74,7 +74,7 @@ namespace warnings.conditions
                 expressionDataFlowAnalyzer.SetExpression(expression);
                 var flowOuts = expressionDataFlowAnalyzer.GetFlowOutData();
                 logger.Info("Expression Flowing Out Data: " + StringUtil.ConcatenateAll(", ",
-                                                                                        flowOuts.Select(s => s.Name)));
+                    flowOuts.Select(s => s.Name)));
                 return flowOuts;
             }
 
@@ -119,8 +119,7 @@ namespace warnings.conditions
             }
 
             /* Code issue computers for the checking results of retrun RefactoringType.*/
-
-            private class ReturnTypeCheckingResult : ValidCodeIssueComputer
+            private class ReturnTypeCheckingResult : SingleDocumentValidCodeIssueComputer
             {
                 /* The RefactoringType/name tuples for missing return values. */
                 private IEnumerable<Tuple<string, string>> typeNameTuples;
@@ -129,7 +128,7 @@ namespace warnings.conditions
                 private SyntaxNode declaration;
 
                 public ReturnTypeCheckingResult(SyntaxNode declaration,
-                                                IEnumerable<Tuple<string, string>> typeNameTuples)
+                    IEnumerable<Tuple<string, string>> typeNameTuples, string uniqueName) :base(uniqueName)
                 {
                     this.declaration = declaration;
                     this.typeNameTuples = typeNameTuples;
@@ -260,7 +259,6 @@ namespace warnings.conditions
                 }
 
                 /* Sytnax rewriter for updating a given method declaration by adding the given returning value. */
-
                 private class AddReturnValueRewriter : SyntaxRewriter
                 {
                     private readonly SyntaxNode declaration;

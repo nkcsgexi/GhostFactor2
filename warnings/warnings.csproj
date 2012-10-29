@@ -193,7 +193,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="detection\IRefactoringDetector.cs" />
     <Compile Include="refactoring\manual\RefactoringType.cs" />
-    <Compile Include="refactoring\manual\IManualRefactoring.cs" />
+    <Compile Include="refactoring\manual\ManualRefactoring.cs" />
     <Compile Include="history\RecordMetaData.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -64,7 +64,7 @@ namespace warnings.components
             }
 
             protected override void OnRefactoringDetected(IDocument before, IDocument after,
-                IEnumerable<IManualRefactoring> refactorings)
+                IEnumerable<ManualRefactoring> refactorings)
             {
                 logger.Info("Rename dectected.");
             }

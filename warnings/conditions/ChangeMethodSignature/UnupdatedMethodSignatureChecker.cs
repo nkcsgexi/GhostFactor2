@@ -40,7 +40,7 @@ namespace warnings.conditions
                 get { return RefactoringType.CHANGE_METHOD_SIGNATURE; }
             }
 
-            public ICodeIssueComputer CheckCondition(IDocument before, IDocument after, IManualRefactoring input)
+            public ICodeIssueComputer CheckCondition(IDocument before, IDocument after, ManualRefactoring input)
             {
                 var signatureRefactoring = (IChangeMethodSignatureRefactoring) input;
                 return new UnchangedMethodInvocationComputer(((IChangeMethodSignatureRefactoring) input).ChangedMethodDeclaration
@@ -60,6 +60,11 @@ namespace warnings.conditions
                     this.declaration = declaration;
                     this.mappings = mappings;
                     this.InvocationsCache = new Cache<DocumentId, SyntaxNodesCachable>();
+                }
+
+                public override bool IsDocumentCorrect(IDocument document)
+                {
+                    return true;
                 }
 
                 public override IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)

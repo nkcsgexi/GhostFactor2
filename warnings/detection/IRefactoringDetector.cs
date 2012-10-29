@@ -13,7 +13,7 @@ namespace warnings.refactoring.detection
     public interface IRefactoringDetector
     {
         Boolean HasRefactoring();
-        IEnumerable<IManualRefactoring> GetRefactorings();
+        IEnumerable<ManualRefactoring> GetRefactorings();
     }
 
     public interface IBeforeAndAfterSourceKeeper

@@ -11,9 +11,9 @@ namespace warnings.source.history
 {
     public interface ICodeHistory
     {
-        void addRecord(String solution, String nameSpace, String file, String source);
-        bool hasRecord(String solution, String nameSpace, String file);
-        ICodeHistoryRecord GetLatestRecord(string solution, string nameSpace, string file);
+        void AddRecord(String uniqueName, String source);
+        bool HasRecord(String uniqueName);
+        ICodeHistoryRecord GetLatestRecord(String uniqueName);
     }
 
     public class CodeHistory : ICodeHistory
@@ -43,41 +43,32 @@ namespace warnings.source.history
             FileUtil.CreateDirectory(RecordMetaData.ROOT);
         }
 
-        private String combineKey(String solution, String nameSpace, String file)
-        {
-            return solution + nameSpace + file;
-        }
-
         /* Add a new record, the latest record will be replaced.*/
-        public void addRecord(string solution, string nameSpace, string file, string source)
+        public void AddRecord(string uniqueName, string source)
         {
-            String key = combineKey(solution, nameSpace, file);
-            if(hasRecord(solution, nameSpace, file))
+            if(HasRecord(uniqueName))
             {
-                ICodeHistoryRecord record = GetLatestRecord(solution, nameSpace, file);
+                ICodeHistoryRecord record = GetLatestRecord(uniqueName);
                 ICodeHistoryRecord nextRecord = record.CreateNextRecord(source);
-                latestRecordDictionary.Remove(key);
-                latestRecordDictionary.Add(key, nextRecord);
+                latestRecordDictionary.Remove(uniqueName);
+                latestRecordDictionary.Add(uniqueName, nextRecord);
             }
             else
             {
-                ICodeHistoryRecord record = CompilationUnitRecord.CreateNewCodeRecord(solution, nameSpace, file, source);
-                latestRecordDictionary.Add(key, record);
+                ICodeHistoryRecord record = CompilationUnitRecord.CreateNewCodeRecord(uniqueName, source);
+                latestRecordDictionary.Add(uniqueName, record);
             }
         }
 
-        public bool hasRecord(string solution, string nameSpace, string file)
+        public bool HasRecord(string uniqueName)
         {
-            String key = combineKey(solution, nameSpace, file);
-            return latestRecordDictionary.ContainsKey(key);
+            return latestRecordDictionary.ContainsKey(uniqueName);
         }
 
-        public ICodeHistoryRecord GetLatestRecord(string solution, string nameSpace, string file)
+        public ICodeHistoryRecord GetLatestRecord(String uniqueName)
         {
-            Contract.Requires(hasRecord(solution, nameSpace, file));
-            String key = combineKey(solution, nameSpace, file);
             ICodeHistoryRecord record;
-            if(!latestRecordDictionary.TryGetValue(key, out record))
+            if (!latestRecordDictionary.TryGetValue(uniqueName, out record))
                 logger.Fatal("Try to get record that does not exist.");
             return record;
         }

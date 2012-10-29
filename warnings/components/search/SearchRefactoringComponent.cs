@@ -18,7 +18,6 @@ namespace warnings.components
         void StartRefactoringSearch(ICodeHistoryRecord record);
     }
 
-
     /* Component for searching a manual refactoring in the code history. */
     internal abstract class SearchRefactoringComponent : ISearchRefactoringComponent
     {
@@ -111,8 +110,16 @@ namespace warnings.components
                     // Detect manual refactoring.
                     if (detector.HasRefactoring())
                     {
+                        var refactorings = detector.GetRefactorings();
+                        
+                        // Get the metadata of detected refactorings. 
+                        foreach (var refactoring in refactorings)
+                        {
+                            SetRefactoringMetaData(refactoring, currentRecord);
+                        }
+
                         OnRefactoringDetected(detector.GetBeforeDocument(), detector.GetAfterDocument(), 
-                            detector.GetRefactorings());
+                            refactorings);
 
                         // If refactoring detected, return directly.
                         return;
@@ -125,7 +132,12 @@ namespace warnings.components
                 logger.Fatal(e);
             }
         }
-        
+
+        private void SetRefactoringMetaData(ManualRefactoring refactoring, ICodeHistoryRecord record)
+        {
+            refactoring.MetaData.DocumentUniqueName = record.GetUniqueName();
+        }
+
         protected abstract IExternalRefactoringDetector GetRefactoringDetector();
 
         /* Get the number of record we look back to find a manual refactoring. */
@@ -133,7 +145,7 @@ namespace warnings.components
         
         /* Called when manual refactoring is detected. */
         protected abstract void OnRefactoringDetected(IDocument before, IDocument after, 
-            IEnumerable<IManualRefactoring> refactorings);
+            IEnumerable<ManualRefactoring> refactorings);
         
         /* Called when no manual refactoring is detected. */
         protected abstract void OnNoRefactoringDetected(ICodeHistoryRecord after);

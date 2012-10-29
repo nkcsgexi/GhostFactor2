@@ -52,7 +52,7 @@ namespace warnings.components
                 return GlobalConfigurations.GetSearchDepth(RefactoringType.INLINE_METHOD);
             }
 
-            protected override void OnRefactoringDetected(IDocument before, IDocument after, IEnumerable<IManualRefactoring> refactorings)
+            protected override void OnRefactoringDetected(IDocument before, IDocument after, IEnumerable<ManualRefactoring> refactorings)
             {
                 logger.Info("Inline method detected.");
                 GhostFactorComponents.conditionCheckingComponent.CheckRefactoringCondition(before, after, 

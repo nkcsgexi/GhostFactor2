@@ -62,13 +62,13 @@ namespace warnings.components
             }
 
             protected override void OnRefactoringDetected(IDocument before, IDocument after,
-                IEnumerable<IManualRefactoring> refactorings)
+                IEnumerable<ManualRefactoring> refactorings)
             {
                 logger.Info("Extract Method dectected.");
                 logger.Info(refactorings.First().ToString());
 
                 // Get the first refactoring detected.
-                IManualRefactoring refactoring = refactorings.First();
+                ManualRefactoring refactoring = refactorings.First();
 
                 // Enqueue workitem for conditions checking component.
                 GhostFactorComponents.conditionCheckingComponent.CheckRefactoringCondition(before, after, refactoring);

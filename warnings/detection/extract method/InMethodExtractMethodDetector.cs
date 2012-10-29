@@ -15,7 +15,7 @@ namespace warnings.refactoring.detection
         protected MethodDeclarationSyntax callerAfter;
         protected MethodDeclarationSyntax callerBefore;
         protected MethodDeclarationSyntax calleeAfter;
-        protected IManualRefactoring refactoring;
+        protected ManualRefactoring refactoring;
         protected SyntaxTree treeAfter;
         protected SyntaxTree treeBefore;
 
@@ -34,7 +34,7 @@ namespace warnings.refactoring.detection
             this.calleeAfter = calleeAfter;
         }
 
-        public IEnumerable<IManualRefactoring> GetRefactorings()
+        public IEnumerable<ManualRefactoring> GetRefactorings()
         {
             yield return refactoring;
         }

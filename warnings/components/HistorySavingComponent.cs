@@ -150,21 +150,18 @@ namespace warnings.components
                 {
                     if (records.IsDocumentUpdated(document))
                     {
-                        var fileName = document.Name;
-                        var namespaceName = document.Project.Name;
-
-                        var solutionName = "solution";
+                        var uniqueName = document.Id.UniqueName;
                         var code = document.GetText().GetText();
-                        logger.Info("Saved document:" + solutionName + "," + namespaceName + "," + fileName);
+                        logger.Info("Saved document:" + document.Id.UniqueName);
 
                         // Add the new IDocuemnt to the code history.
-                        CodeHistory.GetInstance().addRecord(solutionName, namespaceName, fileName, code);
+                        CodeHistory.GetInstance().AddRecord(uniqueName, code);
 
                         // Update the records of saved documents.
                         records.AddSavedDocument(document);
 
                         // Add work item to search component.
-                        StartRefactoringSearch(solutionName, namespaceName, fileName);
+                        StartRefactoringSearch(uniqueName);
                     }
                 }
                 catch (Exception e)
@@ -174,10 +171,10 @@ namespace warnings.components
                 }
             }
 
-            private void StartRefactoringSearch(string solutionName, string namespaceName, string fileName)
+            private void StartRefactoringSearch(string uniqueName)
             {
                 // Get the latest record of the file just editted.    
-                ICodeHistoryRecord record = CodeHistory.GetInstance().GetLatestRecord(solutionName, namespaceName, fileName);
+                ICodeHistoryRecord record = CodeHistory.GetInstance().GetLatestRecord(uniqueName);
 
                 if (GlobalConfigurations.IsSupported(RefactoringType.EXTRACT_METHOD))
                 {

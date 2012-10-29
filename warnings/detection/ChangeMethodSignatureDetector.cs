@@ -21,12 +21,12 @@ namespace warnings.refactoring.detection
         private IDocument afterDoc;
 
 
-        private IEnumerable<IManualRefactoring> refactorings;
+        private IEnumerable<ManualRefactoring> refactorings;
 
         public bool HasRefactoring()
         {
             // Hosting all the detected refactorings.
-            var detectedRefactorings = new List<IManualRefactoring>();
+            var detectedRefactorings = new List<ManualRefactoring>();
 
             // Convert 2 docs.
             beforeDoc = RefactoringDetectionUtils.Convert2IDocument(beforeSource);
@@ -83,7 +83,7 @@ namespace warnings.refactoring.detection
 
        
 
-        public IEnumerable<IManualRefactoring> GetRefactorings()
+        public IEnumerable<ManualRefactoring> GetRefactorings()
         {
             return refactorings;
         }
@@ -156,7 +156,7 @@ namespace warnings.refactoring.detection
             private readonly IParameterAnalyzer paraAnalzyer;
             private readonly IMethodDeclarationAnalyzer methodDeclarationAnalyzer;
 
-            private IManualRefactoring refactoring;
+            private ManualRefactoring refactoring;
            
             internal InMethodChangeSignatureDetector(SyntaxNode beforeMethod, SyntaxNode afterMethod)
             {
@@ -223,7 +223,7 @@ namespace warnings.refactoring.detection
                 return false;
             }
 
-            public IEnumerable<IManualRefactoring> GetRefactorings()
+            public IEnumerable<ManualRefactoring> GetRefactorings()
             {
                 yield return refactoring;
             }

@@ -62,12 +62,12 @@ namespace warnings.refactoring
                 this.newName = newName;
             }
 
-            public RefactoringType RefactoringType
+            public override RefactoringType RefactoringType
             {
                 get { return RefactoringType.RENAME; }
             }
 
-            public void MapToDocuments(IDocument before, IDocument after)
+            public override void MapToDocuments(IDocument before, IDocument after)
             {
                 throw new NotImplementedException();
             }
@@ -76,19 +76,7 @@ namespace warnings.refactoring
         /* Containing all the information about the extract method information. */
         private class ManualExtractMethodRefactoring : IManualExtractMethodRefactoring
         {
-            /* Method declaration node of the extracted method. */
-            public SyntaxNode ExtractedMethodDeclaration { private set; get; }
-
-            /* Method invocation node where the extracted method is invoked. */
-            public SyntaxNode ExtractMethodInvocation { private set; get; }
-
-            /* Statements to extract in the original code. */
-            public IEnumerable<SyntaxNode> ExtractedStatements { private set; get; }
-
-            /* Expression to extract in the original code. */
-            public SyntaxNode ExtractedExpression { private set; get; }
-
-            public RefactoringType RefactoringType
+            public override RefactoringType RefactoringType
             {
                 get { return RefactoringType.EXTRACT_METHOD; }
             }
@@ -111,7 +99,7 @@ namespace warnings.refactoring
             }
 
             /* Output the information of a detected extract method refactoring for testing and log purposes.*/
-            public string ToString()
+            public override string ToString()
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("Extract Method Refactoring:");
@@ -124,7 +112,7 @@ namespace warnings.refactoring
                 return sb.ToString();
             }
 
-            public void MapToDocuments(IDocument before, IDocument after)
+            public override void MapToDocuments(IDocument before, IDocument after)
             {
                 var nodeAnalyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
 
@@ -163,23 +151,17 @@ namespace warnings.refactoring
                 this.ParametersMap = ParametersMap;
             }
 
-            public RefactoringType RefactoringType
+            public override RefactoringType RefactoringType
             {
                 get { return RefactoringType.CHANGE_METHOD_SIGNATURE; }
             }
 
-            public void MapToDocuments(IDocument before, IDocument after)
+            public override void MapToDocuments(IDocument before, IDocument after)
             {
                 var analyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
                 analyzer.SetSyntaxNode(ChangedMethodDeclaration);
                 ChangedMethodDeclaration = analyzer.MapToAnotherDocument(after);
             }
-
-            /* Method declaration after the changed declaration, should map to the after document. */
-            public SyntaxNode ChangedMethodDeclaration { get; private set; }
-
-            /* Parameters map from before version of the method and the after version of the methods. */
-            public List<Tuple<int, int>> ParametersMap { get; private set; }
         }
 
         /* Describing a inline method refactoring. */
@@ -196,12 +178,12 @@ namespace warnings.refactoring
                 this.InlinedMethodInvocation = InlinedMethodInvocation;
             }
 
-            public RefactoringType RefactoringType
+            public override RefactoringType RefactoringType
             {
                 get { return RefactoringType.INLINE_METHOD; }
             }
 
-            public void MapToDocuments(IDocument before, IDocument after)
+            public override void MapToDocuments(IDocument before, IDocument after)
             {
                 var analyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
 
@@ -223,7 +205,7 @@ namespace warnings.refactoring
                 InlinedStatementsInMethodAfter = nodesAnalyzer.MapToAnotherDocument(after);
             }
 
-            public string ToString()
+            public override string ToString()
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("Inline method refactoring:");
@@ -235,16 +217,6 @@ namespace warnings.refactoring
                 sb.AppendLine(InlinedMethod.GetText());
                 return sb.ToString();
             }
-
-            public SyntaxNode CallerMethodBefore { get; private set; }
-
-            public SyntaxNode CallerMethodAfter { get; private set; }
-
-            public SyntaxNode InlinedMethod { get; private set; }
-
-            public SyntaxNode InlinedMethodInvocation { get; private set; }
-
-            public IEnumerable<SyntaxNode> InlinedStatementsInMethodAfter { get; private set; }
         }
     }
 }

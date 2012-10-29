@@ -21,7 +21,7 @@ namespace warnings.configuration
                 case RefactoringType.CHANGE_METHOD_SIGNATURE:
                     return false;
                 case RefactoringType.INLINE_METHOD:
-                    return false;
+                    return true;
                 default:
                     throw new Exception("Unknown Refactoring Type.");
             }

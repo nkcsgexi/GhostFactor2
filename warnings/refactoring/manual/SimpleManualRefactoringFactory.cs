@@ -32,20 +32,15 @@ namespace warnings.refactoring
                 this.addedMethod = addedMethod;
             }
 
-            public SyntaxNode callerBefore { get; private set; }
 
-            public SyntaxNode callerAfter { get; private set; }
-
-            public SyntaxNode addedMethod { get; private set; }
-
-            public RefactoringType RefactoringType
+            public override RefactoringType RefactoringType
             {
                 get { return RefactoringType.EXTRACT_METHOD; }
             }
 
-            public void MapToDocuments(IDocument before, IDocument after) { }
+            public override void MapToDocuments(IDocument before, IDocument after) { }
 
-            public string ToString()
+            public override string ToString()
             {
                 var sb = new StringBuilder();
                 sb.AppendLine("Simple extract method refactoring:");
@@ -69,21 +64,15 @@ namespace warnings.refactoring
                 this.methodRemoved = methodRemoved;
             }
 
-            public RefactoringType RefactoringType
+            public override RefactoringType RefactoringType
             {
                 get { return RefactoringType.INLINE_METHOD; }
             }
 
-            public void MapToDocuments(IDocument before, IDocument after)
+            public override void MapToDocuments(IDocument before, IDocument after)
             {
                 throw new NotImplementedException();
             }
-
-            public SyntaxNode callerBefore { get; private set; }
-
-            public SyntaxNode callerAfter { get; private set; }
-
-            public SyntaxNode methodRemoved { get; private set; }
 
             public string ToString()
             {

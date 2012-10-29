@@ -107,7 +107,7 @@ namespace GitRevisionAnalyzer
                         string source = ((Blob)change.ChangedObject).Data;
 
                         // Add the source as a new record to the history.
-                        codeHistory.addRecord(GetSourceFolder(), NAMESPACE_NAME, fileName, source);
+                        codeHistory.AddRecord(CreateUniqueName(fileName), source);
                         
                         // If we did not meet with the file name, add it to the list.
                         if(!fileNames.Contains(fileName))
@@ -118,6 +118,11 @@ namespace GitRevisionAnalyzer
                 }
                 logger.Info("Finish saving " + i + " out of " + commits.Count() + " commits.");
             }
+        }
+
+        private string CreateUniqueName(string fileName)
+        {
+            return GetSourceFolder() + fileName;
         }
 
 
@@ -137,7 +142,7 @@ namespace GitRevisionAnalyzer
                 foreach (var fileName in fileNames)
                 {
                     // Get the latest record for the file name.
-                    var record = history.GetLatestRecord(GetSourceFolder(), NAMESPACE_NAME, fileName);
+                    var record = history.GetLatestRecord(CreateUniqueName(fileName));
                     if (record != null)
                     {
                         records.Add(record);

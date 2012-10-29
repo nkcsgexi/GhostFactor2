@@ -10,7 +10,7 @@ using warnings.util;
 namespace warnings.refactoring
 {
     /* 
-     * Analyzer for manual extract method refactoring, generating IManualRefactoring intance by refactoring affected
+     * Analyzer for manual extract method refactoring, generating ManualRefactoring intance by refactoring affected
      * nodes.
      */
     public interface IManualExtractMethodAnalyzer
@@ -30,7 +30,7 @@ namespace warnings.refactoring
         /* Whether a refactoring can be retrieved from the given information. */
         bool CanGetRefactoring();
 
-        /* Create instance of IManualRefactoring by the given informations. */
+        /* Create instance of ManualRefactoring by the given informations. */
         IManualExtractMethodRefactoring GetRefactoring();
     }
 

@@ -48,7 +48,7 @@ namespace warnings.conditions
                 get { return RefactoringType.INLINE_METHOD; }
             }
 
-            public ICodeIssueComputer CheckCondition(IDocument before, IDocument after, IManualRefactoring input)
+            public ICodeIssueComputer CheckCondition(IDocument before, IDocument after, ManualRefactoring input)
             {
                 return CheckInlineMethodCondition(before, after, (IInlineMethodRefactoring)input);
             }

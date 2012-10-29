@@ -1,6 +1,5 @@
 ﻿<RecentFiles>
   <RecentFiles>
-    <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:SimpleExtractMethodTests.cs" caret="598" fromTop="20" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:util/d:ASTUtil/f:ASTUtil.cs" caret="2249" fromTop="26" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:DataFlowAnalyzer.cs" caret="3837" fromTop="105" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/f:RefactoringDetectionUtils.cs" caret="4588" fromTop="28" />
@@ -30,6 +29,7 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:util/f:StringUtil.cs" caret="2937" fromTop="4" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/f:DummyTests.cs" caret="0" fromTop="0" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/f:TestUtil.cs" caret="1558" fromTop="40" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:configuration/f:GlobalConfigurations.cs" caret="859" fromTop="0" />
   </RecentFiles>
   <RecentEdits>
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:ChangedVariablesChecker.cs" caret="7108" fromTop="32" />
@@ -37,7 +37,6 @@
     <File id="9802AC35-3AE5-4908-A25A-FA07D6658912/f:RecordRefactoringDetector.cs" caret="7013" fromTop="27" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/d:comparators/f:Comparators.cs" caret="1769" fromTop="24" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:inline/f:InMethodInlineDetector.cs" caret="4691" fromTop="17" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:configuration/f:GlobalConfigurations.cs" caret="808" fromTop="17" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:HistorySavingComponent.cs" caret="7155" fromTop="38" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:refactoring/d:manual/f:ManualRefactoringFactory.cs" caret="4855" fromTop="10" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:SyntaxNodeAnalyzer.cs" caret="4072" fromTop="29" />
@@ -59,5 +58,6 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:util/f:FileUtil.cs" caret="3936" fromTop="22" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:util/f:StringUtil.cs" caret="457" fromTop="16" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/f:TestUtil.cs" caret="1558" fromTop="40" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:configuration/f:GlobalConfigurations.cs" caret="807" fromTop="23" />
   </RecentEdits>
 </RecentFiles>

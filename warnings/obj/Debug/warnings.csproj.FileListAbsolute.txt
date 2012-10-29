@@ -63,3 +63,25 @@ C:\programming\VS Workspace\ghostfactor\warnings\obj\Debug\GenerateResource.writ
 C:\programming\VS Workspace\ghostfactor\warnings\obj\Debug\warnings.dll
 C:\programming\VS Workspace\ghostfactor\warnings\obj\Debug\warnings.pdb
 C:\programming\VS Workspace\ghostfactor\warnings\obj\Debug\extension.vsixmanifest
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\warnings.dll
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\warnings.pdb
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\warnings.vsix
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\extension.vsixmanifest
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\BlackHen.Threading.dll
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\NLog.dll
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\QuickGraph.Collections.dll
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\QuickGraph.Concepts.dll
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\QuickGraph.dll
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\BlackHen.Threading.pdb
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\BlackHen.Threading.xml
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\NLog.pdb
+C:\programming\VSWorkspace\ghostfactor\warnings\bin\Debug\NLog.xml
+C:\programming\VSWorkspace\ghostfactor\warnings\obj\Debug\ResolveAssemblyReference.cache
+C:\programming\VSWorkspace\ghostfactor\warnings\obj\Debug\warnings.csproj.ResolveComReference.cache
+C:\programming\VSWorkspace\ghostfactor\warnings\obj\Debug\warnings.Properties.Resources.resources
+C:\programming\VSWorkspace\ghostfactor\warnings\obj\Debug\warnings.ui.RefactoringWariningsForm.resources
+C:\programming\VSWorkspace\ghostfactor\warnings\obj\Debug\GenerateResource.read.1.tlog
+C:\programming\VSWorkspace\ghostfactor\warnings\obj\Debug\GenerateResource.write.1.tlog
+C:\programming\VSWorkspace\ghostfactor\warnings\obj\Debug\warnings.dll
+C:\programming\VSWorkspace\ghostfactor\warnings\obj\Debug\warnings.pdb
+C:\programming\VSWorkspace\ghostfactor\warnings\obj\Debug\extension.vsixmanifest

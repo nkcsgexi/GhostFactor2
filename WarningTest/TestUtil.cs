@@ -8,7 +8,7 @@ namespace WarningTest
     public class TestUtil
     {
 
-        public static String generateRandomString(int size)
+        public static String GenerateRandomString(int size)
         {
             var random = new Random((int)DateTime.Now.Ticks);
             var builder = new StringBuilder();

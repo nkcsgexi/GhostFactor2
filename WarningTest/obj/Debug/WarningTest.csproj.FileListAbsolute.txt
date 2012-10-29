@@ -36,3 +36,16 @@ C:\programming\VS Workspace\ghostfactor\WarningTest\bin\Debug\NLog.xml
 C:\programming\VS Workspace\ghostfactor\WarningTest\obj\Debug\ResolveAssemblyReference.cache
 C:\programming\VS Workspace\ghostfactor\WarningTest\obj\Debug\WarningTest.dll
 C:\programming\VS Workspace\ghostfactor\WarningTest\obj\Debug\WarningTest.pdb
+C:\programming\VSWorkspace\ghostfactor\WarningTest\bin\Debug\WarningTest.dll
+C:\programming\VSWorkspace\ghostfactor\WarningTest\bin\Debug\WarningTest.pdb
+C:\programming\VSWorkspace\ghostfactor\WarningTest\bin\Debug\BlackHen.Threading.dll
+C:\programming\VSWorkspace\ghostfactor\WarningTest\bin\Debug\NLog.dll
+C:\programming\VSWorkspace\ghostfactor\WarningTest\bin\Debug\warnings.dll
+C:\programming\VSWorkspace\ghostfactor\WarningTest\bin\Debug\BlackHen.Threading.pdb
+C:\programming\VSWorkspace\ghostfactor\WarningTest\bin\Debug\BlackHen.Threading.xml
+C:\programming\VSWorkspace\ghostfactor\WarningTest\bin\Debug\warnings.pdb
+C:\programming\VSWorkspace\ghostfactor\WarningTest\bin\Debug\NLog.pdb
+C:\programming\VSWorkspace\ghostfactor\WarningTest\bin\Debug\NLog.xml
+C:\programming\VSWorkspace\ghostfactor\WarningTest\obj\Debug\ResolveAssemblyReference.cache
+C:\programming\VSWorkspace\ghostfactor\WarningTest\obj\Debug\WarningTest.dll
+C:\programming\VSWorkspace\ghostfactor\WarningTest\obj\Debug\WarningTest.pdb

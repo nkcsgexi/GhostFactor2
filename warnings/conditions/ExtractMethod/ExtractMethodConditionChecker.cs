@@ -46,7 +46,7 @@ namespace warnings.conditions
                 get { return RefactoringType.EXTRACT_METHOD; }
             }
 
-            public ICodeIssueComputer CheckCondition(IDocument before, IDocument after, IManualRefactoring input)
+            public ICodeIssueComputer CheckCondition(IDocument before, IDocument after, ManualRefactoring input)
             {
                 return CheckCondition(before, after, (IManualExtractMethodRefactoring)input);
             }

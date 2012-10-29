@@ -20,13 +20,13 @@ namespace warnings.conditions
     /* All refactoring conditions should be derived from this interface. */
     public interface IRefactoringConditionChecker : IHasRefactoringType
     {
-        ICodeIssueComputer CheckCondition(IDocument before, IDocument after, IManualRefactoring input);  
+        ICodeIssueComputer CheckCondition(IDocument before, IDocument after, ManualRefactoring input);  
     }
 
     /* interface that containing checkings for all the conditions of a refactoring RefactoringType. */
     public interface IRefactoringConditionsList : IHasRefactoringType
     {
-        IEnumerable<ICodeIssueComputer> CheckAllConditions(IDocument before, IDocument after, IManualRefactoring input);
+        IEnumerable<ICodeIssueComputer> CheckAllConditions(IDocument before, IDocument after, ManualRefactoring input);
         int GetCheckerCount();
     }
 
@@ -34,7 +34,7 @@ namespace warnings.conditions
     public abstract class RefactoringConditionsList : IRefactoringConditionsList
     {
         /* suppose to return all the condition checkers for this specific refactoring. */
-        public IEnumerable<ICodeIssueComputer> CheckAllConditions(IDocument before, IDocument after, IManualRefactoring input)
+        public IEnumerable<ICodeIssueComputer> CheckAllConditions(IDocument before, IDocument after, ManualRefactoring input)
         {
             var results = new List<ICodeIssueComputer>();
             
@@ -55,12 +55,18 @@ namespace warnings.conditions
     /* This interface is used returning values for condition checkers. It is a convenient way of computing code issues. */
     public interface ICodeIssueComputer : IEquatable<ICodeIssueComputer>, IHasRefactoringType
     {
+        bool IsDocumentCorrect(IDocument document);
         IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node);
     }
 
     /* The null code issue computer return no code issue at any time. */
     public class NullCodeIssueComputer : ICodeIssueComputer
     {
+        public bool IsDocumentCorrect(IDocument document)
+        {
+            return false;
+        }
+
         public IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
         {
             return Enumerable.Empty<CodeIssue>();
@@ -82,6 +88,22 @@ namespace warnings.conditions
     {
         public abstract bool Equals(ICodeIssueComputer other);
         public abstract RefactoringType RefactoringType { get; }
+        public abstract bool IsDocumentCorrect(IDocument document);
         public abstract IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node);
+    }
+
+    internal abstract class SingleDocumentValidCodeIssueComputer : ValidCodeIssueComputer
+    {
+        private string documentUniqueName;
+
+        protected SingleDocumentValidCodeIssueComputer(string documentUniqueName)
+        {
+            this.documentUniqueName = documentUniqueName;
+        }
+
+        public override bool  IsDocumentCorrect(IDocument document)
+        {
+            return document.Id.UniqueName.Equals(documentUniqueName);
+        }
     }
 }

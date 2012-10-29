@@ -15,7 +15,7 @@ namespace warnings.components
 {
     public interface IConditionCheckingComponent : IFactorComponent
     {
-        void CheckRefactoringCondition(IDocument before, IDocument after, IManualRefactoring refactoring);
+        void CheckRefactoringCondition(IDocument before, IDocument after, ManualRefactoring refactoring);
     }
 
     /* The component to handle condition checkings for all the refactoring types. */
@@ -68,7 +68,7 @@ namespace warnings.components
         {
         }
 
-        public void CheckRefactoringCondition(IDocument before, IDocument after, IManualRefactoring refactoring)
+        public void CheckRefactoringCondition(IDocument before, IDocument after, ManualRefactoring refactoring)
         {
             Enqueue(new ConditionCheckWorkItem(before, after, refactoring));
         }
@@ -77,7 +77,7 @@ namespace warnings.components
         private class ConditionCheckWorkItem : WorkItem
         {
             // The refactoring instance from detector. 
-            private readonly IManualRefactoring refactoring;
+            private readonly ManualRefactoring refactoring;
 
             // A document instance whose code is identical the detector's before code.
             private readonly IDocument after;
@@ -87,7 +87,7 @@ namespace warnings.components
 
             private readonly Logger logger;
 
-            public ConditionCheckWorkItem(IDocument before, IDocument after, IManualRefactoring refactoring)
+            public ConditionCheckWorkItem(IDocument before, IDocument after, ManualRefactoring refactoring)
             {
                 this.before = before;
                 this.after = after;

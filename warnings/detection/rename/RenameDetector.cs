@@ -105,7 +105,7 @@ namespace warnings.refactoring.detection
 
         }
 
-        public IEnumerable<IManualRefactoring> GetRefactorings()
+        public IEnumerable<ManualRefactoring> GetRefactorings()
         {
             // Return the refactoring if detected. 
             yield return refactoring;

@@ -58,7 +58,7 @@ namespace warnings.conditions
                 {
                     logger.Info("Missing Parameters Issue Found.");
                     return new ParameterCheckingCodeIssueComputer(input.ExtractedMethodDeclaration,
-                        ConditionCheckersUtils.GetTypeNameTuples(missing));
+                        ConditionCheckersUtils.GetTypeNameTuples(missing), input.MetaData.DocumentUniqueName);
                 }
                 else
                 {
@@ -68,7 +68,7 @@ namespace warnings.conditions
             }
 
             /* Code issue computer for parameter checking results. */
-            private class ParameterCheckingCodeIssueComputer : ValidCodeIssueComputer
+            private class ParameterCheckingCodeIssueComputer : SingleDocumentValidCodeIssueComputer
             {
                 /* Declaration of the extracted method. */
                 private SyntaxNode declaration;
@@ -77,7 +77,8 @@ namespace warnings.conditions
                 private IEnumerable<Tuple<string, string>> typeNameTuples;
 
                 public ParameterCheckingCodeIssueComputer(SyntaxNode declaration,
-                                                          IEnumerable<Tuple<string, string>> typeNameTuples)
+                    IEnumerable<Tuple<string, string>> typeNameTuples, string documentUniqueName) 
+                        : base(documentUniqueName)
                 {
                     this.declaration = declaration;
                     this.typeNameTuples = typeNameTuples;

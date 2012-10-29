@@ -24,7 +24,7 @@ namespace warnings.refactoring.detection
         private IDocument afterDoc;
         
         /* Detected manual refactorings.*/
-        private IEnumerable<IManualRefactoring> refactorings;
+        private IEnumerable<ManualRefactoring> refactorings;
 
         private readonly InMethodExtractMethodDetector inMethodDetector;
         private readonly Logger logger;
@@ -68,7 +68,7 @@ namespace warnings.refactoring.detection
 
         public bool HasRefactoring()
         {
-            refactorings = Enumerable.Empty<IManualRefactoring>();
+            refactorings = Enumerable.Empty<ManualRefactoring>();
 
             beforeDoc = RefactoringDetectionUtils.Convert2IDocument(before);
             afterDoc = RefactoringDetectionUtils.Convert2IDocument(after);
@@ -104,7 +104,7 @@ namespace warnings.refactoring.detection
             return false;
         }
 
-        public IEnumerable<IManualRefactoring> GetRefactorings()
+        public IEnumerable<ManualRefactoring> GetRefactorings()
         {
             return this.refactorings;
         }
@@ -121,7 +121,7 @@ namespace warnings.refactoring.detection
             private SyntaxTree treeAfter;
 
             /* The detected refactorings. */
-            private IEnumerable<IManualRefactoring> refactorings;
+            private IEnumerable<ManualRefactoring> refactorings;
 
             private Logger logger;
 
@@ -137,7 +137,7 @@ namespace warnings.refactoring.detection
 
             public Boolean HasRefactoring()
             {
-                refactorings = Enumerable.Empty<IManualRefactoring>();
+                refactorings = Enumerable.Empty<ManualRefactoring>();
 
                 // Get the methods that are newly added.
                 var addedMethods = GetAddedMethod(classBefore, classAfter);
@@ -208,7 +208,7 @@ namespace warnings.refactoring.detection
                 }
             }
 
-            public IEnumerable<IManualRefactoring> GetRefactorings()
+            public IEnumerable<ManualRefactoring> GetRefactorings()
             {
                 return this.refactorings;
             }

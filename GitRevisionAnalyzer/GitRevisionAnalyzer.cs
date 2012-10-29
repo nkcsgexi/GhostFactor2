@@ -73,9 +73,9 @@ namespace GitRevisionAnalyzer
                     int finishedCount = 0;
                     foreach (var record in records)
                     {
-                        if (!ExcludeFile(record.GetFile()))
+                        if (!ExcludeFile(record.GetSimpleName()))
                         {
-                            logger.Info("Start refactoring detection for " + record.GetFile() + " in " + gitHttp);
+                            logger.Info("Start refactoring detection for " + record.GetSimpleName() + " in " + gitHttp);
                             logger.Info("Finished count: " + finishedCount +"; Total count: "+ totalRecordCount);
                             detector.DetectRefactorings(record);
                         }

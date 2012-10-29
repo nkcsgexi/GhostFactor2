@@ -1,0 +1,35 @@
+﻿using System;
+using System.Text;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace WarningTest.fakesource
+{
+	public class InlineMethod
+	{
+		public void method1()
+		{
+			int i;
+			int j;
+			i = j = 1;
+		}
+
+		public void method2()
+		{
+			int i;
+			i = i + 1;
+			i = i + 1;
+			int j = i;
+		}
+
+		public void method3()
+		{
+			int i;
+			int k;
+			k ++;
+			k ++;
+			int j = i;
+		}
+	}
+}

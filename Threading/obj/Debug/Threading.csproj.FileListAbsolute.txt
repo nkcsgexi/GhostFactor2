@@ -1,0 +1,16 @@
+D:\VS workspaces\BeneWar\warnings\Threading\bin\Debug\BlackHen.Threading.xml
+D:\VS workspaces\BeneWar\warnings\Threading\bin\Debug\BlackHen.Threading.dll
+D:\VS workspaces\BeneWar\warnings\Threading\bin\Debug\BlackHen.Threading.pdb
+D:\VS workspaces\BeneWar\warnings\Threading\obj\Debug\ResolveAssemblyReference.cache
+D:\VS workspaces\BeneWar\warnings\Threading\obj\Debug\BlackHen.Threading.dll
+D:\VS workspaces\BeneWar\warnings\Threading\obj\Debug\BlackHen.Threading.pdb
+C:\programming\Eclipse Workspace\ghostfactor\Threading\bin\Debug\BlackHen.Threading.dll
+C:\programming\Eclipse Workspace\ghostfactor\Threading\bin\Debug\BlackHen.Threading.pdb
+C:\programming\Eclipse Workspace\ghostfactor\Threading\obj\Debug\ResolveAssemblyReference.cache
+C:\programming\Eclipse Workspace\ghostfactor\Threading\obj\Debug\BlackHen.Threading.dll
+C:\programming\Eclipse Workspace\ghostfactor\Threading\obj\Debug\BlackHen.Threading.pdb
+C:\programming\VS Workspace\ghostfactor\Threading\bin\Debug\BlackHen.Threading.dll
+C:\programming\VS Workspace\ghostfactor\Threading\bin\Debug\BlackHen.Threading.pdb
+C:\programming\VS Workspace\ghostfactor\Threading\obj\Debug\ResolveAssemblyReference.cache
+C:\programming\VS Workspace\ghostfactor\Threading\obj\Debug\BlackHen.Threading.dll
+C:\programming\VS Workspace\ghostfactor\Threading\obj\Debug\BlackHen.Threading.pdb

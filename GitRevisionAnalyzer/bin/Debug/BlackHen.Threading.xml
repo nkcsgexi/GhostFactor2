@@ -1,0 +1,1238 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BlackHen.Threading</name>
+    </assembly>
+    <members>
+        <member name="T:BlackHen.Threading.WorkItemState">
+            <summary>
+              Specifies the state of a <see cref="T:BlackHen.Threading.WorkItem"/>.
+            </summary>
+            <remarks>
+              <img src="WorkItemState.png" alt="WorkItem state transistions"/>
+            </remarks>
+        </member>
+        <member name="F:BlackHen.Threading.WorkItemState.Created">
+            <summary>
+              Not assigned to a <see cref="T:BlackHen.Threading.WorkQueue"/>.
+            </summary>
+        </member>
+        <member name="F:BlackHen.Threading.WorkItemState.Scheduled">
+            <summary>
+              Waiting for a <see cref="T:System.Threading.Thread"/> to execute on.
+            </summary>
+        </member>
+        <member name="F:BlackHen.Threading.WorkItemState.Queued">
+            <summary>
+              Waiting for another <see cref="T:BlackHen.Threading.WorkItem"/> to complete, so it can run concurrently.
+            </summary>
+        </member>
+        <member name="F:BlackHen.Threading.WorkItemState.Running">
+            <summary>
+              Executing on a <see cref="T:System.Threading.Thread"/>.
+            </summary>
+        </member>
+        <member name="F:BlackHen.Threading.WorkItemState.Failing">
+            <summary>
+              Recovering from a thrown <see cref="T:System.Exception"/>.
+            </summary>
+        </member>
+        <member name="F:BlackHen.Threading.WorkItemState.Completed">
+            <summary>
+              Finished executing.
+            </summary>
+        </member>
+        <member name="M:BenTools.Data.BinaryPriorityQueue.Push(System.Object)">
+            <summary>
+            Push an object onto the PQ
+            </summary>
+            <param name="O">The new object</param>
+            <returns>The index in the list where the object is _now_. This will change when objects are taken from or put onto the PQ.</returns>
+        </member>
+        <member name="M:BenTools.Data.BinaryPriorityQueue.Pop">
+            <summary>
+            Get the smallest object and remove it.
+            </summary>
+            <returns>The smallest object</returns>
+        </member>
+        <member name="M:BenTools.Data.BinaryPriorityQueue.Update(System.Int32)">
+            <summary>
+            Notify the PQ that the object at position i has changed
+            and the PQ needs to restore order.
+            Since you dont have access to any indexes (except by using the
+            explicit IList.this) you should not call this function without knowing exactly
+            what you do.
+            </summary>
+            <param name="i">The index of the changed object.</param>
+        </member>
+        <member name="M:BenTools.Data.BinaryPriorityQueue.Peek">
+            <summary>
+            Get the smallest object without removing it.
+            </summary>
+            <returns>The smallest object</returns>
+        </member>
+        <member name="T:BlackHen.Threading.ChangedWorkItemStateEventHandler">
+            <summary>
+              Represents the method that will handle the <see cref="E:BlackHen.Threading.WorkQueue.ChangedWorkItemState"/> event.
+            </summary>
+            <param name="sender">
+              The source of the event.
+            </param>
+            <param name="e">
+              A <see cref="T:BlackHen.Threading.ChangedWorkItemStateEventArgs"/> than contains the event data.
+            </param>
+        </member>
+        <member name="T:BlackHen.Threading.ChangedWorkItemStateEventArgs">
+            <summary>
+              Provides data for the the <see cref="E:BlackHen.Threading.WorkQueue.ChangedWorkItemState"/> event.
+            </summary>
+        </member>
+        <member name="T:BlackHen.Threading.WorkItemEventArgs">
+            <summary>
+              Provides data for the events asscociated with an <see cref="T:BlackHen.Threading.IWorkItem"/>.
+            </summary>
+        </member>
+        <member name="M:BlackHen.Threading.WorkItemEventArgs.#ctor(BlackHen.Threading.IWorkItem)">
+            <summary>
+              Initialise a new instance of the <see cref="T:BlackHen.Threading.WorkItemEventArgs"/> class with the
+              specified <see cref="T:BlackHen.Threading.IWorkItem"/>.
+            </summary>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> associated with the event.
+            </param>
+            <remarks>
+              Use this constructor to create and initialize a new instance of the <see cref="T:BlackHen.Threading.WorkItemEventArgs"/>
+              with the specified <paramref name="workItem"/>.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkItemEventArgs.WorkItem">
+            <summary>
+              Gets the <see cref="T:BlackHen.Threading.WorkItem"/> associated with the event.
+            </summary>
+            <value>
+              The <see cref="T:BlackHen.Threading.WorkItem"/> that caused the event.
+            </value>
+        </member>
+        <member name="M:BlackHen.Threading.ChangedWorkItemStateEventArgs.#ctor(BlackHen.Threading.IWorkItem,BlackHen.Threading.WorkItemState)">
+            <summary>
+              Initialise a new instance of the <see cref="T:BlackHen.Threading.ChangedWorkItemStateEventArgs"/> class with the
+              specified <see cref="T:BlackHen.Threading.IWorkItem"/> and <see cref="T:BlackHen.Threading.WorkItemState">previous state</see>.
+            </summary>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> associated with the event.
+            </param>
+            <param name="previousState">
+               One of the <see cref="T:BlackHen.Threading.WorkItemState"/> values indicating the previous state of the
+               <paramref name="workItem"/>.
+            </param>
+            <remarks>
+              Use this constructor to create and initialize a new instance of the <see cref="T:BlackHen.Threading.ChangedWorkItemStateEventArgs"/>
+              with the specified <paramref name="workItem"/> and <paramref name="previousState"/>.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.ChangedWorkItemStateEventArgs.PreviousState">
+            <summary>
+              Gets the previous <see cref="T:BlackHen.Threading.WorkItemState"/> associated with the event.
+            </summary>
+            <value>
+               One of the <see cref="T:BlackHen.Threading.WorkItemState"/> values indicating the previous state of the
+               <see cref="T:BlackHen.Threading.WorkItem"/>.
+            </value>
+        </member>
+        <member name="T:BlackHen.Threading.IWork">
+            <summary>
+              Defines an interface that allows some work to be performed.
+            </summary>
+            <remarks>
+              <b>IWorkItem</b> specifies the <see cref="M:BlackHen.Threading.IWork.Perform"/> method, that does the actual processing
+              of work.
+            </remarks>
+            <seeaslo cref="T:BlackHen.Threading.IWorkItem"/>
+        </member>
+        <member name="M:BlackHen.Threading.IWork.Perform">
+            <summary>
+              Perform the work.
+            </summary>
+            <remarks>
+              <b>Perform</b> does the processing of work. 
+            </remarks>
+        </member>
+        <member name="T:BlackHen.Threading.InvalidTransitionException">
+            <summary>
+              The exception that is thrown when a state transition is invalid.
+            </summary>
+            <remarks>
+              The <b>InvalidTransitionException</b> class is thrown when a state transition
+              is invalid.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.InvalidTransitionException.#ctor">
+            <summary>
+              Initializes a new instance of the <see cref="T:BlackHen.Threading.InvalidTransitionException"/> class.
+            </summary>
+            <remarks>
+              This constructor initializes the <see cref="P:System.Exception.Message"/> property of the new 
+              instance to a system-supplied message that describes the error and takes into 
+              account the current system culture.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.InvalidTransitionException.#ctor(System.Object,System.Object,System.Object)">
+            <summary>
+              Initializes a new instance of the <see cref="T:BlackHen.Threading.InvalidTransitionException"/> class with a specified error message.
+            </summary>
+            <param name="obj">
+              The object whose state can not be changed.
+            </param>
+            <param name="currentState">
+              Its current state.
+            </param>
+            <param name="nextState">
+              The invalid state.
+            </param>
+            <remarks>
+              This constructor initializes the <see cref="P:System.Exception.Message"/> property of the new 
+              instance to the string "Can not transition '<i>obj</i> from state <i>curr</i> to <i>next</i>.".
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.InvalidTransitionException.#ctor(System.Object,System.Object,System.Object,System.Exception)">
+            <summary>
+              Initializes a new instance of the <see cref="T:BlackHen.Threading.InvalidTransitionException"/> class with a specified error message and
+              inner <see cref="T:System.Exception"/>.
+            </summary>
+            <param name="obj">
+              The object whose state can not be changed.
+            </param>
+            <param name="currentState">
+              Its current state.
+            </param>
+            <param name="nextState">
+              The invalid state.
+            </param>
+            <param name="innerException">
+              The <see cref="T:System.Exception"/> that is the cause of the current exception.
+            </param>
+            <remarks>
+              This constructor initializes the <see cref="P:System.Exception.Message"/> property of the new 
+              instance to the string "Can not transition '<i>obj</i> from state <i>prev</i> to <i>next</i>.".
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.InvalidTransitionException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+              Initializes a new instance of the <see cref="T:BlackHen.Threading.InvalidTransitionException"/> class with serialized data.
+            </summary>
+            <param name="info">
+              The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.
+            </param>
+            <param name="context">
+              The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.
+            </param>
+            <remarks>
+              This constructor is called during deserialization to reconstitute the 
+              exception object transmitted over a stream. 
+            </remarks>
+        </member>
+        <member name="T:BlackHen.Threading.WorkItem">
+            <summary>
+              Represents some work that must be performed.
+            </summary>
+            <remarks>
+              The order of execution of <b>WorkItems</b> is determined by the <see cref="P:BlackHen.Threading.WorkItem.Priority"/> property.
+              Higher valued priorities will execute earlier.
+              <para>
+              Derived classes must implement the <see cref="M:BlackHen.Threading.WorkItem.Perform"/> method.  When <b>Perform()</b> is called,
+              the <see cref="P:System.Globalization.CultureInfo.CurrentUICulture"/> is set to <b>CurrentUICulture</b> of the
+              <see cref="T:System.Threading.Thread"/> that created the <b>WorkItem</b>.
+              </para>
+            </remarks>
+        </member>
+        <member name="T:BlackHen.Threading.IWorkItem">
+            <summary>
+              Defines an interface to allow work to be managed by an <see cref="T:BlackHen.Threading.IWorkQueue"/>
+            </summary>
+            <remarks>
+              <b>IWorkItem</b> extends the <see cref="T:BlackHen.Threading.IWork"/> interface, allowing work to be managed by 
+              a <see cref="T:BlackHen.Threading.IWorkQueue">work queue</see>.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.IWorkItem.WorkQueue">
+            <summary>
+              Gets or sets the <see cref="T:BlackHen.Threading.IWorkQueue"/> that manages this <see cref="T:BlackHen.Threading.IWorkItem"/>.
+            </summary>
+            <value>
+              The <see cref="T:BlackHen.Threading.IWorkQueue"/> that is scheduling this <see cref="T:BlackHen.Threading.IWorkItem"/>.
+            </value>
+        </member>
+        <member name="P:BlackHen.Threading.IWorkItem.State">
+            <summary>
+              Gets or sets the <see cref="T:BlackHen.Threading.WorkItemState">state</see>.
+            </summary>
+            <value>
+              One of the <see cref="T:BlackHen.Threading.WorkItemState"/> values indicating the state of the current <b>WorkItem</b>. 
+              The initial value is <b>Created</b>.
+            </value>
+            <remarks>
+              The <b>State</b> represents where the <see cref="T:BlackHen.Threading.WorkItem"/> is in processing pipeline.
+              The following transition can take place:
+              <para>
+              <img src="WorkItemState.png" alt="WorkItem state transistions"/>
+              </para>
+              <para>
+              If the <see cref="P:BlackHen.Threading.IWorkItem.WorkQueue"/> is not <b>null</b>, then its 
+              <see cref="M:BlackHen.Threading.IWorkQueue.WorkItemStateChanged(BlackHen.Threading.IWorkItem,BlackHen.Threading.WorkItemState)"/> method is called.
+              </para>
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.IWorkItem.FailedException">
+            <summary>
+              Gets or sets the <see cref="T:System.Exception"/> that caused the <see cref="T:BlackHen.Threading.WorkItem"/> to
+              failed.
+            </summary>
+        </member>
+        <member name="P:BlackHen.Threading.IWorkItem.Priority">
+            <summary>
+              Gets or sets the scheduling priority.
+            </summary>
+            <value>
+              One of the <see cref="T:System.Threading.ThreadPriority"/> values. The default value is <b>Normal</b>.
+            </value>
+            <remarks>
+              <b>Prioriry</b> specifies the relative importance of one <see cref="T:BlackHen.Threading.WorkItem"/> versus another.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkItem.#ctor">
+            <summary>
+              Creates a new instance of the <see cref="T:BlackHen.Threading.WorkItem"/> class.
+            </summary>
+        </member>
+        <member name="M:BlackHen.Threading.WorkItem.ValidateStateTransition(BlackHen.Threading.WorkItemState,BlackHen.Threading.WorkItemState)">
+            <summary>
+              Validate a state transition.
+            </summary>
+            <param name="currentState">
+              One of the <see cref="T:BlackHen.Threading.WorkItemState"/> values indicating the current <see cref="T:BlackHen.Threading.WorkItemState"/>. 
+            </param>
+            <param name="nextState">
+              One of the <see cref="T:BlackHen.Threading.WorkItemState"/> values indicating the requested <see cref="T:BlackHen.Threading.WorkItemState"/>. 
+            </param>
+            <exception cref="T:BlackHen.Threading.InvalidTransitionException">
+              The transition from <paramref name="current"/> to  <paramref name="value"/> is invalid.
+            </exception>
+            <remarks>
+              <b>ValidateStateTransition</b> throws <see cref="T:BlackHen.Threading.InvalidTransitionException"/> if
+              the transition from <paramref name="current"/> to  <paramref name="value"/> is invalid.
+              <para>
+              Derived class can use this method for extra validation.
+              </para>
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkItem.Perform">
+            <summary>
+              Perform the work.
+            </summary>
+            <remarks>
+              <b>Perform</b> performs the work. 
+              <para>
+              Before the method is called, the <see cref="P:System.Globalization.CultureInfo.CurrentUICulture"/> of the <i>invoker</i>
+              is applied to this <see cref="T:System.Threading.Thread"/>.  The <i>invoker's</i> culture is capture when 
+              the <see cref="T:BlackHen.Threading.WorkItem"/> is constructed.
+              </para>
+              <para>
+              A thrown <see cref="T:System.Exception"/> is caught by the <see cref="T:BlackHen.Threading.IResourcePool"/> and the
+              workitem's
+              <see cref="P:BlackHen.Threading.WorkItem.FailedException"/> property is set and its <see cref="P:BlackHen.Threading.WorkItem.State"/> changed
+              to <see cref="T:BlackHen.Threading.WorkItemState">Failing</see>.
+              </para>
+              <para>
+              This is an <b>abstract</b> method and must be implmented by derived classes.
+              </para>
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkItem.ApplyInvokerContext">
+            <summary>
+              Changes the "context" to the context of creator of the <see cref="T:BlackHen.Threading.WorkItem"/>.
+            </summary>
+            <remarks>
+              The <see cref="P:System.Globalization.CultureInfo.CurrentUICulture"/> of the <i>invoker</i> is applied
+              to this <see cref="T:System.Threading.Thread"/>.  The <i>invoker</i> context is defined when 
+              the <see cref="T:BlackHen.Threading.WorkItem"/> is constructed.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkItem.CompareTo(System.Object)">
+            <summary>
+              Compares this instance with a specified <see cref="T:System.Object"/>.
+            </summary>
+            <param name="obj">
+              An <see cref="T:System.Object"/> that is a <see cref="T:BlackHen.Threading.WorkItem"/>.
+            </param>
+            <returns>
+              A 32-bit signed integer indicating the lexical relationship between the <see cref="P:BlackHen.Threading.WorkItem.Priority"/>
+              of the operands.
+            </returns>
+        </member>
+        <member name="P:BlackHen.Threading.WorkItem.WorkQueue">
+            <summary>
+              Gets or sets the <see cref="T:BlackHen.Threading.IWorkQueue"/> containing this <see cref="T:BlackHen.Threading.IWorkItem"/>.
+            </summary>
+            <value>
+              The <see cref="T:BlackHen.Threading.IWorkQueue"/> that is scheduling this <see cref="T:BlackHen.Threading.IWorkItem"/>.
+            </value>
+        </member>
+        <member name="P:BlackHen.Threading.WorkItem.State">
+            <summary>
+              Gets or sets the <see cref="T:BlackHen.Threading.WorkItemState">state</see>.
+            </summary>
+            <value>
+              One of the <see cref="T:BlackHen.Threading.WorkItemState"/> values indicating the state of the current <b>WorkItem</b>. 
+              The initial value is <b>Created</b>.
+            </value>
+            <exception cref="T:BlackHen.Threading.InvalidTransitionException">
+              The <b>State</b> can not be transitioned to <paramref name="value"/>.
+            </exception>
+            <remarks>
+              The <b>State</b> represents where the <see cref="T:BlackHen.Threading.WorkItem"/> is in processing pipeline.
+              The following transition can take place:
+              <para>
+              <img src="WorkItemState.png" alt="WorkItem state transistions"/>
+              </para>
+              <para>
+              If the <see cref="P:BlackHen.Threading.WorkItem.WorkQueue"/> is not <b>null</b>, then its 
+              <see cref="M:BlackHen.Threading.IWorkQueue.WorkItemStateChanged(BlackHen.Threading.IWorkItem,BlackHen.Threading.WorkItemState)"/> method is called.
+              </para>
+            </remarks>
+            <seealso cref="M:BlackHen.Threading.WorkItem.ValidateStateTransition(BlackHen.Threading.WorkItemState,BlackHen.Threading.WorkItemState)"/>
+        </member>
+        <member name="P:BlackHen.Threading.WorkItem.FailedException">
+            <summary>
+              Gets or sets the <see cref="T:System.Exception"/> that caused the <see cref="T:BlackHen.Threading.WorkItem"/> to
+              failed.
+            </summary>
+        </member>
+        <member name="P:BlackHen.Threading.WorkItem.Priority">
+            <summary>
+              Gets or sets the scheduling priority.
+            </summary>
+            <value>
+              One of the <see cref="T:System.Threading.ThreadPriority"/> values. The default value is <b>Normal</b>.
+            </value>
+            <remarks>
+              <b>Prioriry</b> specifies the relative importance of one <see cref="T:BlackHen.Threading.WorkItem"/> versus another.
+            </remarks>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+              <paramref name="value"/> is not valid.
+            </exception>
+        </member>
+        <member name="P:BlackHen.Threading.WorkItem.StartedTime">
+            <summary>
+              Gets or sets the time when processing <see cref="M:BlackHen.Threading.WorkItem.Perform">started</see>.
+            </summary>
+            <value>
+              A <see cref="T:System.DateTime"/> indicating when the <b>WorkItem</b> started.
+            </value>
+            <remarks>
+              The <b>StartedTime</b> is set when the <see cref="T:BlackHen.Threading.WorkItem"/> enters the
+              <see cref="T:BlackHen.Threading.WorkItemState">Running</see> state.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkItem.CompletedTime">
+            <summary>
+              Gets or sets the time when processing completed.
+            </summary>
+            <value>
+              A <see cref="T:System.DateTime"/> indicating when the <b>WorkItem</b> finished.
+            </value>
+            <remarks>
+              The <b>CompletedTime</b> is set when the <see cref="T:BlackHen.Threading.WorkItem"/> enters the
+              <see cref="T:BlackHen.Threading.WorkItemState">Completed</see> state.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkItem.CreatedTime">
+            <summary>
+              Gets or sets the time when the instance was created.
+            </summary>
+            <value>
+              A <see cref="T:System.DateTime"/> indicating when the <b>WorkItem</b> was created.
+            </value>
+            <remarks>
+              The <b>CreatedTime</b> is set when the <see cref="T:BlackHen.Threading.WorkItem"/> is constructed.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkItem.ProcessingTime">
+            <summary>
+              Gets the elapsed processing time.
+            </summary>
+            <value>
+              A <see cref="T:System.TimeSpan"/> indicating the amount of time spent processing.
+            </value>
+            <remarks>
+              <b>ProcessingTime</b> is the difference between the <see cref="P:BlackHen.Threading.WorkItem.CompletedTime"/> and 
+              <see cref="P:BlackHen.Threading.WorkItem.StartedTime"/>.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkItem.Empty">
+            <summary>
+              Creates  a <see cref="T:BlackHen.Threading.WorkItem"/> that does nothing.
+            </summary>
+        </member>
+        <member name="T:BlackHen.Threading.IWorkQueue">
+            <summary>
+              Provides the methods and properties to manage the scheduling of an <see cref="T:BlackHen.Threading.IWorkItem">work item</see>.
+            </summary>
+            <remarks>
+              <b>IWorkQueue</b> provides the methods and properties to the manage the scheduling of an <see cref="T:BlackHen.Threading.IWorkItem"/>.
+              Its primary responsibility is to determine when and it what order work items are executed.
+              <para>
+              The <see cref="M:BlackHen.Threading.IWorkQueue.WorkItemStateChanged(BlackHen.Threading.IWorkItem,BlackHen.Threading.WorkItemState)"/> method is invoked by an <see cref="T:BlackHen.Threading.IWorkItem"/> to inform the <b>WorkQueue</b>
+              of a <see cref="P:BlackHen.Threading.IWorkItem.State"/> change.  It is the responsible of the <b>WorkQueue</b> to
+              perform the appropiate logic for the given state.
+              </para>
+              <para>
+              </para>
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.IWorkQueue.WorkItemStateChanged(BlackHen.Threading.IWorkItem,BlackHen.Threading.WorkItemState)">
+            <summary>
+              Invoked by an <see cref="T:BlackHen.Threading.IWorkItem"/> to inform a work queue that its <see cref="P:BlackHen.Threading.IWorkItem.State"/>
+              has changed.
+            </summary>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> that has changed <see cref="P:BlackHen.Threading.IWorkItem.State"/>.
+            </param>
+            <param name="previousState">
+               One of the <see cref="T:BlackHen.Threading.WorkItemState"/> values indicating the previous state of the <paramref name="workItem"/>.
+            </param>
+            <remarks>
+              It is the responsible of the <see cref="T:BlackHen.Threading.IWorkQueue"/> to  perform the appropiate logic for the 
+              new <see cref="P:BlackHen.Threading.IWorkItem.State"/>.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.IWorkQueue.HandleResourceException(BlackHen.Threading.ResourceExceptionEventArgs)">
+            <summary>
+              Invoked by an <see cref="T:BlackHen.Threading.IResourcePool"/> when an exception is thrown outside of normal
+              processing.
+            </summary>
+            <param name="e">
+              A <see cref="T:BlackHen.Threading.ResourceExceptionEventArgs"/> that contains the event data.
+            </param>
+            <remarks>
+              <b>HandleResourceException</b> is called by an <see cref="T:BlackHen.Threading.IResourcePool"/> when
+              an exception is thrown outside of the <see cref="M:BlackHen.Threading.IWork.Perform">normal processing</see>
+              of a <see cref="T:BlackHen.Threading.IWorkItem"/>.
+            </remarks>
+            <seealso cref="T:BlackHen.Threading.IResourcePool"/>
+        </member>
+        <member name="T:BlackHen.Threading.WorkThreadPool">
+            <summary>
+              Provides a pool of threads that can be used to run <see cref="T:BlackHen.Threading.IWorkItem">work items</see>.
+            </summary>
+            <threadsafety static="true" instance="true"/>
+            <remarks>
+              <b>WorkThreadPool</b> manages a pool of worker <see cref="T:System.Threading.Thread">threads</see>.  
+              A <see cref="T:BlackHen.Threading.IWorkQueue">work queue</see> uses the <see cref="M:BlackHen.Threading.WorkThreadPool.BeginWork(BlackHen.Threading.IWorkItem)"/> method 
+              to request that a <see cref="T:BlackHen.Threading.IWorkItem">work item</see> be executed by a thread in the
+              thread pool.
+              <para>
+              The <see cref="P:BlackHen.Threading.WorkThreadPool.MinThreads"/> and <see cref="P:BlackHen.Threading.WorkThreadPool.MaxThreads"/> properties specify the minimum and
+              maximum number of <b>threads</b> manager by the pool.  
+              </para>
+              <para>
+              The <see cref="P:BlackHen.Threading.WorkThreadPool.Default"/> static property
+              returns a <b>WorkThreadPool</b> that is always available.  This instance, is typically used by
+              all <b>work queues</b>.
+              </para>
+              <para>
+              The <see cref="M:BlackHen.Threading.WorkThreadPool.Dispose"/> method, performs an orderly shutdown of the <b>threads</b>.  The method
+              waits for all working threads to complete, before terminating the thread.
+              </para>
+            </remarks>
+        </member>
+        <member name="T:BlackHen.Threading.IResourcePool">
+             <summary>
+               Provides a pool of resources that can be used to perform a <see cref="T:BlackHen.Threading.IWorkItem">work item</see>.
+             </summary>
+             <remarks>
+               The <see cref="M:BlackHen.Threading.IResourcePool.BeginWork(BlackHen.Threading.IWorkItem)"/> method is invoked by an <see cref="T:BlackHen.Threading.IWorkQueue"/> when the
+               <see cref="P:BlackHen.Threading.WorkItem.State"/> of an <see cref="T:BlackHen.Threading.IWorkItem"/> becomes <see cref="T:BlackHen.Threading.WorkItemState">Scheduled</see>.
+               <para>
+               An <b>IResourcePool</b> must catch any <see cref="T:System.Exception"/> thrown by an <b>IWorkItem</b>
+               when it invokes the <see cref="M:BlackHen.Threading.IWork.Perform"/> method.  The <see cref="P:BlackHen.Threading.IWorkItem.FailedException"/>
+               property of the <b>IWorkItem</b> must be set and its <see cref="P:BlackHen.Threading.IWorkItem.State"/> changed
+               to <see cref="T:BlackHen.Threading.WorkItemState">Failing</see>.
+               </para>
+               If the <b>IResourcePool</b> throws an exception while performing an <b>IWorkItem</b>, it must
+               invoke the <see cref="M:BlackHen.Threading.IWorkQueue.HandleResourceException(BlackHen.Threading.ResourceExceptionEventArgs)"/> of <see cref="P:BlackHen.Threading.IWorkItem.WorkQueue"/>.
+             </remarks>
+             <example>
+               The following demonstrates exception handling by a hypothetical thread:
+               <code>
+            private WorkLoop
+            {
+              while (WorkItem workItem = NextWork())
+              {
+               try
+               {
+                
+                  // Do the work.
+                  workItem.State = WorkItemState.Running
+                  try
+                  {
+                    workItem.Perform();
+                  }
+                  catch (Exception e)
+                  {
+                     // Exception in workitem.
+                     workItem.FailedException = e;
+                     workItem.State = WorkItemState.Failing;
+                  }
+               
+                  // Workitem is done processed, either failed or succeeded.
+                  workItem.State = WorkItemState.Completed;
+               }
+               
+               catch (Exception e)
+               {
+                 // Internal exception!!!
+                 workItem.WorkQueue.HandleResourceException(new ResourceExceptionEventArgs(this, e));
+               }
+              }
+             }
+               </code>
+             </example>
+        </member>
+        <member name="M:BlackHen.Threading.IResourcePool.BeginWork(BlackHen.Threading.IWorkItem)">
+            <summary>
+              Requests that an <see cref="T:BlackHen.Threading.IWorkItem">work item</see> is performed by a resource
+              in the pool.
+            </summary>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> to execute.
+            </param>
+            <remarks>
+              <b>BeginWork</b> queues the <paramref name="workItem"/> for execution.  When a resource in the pool
+              becomes available, the <see cref="P:BlackHen.Threading.IWorkItem.State"/> of the <paramref name="workItem"/>
+              is set to <see cref="P:BlackHen.Threading.WorkItem.State">Running</see>
+              and its <see cref="M:BlackHen.Threading.IWork.Perform"/> method is invoked.
+            </remarks>
+        </member>
+        <member name="F:BlackHen.Threading.WorkThreadPool.eventLock">
+            <summary>
+              A lock when accessing our events.
+            </summary>
+        </member>
+        <member name="M:BlackHen.Threading.WorkThreadPool.#ctor">
+            <summary>
+              Creates a new instance of the <see cref="T:BlackHen.Threading.WorkThreadPool"/> class.
+            </summary>
+            <seealso cref="P:BlackHen.Threading.WorkThreadPool.Default"/>
+        </member>
+        <member name="M:BlackHen.Threading.WorkThreadPool.#ctor(System.Int32,System.Int32)">
+            <summary>
+              Creates a new instance of the <see cref="T:BlackHen.Threading.WorkThreadPool"/> class with the
+              specified <see cref="P:BlackHen.Threading.WorkThreadPool.MinThreads"/> and <see cref="P:BlackHen.Threading.WorkThreadPool.MaxThreads"/>.
+            </summary>
+            <param name="minThreads">
+              The mininum number of threads.
+            </param>
+            <param name="maxThreads">
+              The maximum number of threads.
+            </param>
+            <seealso cref="P:BlackHen.Threading.WorkThreadPool.Default"/>
+        </member>
+        <member name="M:BlackHen.Threading.WorkThreadPool.Finalize">
+            <summary>
+              Terminates the threads of the current WorkThreadPool before it is reclaimed by the garbage collector.
+            </summary>
+        </member>
+        <member name="M:BlackHen.Threading.WorkThreadPool.Dispose">
+            <summary>
+              Performs an orderly shutdown of the pooled <b>threads</b>.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">
+              <c>this</c> equals <see cref="P:BlackHen.Threading.WorkThreadPool.Default"/>.
+            </exception>
+            <remarks>
+              <b>Dispose</b> performs an orderly shutdown of the <b>threads</b>.  The method
+              waits for each working thread to complete, before terminating the thread.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkThreadPool.BeginWork(BlackHen.Threading.IWorkItem)">
+            <summary>
+              Requests that an <see cref="T:BlackHen.Threading.IWorkItem">work item</see> is run on a <see cref="T:System.Threading.Thread"/>.
+            </summary>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> to execute.
+            </param>
+            <remarks>
+              <b>BeginWork</b> queues the <paramref name="workItem"/> for execution.  When a <see cref="T:System.Threading.Thread"/> in the pool
+              becomes available, the <see cref="P:BlackHen.Threading.IWorkItem.State"/> of the <paramref name="workItem"/>
+              is set to <see cref="P:BlackHen.Threading.WorkItem.State">Running</see>
+              and its <see cref="M:BlackHen.Threading.IWork.Perform"/> method is invoked.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkThreadPool.OnThreadException(BlackHen.Threading.ResourceExceptionEventArgs)">
+            <summary>
+              Raises the <see cref="E:BlackHen.Threading.WorkThreadPool.ThreadException"/> event.
+            </summary>
+            <param name="e">
+              A <see cref="T:BlackHen.Threading.ResourceExceptionEventArgs"/> that contains the event data.
+            </param>
+            <remarks>
+              The <b>OnThreadException</b> method allows derived classes to handle the <see cref="E:BlackHen.Threading.WorkThreadPool.ThreadException"/>
+              event without attaching a delegate. This is the preferred technique for handling the event in a derived class.
+              <para>
+              When a derived class calls the <b>OnThreadException</b> method, it raises the <see cref="E:BlackHen.Threading.WorkThreadPool.ThreadException"/> event by 
+              invoking the event handler through a delegate. For more information, see 
+              <a href="ms-help://MS.VSCC.2003/MS.MSDNQTR.2004JAN.1033/cpguide/html/cpconProvidingEventFunctionality.htm">Raising an Event</a>.
+              </para>
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkThreadPool.Default">
+            <summary>
+              Gets the default <see cref="T:BlackHen.Threading.WorkThreadPool"/> that is always available.
+            </summary>
+            <remarks>
+              Typically, the <b>Default</b> instance is used by all <see cref="T:BlackHen.Threading.IWorkQueue">work queues</see>.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkThreadPool.MinThreads">
+            <summary>
+              Gets or sets the number of idle threads the ThreadPool maintains in anticipation of new requests.
+            </summary>
+            <value>
+              The minimum number of worker threads in the thread pool.
+            </value>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+              When setting and <i>value</i> is less than zero or greater than <see cref="P:BlackHen.Threading.WorkThreadPool.MaxThreads"/>.
+            </exception>
+            <remarks>
+              <b>MinThreads</b> is the minimum number of idle threads maintained by the thread pool in order to reduce
+              the time required to satisfy requests for thread pool threads. Idle threads in excess of the 
+              minimum can be terminated, to save system resources. 
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkThreadPool.MaxThreads">
+            <summary>
+              Gets or sets the number of requests to the thread pool that can be active concurrently.
+            </summary>
+            <value>
+              The maximum number of worker threads in the thread pool.
+            </value>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+              When setting and <i>value</i> is less than or equal to zero.
+            </exception>
+            <remarks>
+              <b>MaxThreads</b> is the number of <see cref="M:BlackHen.Threading.WorkThreadPool.BeginWork(BlackHen.Threading.IWorkItem)">requests</see> to the thread pool that can
+              be active concurrently.  All requests above the number remain queued until a thread pool thread
+              become available.
+              <para>
+              When setting and <i>value</i> is less than the current <b>MaxThreads</b>, the appropiate number
+              of threads will be deleted.
+              </para>
+            </remarks>
+        </member>
+        <member name="E:BlackHen.Threading.WorkThreadPool.ThreadException">
+            <summary>
+              Occurs when an untrapped thread exception is thrown.
+            </summary>
+            <remarks>
+              The <b>ThreadException</b> event occurs when 
+              an <see cref="T:System.Exception"/> is thrown in a thread outside of the 
+              <see cref="M:BlackHen.Threading.IWork.Perform">IWork.Perform</see> method.
+            </remarks>
+        </member>
+        <member name="T:BlackHen.Threading.WorkQueue">
+            <summary>
+              Allows concurrent execution of <see cref="T:BlackHen.Threading.WorkItem">work items</see>.
+            </summary>
+            <threadsafety static="true" instance="true"/>
+            <remarks>
+              <b>WorkQueue</b> manages a queue of work that is to be performed.  A <see cref="T:BlackHen.Threading.WorkItem"/>
+              is scheduled for execution by calling the <see cref="M:BlackHen.Threading.WorkQueue.Add(BlackHen.Threading.IWorkItem)"/> method.
+              If the <see cref="P:BlackHen.Threading.WorkQueue.ConcurrentLimit"/> is not reached, then the <b>WorkItem</b>
+              is immediately executed on the <see cref="P:BlackHen.Threading.WorkQueue.WorkerPool"/>.  Otherwise it is placed in a
+              holding queue and is executed when another <b>WorkItem</b> has <see cref="E:BlackHen.Threading.WorkQueue.CompletedWorkItem">completed</see>.
+              <para>
+              The holding queue is prioritised.  The <b>WorkItem</b> with the highest valued <see cref="P:BlackHen.Threading.WorkItem.Priority"/>
+              is the next item to execute.
+              </para>
+              <para>
+              The <b>WorkQueue</b> can be controlled with the <see cref="M:BlackHen.Threading.WorkQueue.Pause"/>, <see cref="M:BlackHen.Threading.WorkQueue.Resume"/> and
+              <see cref="M:BlackHen.Threading.WorkQueue.Clear"/> methods.  The <see cref="E:BlackHen.Threading.WorkQueue.AllWorkCompleted"/> event or the <see cref="M:BlackHen.Threading.WorkQueue.WaitAll"/>
+              method can be used to determine when the last <b>WorkItem</b> has completed.
+              </para>
+              <para>
+              The <see cref="E:BlackHen.Threading.WorkQueue.RunningWorkItem"/>, <see cref="E:BlackHen.Threading.WorkQueue.FailedWorkItem"/> and <see cref="E:BlackHen.Threading.WorkQueue.CompletedWorkItem"/>
+              events is used to monitor the specific stages of a work item. 
+              The <see cref="E:BlackHen.Threading.WorkQueue.ChangedWorkItemState"/> event is used to monitor all <see cref="P:BlackHen.Threading.IWorkItem.State"/>
+              transitions.
+              </para>
+              <para>
+              The <see cref="E:BlackHen.Threading.WorkQueue.WorkerException"/> event is raised when the <see cref="P:BlackHen.Threading.WorkQueue.WorkerPool"/> throws an 
+              <see cref="T:System.Exception"/> that is not related to the <b>work item</b>.  
+              After this event is raised the <b>WorkQueue</b> is in an inconsistent state and should
+              not be used again.
+              </para>
+            </remarks>
+        </member>
+        <member name="F:BlackHen.Threading.WorkQueue.eventLock">
+            <summary>
+              A lock when accessing our events.
+            </summary>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.#ctor">
+            <summary>
+              Creates a new instance of the <see cref="T:BlackHen.Threading.WorkQueue"/> class.
+            </summary>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.Add(BlackHen.Threading.IWorkItem)">
+            <summary>
+              Add some work to execute.
+            </summary>
+            <param name="workItem">
+              An <see cref="T:BlackHen.Threading.IWorkItem"/> to execute.
+            </param>
+            <remarks>
+              If the <see cref="P:BlackHen.Threading.WorkQueue.ConcurrentLimit"/> is not reached and not <see cref="M:BlackHen.Threading.WorkQueue.Pause">pausing</see>, 
+              then the <paramref name="workItem"/>
+              is immediately executed on the <see cref="P:BlackHen.Threading.WorkQueue.WorkerPool"/>.  Otherwise it is placed in a
+              holding queue and executed when another <see cref="T:BlackHen.Threading.IWorkItem"/> completes.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.Pause">
+            <summary>
+              Stop executing <see cref="T:BlackHen.Threading.WorkItem">work items</see>.
+            </summary>
+            <seealso cref="M:BlackHen.Threading.WorkQueue.Resume"/>
+            <remarks>
+              <b>Pause</b> inhibits the <see cref="M:BlackHen.Threading.WorkQueue.Add(BlackHen.Threading.IWorkItem)"/> method from immediately executing a <see cref="T:BlackHen.Threading.WorkItem"/>.
+              However, work items that are already executing will continue to completion.
+              <para>
+              Calling <b>Pause</b> is equivalent to setting the <see cref="P:BlackHen.Threading.WorkQueue.Pausing"/> property to <b>true</b>.
+              </para>
+            </remarks>
+            <seealso cref="M:BlackHen.Threading.WorkQueue.Resume"/>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.Resume">
+            <summary>
+              Resume executing the <see cref="T:BlackHen.Threading.WorkItem">work items</see>.
+            </summary>
+            <remarks>
+              <para>
+              Calling <b>Resume</b> is equivalent to setting the <see cref="P:BlackHen.Threading.WorkQueue.Pausing"/> property to <b>false</b>.
+              </para>
+            </remarks>
+            <seealso cref="M:BlackHen.Threading.WorkQueue.Pause"/>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.Clear">
+            <summary>
+              Removes any <see cref="T:BlackHen.Threading.WorkItem"/> that is queued to execute.
+            </summary>
+            <remarks>
+              <b>Clear</b> removes any <see cref="T:BlackHen.Threading.WorkItem"/> that is queued to execute.
+              However, work items that are already executing will continue 
+              to completion.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.WaitAll">
+            <summary>
+              Waits for all work to complete.
+            </summary>
+            <remarks>
+              <b>WaitAll</b> returns when all work is completed.
+              <para>
+              If the <b>WorkQueue</b> is <see cref="M:BlackHen.Threading.WorkQueue.Pause">pausing</see> then the <see cref="T:System.InvalidOperationException"/>
+              is <c>throw</c> to avoid an infinite wait.
+              </para>
+              <para>
+              Any type of <see cref="T:System.Exception"/> is thrown when a WorkQueue <see cref="T:System.Threading.Thread"/> throws an
+              exception outside of the <see cref="M:BlackHen.Threading.WorkItem.Perform"/> method.
+              </para>
+            </remarks>
+            <exception cref="T:System.InvalidOperationException">
+              If the <b>WorkQueue</b> is <see cref="M:BlackHen.Threading.WorkQueue.Pause">pausing</see>.
+            </exception>
+            <seealso cref="E:BlackHen.Threading.WorkQueue.AllWorkCompleted">AllWorkCompleted event</seealso>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.WaitAll(System.TimeSpan)">
+            <summary>
+              Waits for all work to complete or a specified amount of time elapses.
+            </summary>
+            <param name="timeout">
+              A <see cref="T:System.TimeSpan"/> representing the amount of time to wait before this method returns.
+            </param>
+            <returns>
+              <b>true</b> if all work is completed; otherwise, <b>false</b> to indicate that the specified
+              time has elapsed.
+            </returns>
+            <remarks>
+              <b>WaitAll</b> returns when all work is completed or the specified amount of time has elapsed.
+              <para>
+              Any type of <see cref="T:System.Exception"/> is thrown when a WorkQueue <see cref="T:System.Threading.Thread"/> throws an
+              exception outside of the <see cref="M:BlackHen.Threading.WorkItem.Perform"/> method.
+              </para>
+            </remarks>
+            <seealso cref="E:BlackHen.Threading.WorkQueue.AllWorkCompleted">AllWorkCompleted event</seealso>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.OnChangedWorkItemState(BlackHen.Threading.IWorkItem,BlackHen.Threading.WorkItemState)">
+            <summary>
+              Raises the <see cref="E:BlackHen.Threading.WorkQueue.ChangedWorkItemState"/> event.
+            </summary>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> that has changed <see cref="P:BlackHen.Threading.IWorkItem.State"/>.
+            </param>
+            <param name="previousState">
+               One of the <see cref="T:BlackHen.Threading.WorkItemState"/> values indicating the previous state of the <paramref name="workItem"/>.
+            </param>
+            <remarks>
+              The <b>OnChangedWorkItemState</b> method allows derived classes to handle the event without attaching a delegate. This
+              is the preferred technique for handling the event in a derived class.
+              <para>
+              When a derived class calls the <b>OnChangedWorkItemState</b> method, it raises the <see cref="E:BlackHen.Threading.WorkQueue.ChangedWorkItemState"/> event by 
+              invoking the event handler through a delegate. For more information, see 
+              <a href="ms-help://MS.VSCC.2003/MS.MSDNQTR.2004JAN.1033/cpguide/html/cpconProvidingEventFunctionality.htm">Raising an Event</a>.
+              </para>
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.OnAllWorkCompleted(System.EventArgs)">
+            <summary>
+              Raises the <see cref="E:BlackHen.Threading.WorkQueue.AllWorkCompleted"/> event.
+            </summary>
+            <param name="e">
+              An <see cref="T:System.EventArgs"/> that contains the event data.
+            </param>
+            <remarks>
+              The <b>OnAllWorkCompleted</b> method allows derived classes to handle the event without attaching a delegate. This
+              is the preferred technique for handling the event in a derived class.
+              <para>
+              When a derived class calls the <b>OnAllWorkCompleted</b> method, it raises the <see cref="E:BlackHen.Threading.WorkQueue.AllWorkCompleted"/> event by 
+              invoking the event handler through a delegate. For more information, see 
+              <a href="ms-help://MS.VSCC.2003/MS.MSDNQTR.2004JAN.1033/cpguide/html/cpconProvidingEventFunctionality.htm">Raising an Event</a>.
+              </para>
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.OnRunningWorkItem(BlackHen.Threading.IWorkItem)">
+            <summary>
+              Raises the <see cref="E:BlackHen.Threading.WorkQueue.RunningWorkItem"/> event.
+            </summary>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> that has started.
+            </param>
+            <remarks>
+              The <b>OnRunningWorkItem</b> method allows derived classes to handle the <see cref="E:BlackHen.Threading.WorkQueue.RunningWorkItem"/>
+              event without attaching a delegate. This is the preferred technique for handling the event in a derived class.
+              <para>
+              When a derived class calls the <b>OnStartedWorkItem</b> method, it raises the <see cref="E:BlackHen.Threading.WorkQueue.RunningWorkItem"/> event by 
+              invoking the event handler through a delegate. For more information, see 
+              <a href="ms-help://MS.VSCC.2003/MS.MSDNQTR.2004JAN.1033/cpguide/html/cpconProvidingEventFunctionality.htm">Raising an Event</a>.
+              </para>
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.OnCompletedWorkItem(BlackHen.Threading.IWorkItem)">
+            <summary>
+              Raises the <see cref="E:BlackHen.Threading.WorkQueue.CompletedWorkItem"/> event.
+            </summary>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> that has completed.
+            </param>
+            <remarks>
+              The <b>OnCompletedWorkItem</b> method allows derived classes to handle the <see cref="E:BlackHen.Threading.WorkQueue.CompletedWorkItem"/>
+              event without attaching a delegate. This is the preferred technique for handling the event in a derived class.
+              <para>
+              When a derived class calls the <b>OnCompletedWorkItem</b> method, it raises the <see cref="E:BlackHen.Threading.WorkQueue.CompletedWorkItem"/> event by 
+              invoking the event handler through a delegate. For more information, see 
+              <a href="ms-help://MS.VSCC.2003/MS.MSDNQTR.2004JAN.1033/cpguide/html/cpconProvidingEventFunctionality.htm">Raising an Event</a>.
+              </para>
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.OnFailedWorkItem(BlackHen.Threading.IWorkItem)">
+            <summary>
+              Raises the <see cref="E:BlackHen.Threading.WorkQueue.FailedWorkItem"/> event.
+            </summary>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> that failed.
+            </param>
+            <remarks>
+              The <b>OnFailedWorkItem</b> method allows derived classes to handle the <see cref="E:BlackHen.Threading.WorkQueue.FailedWorkItem"/>
+              event without attaching a delegate. This is the preferred technique for handling the event in a derived class.
+              <para>
+              When a derived class calls the <b>OnFailedWorkItem</b> method, it raises the <see cref="E:BlackHen.Threading.WorkQueue.FailedWorkItem"/> event by 
+              invoking the event handler through a delegate. For more information, see 
+              <a href="ms-help://MS.VSCC.2003/MS.MSDNQTR.2004JAN.1033/cpguide/html/cpconProvidingEventFunctionality.htm">Raising an Event</a>.
+              </para>
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.OnWorkerException(BlackHen.Threading.ResourceExceptionEventArgs)">
+            <summary>
+              Raises the <see cref="E:BlackHen.Threading.WorkQueue.WorkerException"/> event.
+            </summary>
+            <param name="e">
+              A <see cref="T:BlackHen.Threading.ResourceExceptionEventArgs"/> that contains the event data.
+            </param>
+            <remarks>
+              The <b>OnWorkerException</b> method allows derived classes to handle the <see cref="E:BlackHen.Threading.WorkQueue.WorkerException"/>
+              event without attaching a delegate. This is the preferred technique for handling the event in a derived class.
+              <para>
+              When a derived class calls the <b>OnWorkerException</b> method, it raises the <see cref="E:BlackHen.Threading.WorkQueue.WorkerException"/> event by 
+              invoking the event handler through a delegate. For more information, see 
+              <a href="ms-help://MS.VSCC.2003/MS.MSDNQTR.2004JAN.1033/cpguide/html/cpconProvidingEventFunctionality.htm">Raising an Event</a>.
+              </para>
+              <para>
+              The <b>WorkQueue</b> is <see cref="M:BlackHen.Threading.WorkQueue.Pause">paused</see> and in an inconsistent state.
+              The <b>WorkQueue</b> should not be used again.
+              </para>
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.WorkItemStateChanged(BlackHen.Threading.IWorkItem,BlackHen.Threading.WorkItemState)">
+            <summary>
+              Invoked by an <see cref="T:BlackHen.Threading.IWorkItem"/> to inform a work queue that its <see cref="P:BlackHen.Threading.IWorkItem.State"/>
+              has changed.
+            </summary>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> that has changed <see cref="P:BlackHen.Threading.IWorkItem.State"/>.
+            </param>
+            <param name="previousState">
+               One of the <see cref="T:BlackHen.Threading.WorkItemState"/> values indicating the previous state of the <paramref name="workItem"/>.
+            </param>
+            <remarks>
+              The <see cref="E:BlackHen.Threading.WorkQueue.ChangedWorkItemState"/> event is raised by calling the
+              <see cref="M:BlackHen.Threading.WorkQueue.OnChangedWorkItemState(BlackHen.Threading.IWorkItem,BlackHen.Threading.WorkItemState)"/> method.  Then the following actions are performed, 
+              based on the new <see cref="P:BlackHen.Threading.IWorkItem.State"/> of <paramref name="workItem"/>:
+              <list type="table">
+              <listheader>
+                <term>State</term>
+                <description>Action</description>
+              </listheader>
+              <item>
+                <term><see cref="T:BlackHen.Threading.WorkItemState">Scheduled</see></term>
+                <description>Assign the <paramref name="workItem"/> to the <see cref="P:BlackHen.Threading.WorkQueue.WorkerPool"/>.</description>
+              </item>
+              <item>
+                <term><see cref="T:BlackHen.Threading.WorkItemState">Running</see></term>
+                <description>Raise the <see cref="E:BlackHen.Threading.WorkQueue.RunningWorkItem"/> event.</description>
+              </item>
+              <item>
+                <term><see cref="T:BlackHen.Threading.WorkItemState">Failing</see></term>
+                <description>Raise the <see cref="E:BlackHen.Threading.WorkQueue.FailedWorkItem"/> event.</description>
+              </item>
+              <item>
+                <term><see cref="T:BlackHen.Threading.WorkItemState">Completed</see></term>
+                <description>Raise the <see cref="E:BlackHen.Threading.WorkQueue.CompletedWorkItem"/> event and schedule the next work item in the queue.</description>
+              </item>
+              </list>
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.WorkQueue.HandleResourceException(BlackHen.Threading.ResourceExceptionEventArgs)">
+            <summary>
+              Invoked by the <see cref="P:BlackHen.Threading.WorkQueue.WorkerPool"/> when an exception is thrown outside of normal
+              processing.
+            </summary>
+            <param name="e">
+              A <see cref="T:BlackHen.Threading.ResourceExceptionEventArgs"/> that contains the event data.
+            </param>
+            <remarks>
+              <b>HandleResourceException</b> is called by the <see cref="P:BlackHen.Threading.WorkQueue.WorkerPool"/> when
+              an exception is thrown outside of the <see cref="M:BlackHen.Threading.IWork.Perform">normal processing</see>
+              of a <see cref="T:BlackHen.Threading.IWorkItem"/>.
+              <para>
+              An exception at this point leaves the <see cref="T:BlackHen.Threading.WorkQueue"/> in an inconsistent state.  The
+              follow actions are performed:
+              <list type="bullet">
+              <item><description>The queue is <see cref="M:BlackHen.Threading.WorkQueue.Pause">paused</see></description></item>
+              <item><description>The <see cref="E:BlackHen.Threading.WorkQueue.WorkerException"/> event is raised.</description></item>
+              <item><description>All threads calling <see cref="M:BlackHen.Threading.WorkQueue.WaitAll"/> will receive the exception.</description></item>
+              </list>
+              </para>
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkQueue.WorkerPool">
+            <summary>
+              Gets or sets the <see cref="T:BlackHen.Threading.IResourcePool"/> that performs the <see cref="T:BlackHen.Threading.IWorkItem"/>.
+            </summary>
+            <value>
+              An object that implements <see cref="T:BlackHen.Threading.IResourcePool"/>.  The default is <see cref="P:BlackHen.Threading.WorkThreadPool.Default"/>.
+            </value>
+            <remarks>
+              The <b>WorkerPool</b> allocates "workers" to perform an <see cref="T:BlackHen.Threading.IWorkItem"/>.
+              When the <see cref="P:BlackHen.Threading.WorkItem.State"/> of a <b>work item</b> becomes
+              <see cref="T:BlackHen.Threading.WorkItemState">Scheduled</see>, the <see cref="M:BlackHen.Threading.IResourcePool.BeginWork(BlackHen.Threading.IWorkItem)"/>
+              method of the <b>WorkerPool</b> is called.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkQueue.Count">
+            <summary>
+              Gets the number of items that are waiting or running.
+            </summary>
+            <value>
+              The number of items that are waiting or running.
+            </value>
+        </member>
+        <member name="P:BlackHen.Threading.WorkQueue.ConcurrentLimit">
+            <summary>
+              Gets or sets the limit on concurrently running <see cref="T:BlackHen.Threading.WorkItem">work items</see>.
+            </summary>
+            <value>
+              An <see cref="T:System.Int32"/>.  The default value is 4.
+            </value>
+            <remarks>
+              <b>ConcurrentLimit</b> is the maximum number of <see cref="T:BlackHen.Threading.WorkItem">work items</see>
+              that can be concurrently execution.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.WorkQueue.Pausing">
+            <summary>
+              Determines if a <see cref="T:BlackHen.Threading.WorkItem"/> is only queued for execution.
+            </summary>
+            <value>
+              <b>true</b> if a <see cref="T:BlackHen.Threading.WorkItem"/> is only queued; otherwise, <b>false</b>
+              to indicate that a <b>WorkItem</b> can be executed.
+            </value>
+            <remarks>
+              Setting <b>Pausing</b> to <b>true, </b>inhibits the <see cref="M:BlackHen.Threading.WorkQueue.Add(BlackHen.Threading.IWorkItem)"/> method from immediately
+              executing a <see cref="T:BlackHen.Threading.WorkItem"/>.  However, work items that are already executing will continue 
+              to completion.
+            </remarks>
+        </member>
+        <member name="E:BlackHen.Threading.WorkQueue.ChangedWorkItemState">
+            <summary>
+              Occurs when the state of a work item is changed.
+            </summary>
+            <remarks>
+              The <b>ChangedWorkItemState</b> event is raised when the <see cref="P:BlackHen.Threading.IWorkItem.State"/>
+              property of a <see cref="T:BlackHen.Threading.IWorkItem"/> is changed.
+            </remarks>
+        </member>
+        <member name="E:BlackHen.Threading.WorkQueue.AllWorkCompleted">
+            <summary>
+              Occurs when the last <see cref="T:BlackHen.Threading.IWorkItem"/> has completed.
+            </summary>
+        </member>
+        <member name="E:BlackHen.Threading.WorkQueue.RunningWorkItem">
+            <summary>
+              Occurs when an <see cref="T:BlackHen.Threading.IWorkItem"/> is starting execution.
+            </summary>
+        </member>
+        <member name="E:BlackHen.Threading.WorkQueue.CompletedWorkItem">
+            <summary>
+              Occurs when an <see cref="T:BlackHen.Threading.IWorkItem"/> has completed execution.
+            </summary>
+        </member>
+        <member name="E:BlackHen.Threading.WorkQueue.FailedWorkItem">
+            <summary>
+              Occurs when an <see cref="T:BlackHen.Threading.IWorkItem"/> has failed execution.
+            </summary>
+            <remarks>
+              The <see cref="E:BlackHen.Threading.WorkQueue.FailedWorkItem"/> event is raised when an <see cref="T:BlackHen.Threading.IWorkItem"/>
+              throws an <see cref="T:System.Exception"/>.  The <see cref="P:BlackHen.Threading.IWorkItem.FailedException"/> property
+              contains the <b>Exception</b>.
+            </remarks>
+        </member>
+        <member name="E:BlackHen.Threading.WorkQueue.WorkerException">
+            <summary>
+              Occurs when the <see cref="P:BlackHen.Threading.WorkQueue.WorkerPool"/> throws an 
+              <see cref="T:System.Exception"/> that is not related to the work item.
+            </summary>
+            <remarks>
+              The <b>WorkerException</b> event occurs when 
+              an <see cref="T:System.Exception"/> is thrown in the <see cref="P:BlackHen.Threading.WorkQueue.WorkerPool"/> outside of the 
+              <see cref="M:BlackHen.Threading.IWork.Perform">WorkItem.Perform</see> method.
+              <para>
+              The <b>WorkQueue</b> is <see cref="M:BlackHen.Threading.WorkQueue.Pause">paused</see> and in an inconsistent state.
+              The <b>WorkQueue</b> should not be used again.
+              </para>
+            </remarks>
+        </member>
+        <member name="T:BlackHen.Threading.WorkItemEventHandler">
+            <summary>
+              Represents the method that will handle the events associated with an <see cref="T:BlackHen.Threading.IWorkItem"/>.
+            </summary>
+            <param name="sender">
+              The source of the event.
+            </param>
+            <param name="e">
+              A <see cref="T:BlackHen.Threading.WorkItemEventArgs"/> than contains the event data.
+            </param>
+        </member>
+        <member name="T:BlackHen.Threading.ResourceExceptionEventHandler">
+            <summary>
+              Represents the method that will handle the <see cref="E:BlackHen.Threading.WorkQueue.WorkerException"/> 
+              and <see cref="E:BlackHen.Threading.WorkThreadPool.ThreadException"/> events.
+            </summary>
+            <param name="sender">
+              The source of the event.
+            </param>
+            <param name="e">
+              A <see cref="T:BlackHen.Threading.ResourceExceptionEventArgs"/> than contains the event data.
+            </param>
+        </member>
+        <member name="T:BlackHen.Threading.ResourceExceptionEventArgs">
+            <summary>
+              Provides data for the <see cref="E:BlackHen.Threading.WorkQueue.WorkerException"/> 
+              and <see cref="E:BlackHen.Threading.WorkThreadPool.ThreadException"/> events.
+            </summary>
+            <remarks>
+              A <b>ResourceExceptionEventArgs</b> is created by a resource (worker) when 
+              an exception is thrown outside of the <see cref="M:BlackHen.Threading.IWork.Perform">WorkItem.Perform</see> method.
+              <b>ResourceExceptionEventArgs</b>  contains the <see cref="P:BlackHen.Threading.ResourceExceptionEventArgs.Exception"/>
+              that caused the event to be raised.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.ResourceExceptionEventArgs.#ctor(System.Object,System.Exception)">
+            <summary>
+              Initialise a new instance of the <see cref="T:BlackHen.Threading.ResourceExceptionEventArgs"/> class with the
+              specified resource and <see cref="T:System.Exception"/>.
+            </summary>
+            <param name="resource">
+              The <see cref="T:System.Object"/> that raised the exception.
+            </param>
+            <param name="exception">
+              The <see cref="T:System.Exception"/> that occured.
+            </param>
+            <remarks>
+              Use this constructor to create and initialize a new instance of the <see cref="T:BlackHen.Threading.ResourceExceptionEventArgs"/>
+              with the specified <see cref="T:System.Exception"/>.
+            </remarks>
+        </member>
+        <member name="M:BlackHen.Threading.ResourceExceptionEventArgs.#ctor(System.Object,BlackHen.Threading.IWorkItem,System.Exception)">
+            <summary>
+              Initialise a new instance of the <see cref="T:BlackHen.Threading.ResourceExceptionEventArgs"/> class with the
+              specified resource, <see cref="T:BlackHen.Threading.IWorkItem"/> and <see cref="T:System.Exception"/>.
+            </summary>
+            <param name="resource">
+              The <see cref="T:System.Object"/> that raised the exception.
+            </param>
+            <param name="workItem">
+              The <see cref="T:BlackHen.Threading.IWorkItem"/> that the <paramref name="resource"/> was working on.
+            </param>
+            <param name="exception">
+              The <see cref="T:System.Exception"/> that occured.
+            </param>
+            <remarks>
+              Use this constructor to create and initialize a new instance of the <see cref="T:BlackHen.Threading.ResourceExceptionEventArgs"/>
+              with the specified <see cref="T:System.Exception"/>.
+            </remarks>
+        </member>
+        <member name="P:BlackHen.Threading.ResourceExceptionEventArgs.Exception">
+            <summary>
+              Gets the exception that occured.
+            </summary>
+            <value>
+              The <see cref="T:System.Exception"/> that occured.
+            </value>
+        </member>
+        <member name="P:BlackHen.Threading.ResourceExceptionEventArgs.WorkItem">
+            <summary>
+              Gets the work item.
+            </summary>
+            <value>
+              A <see cref="T:BlackHen.Threading.IWorkItem"/> or <b>null</b>.
+            </value>
+        </member>
+        <member name="P:BlackHen.Threading.ResourceExceptionEventArgs.Resource">
+            <summary>
+              Gets the resource that raised the exception.
+            </summary>
+            <remarks>
+              A <b>Resource</b> is something that can perform <see cref="T:BlackHen.Threading.IWork">work</see>.
+            </remarks>
+        </member>
+    </members>
+</doc>

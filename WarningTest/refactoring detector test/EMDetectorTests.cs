@@ -1,0 +1,61 @@
+﻿using System;
+using System.Text;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NLog;
+using warnings.conditions;
+using warnings.refactoring.detection;
+using warnings.util;
+
+namespace WarningTest
+{
+    [TestClass]
+    public class EMDetectorTests
+    {
+        private static readonly string fileBefore = 
+            TestUtil.GetFakeSourceFolder() + "EMDetectorBefore.cs";
+
+
+        private static readonly string fileAfter = 
+            TestUtil.GetFakeSourceFolder() + "EMDetectorAfter.cs";
+
+        private IRefactoringConditionsList conditionsList = ConditionCheckingFactory.GetExtractMethodConditionsList();
+
+        private readonly Logger logger = NLoggerUtil.GetNLogger(typeof (EMDetectorTests));
+
+        [TestMethod]
+        public void TestMethod1()
+        {
+            var detector = RefactoringDetectorFactory.CreateExtractMethodDetectorBasedOnStringDistances();
+            var sourceBefore = FileUtil.ReadAllText(fileBefore);
+            var sourceAfter = FileUtil.ReadAllText(fileAfter);
+            detector.SetSourceBefore(sourceBefore);
+            detector.SetSourceAfter(sourceAfter);
+            Assert.IsTrue(detector.HasRefactoring());
+            foreach (var refactoring in detector.GetRefactorings())
+            {
+                logger.Info(refactoring.ToString());
+            }
+            conditionsList.CheckAllConditions(detector.GetBeforeDocument(), detector.GetAfterDocument(),
+                detector.GetRefactorings().First());
+        }
+
+        [TestMethod]
+        public void TestMethod2()
+        {
+            var detector = RefactoringDetectorFactory.CreateExtractMethodDetectorBasedOnCommonStatements();
+            var sourceBefore = FileUtil.ReadAllText(fileBefore);
+            var sourceAfter = FileUtil.ReadAllText(fileAfter);
+            detector.SetSourceBefore(sourceBefore);
+            detector.SetSourceAfter(sourceAfter);
+            Assert.IsTrue(detector.HasRefactoring());
+            foreach (var refactoring in detector.GetRefactorings())
+            {
+                logger.Info(refactoring.ToString());
+            }
+            conditionsList.CheckAllConditions(detector.GetBeforeDocument(), detector.GetAfterDocument(),
+                detector.GetRefactorings().First());
+        }
+    }
+}

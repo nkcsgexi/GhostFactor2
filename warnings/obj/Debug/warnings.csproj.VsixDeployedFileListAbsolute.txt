@@ -1,0 +1,16 @@
+C:\Users\Xi Ge\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\warnings.dll
+C:\Users\Xi Ge\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\BlackHen.Threading.dll
+C:\Users\Xi Ge\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\NLog.dll
+C:\Users\Xi Ge\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\QuickGraph.Collections.dll
+C:\Users\Xi Ge\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\QuickGraph.Concepts.dll
+C:\Users\Xi Ge\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\QuickGraph.dll
+C:\Users\Xi Ge\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\extension.vsixmanifest
+C:\Users\Xi Ge\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\BlackHen.Threading.pdb
+C:\Users\xige\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\warnings.dll
+C:\Users\xige\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\BlackHen.Threading.dll
+C:\Users\xige\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\NLog.dll
+C:\Users\xige\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\QuickGraph.Collections.dll
+C:\Users\xige\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\QuickGraph.Concepts.dll
+C:\Users\xige\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\QuickGraph.dll
+C:\Users\xige\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\extension.vsixmanifest
+C:\Users\xige\AppData\Local\Microsoft\VisualStudio\10.0Roslyn\Extensions\Microsoft\warnings\1.0\\BlackHen.Threading.pdb

@@ -30,27 +30,27 @@ namespace WarningTest
 
         public static string GetTestProjectPath()
         {
-            return @"C:\programming\VS Workspace\ghostfactor\WarningTest\";
+            return @"C:\programming\VSWorkspace\ghostfactor\WarningTest\";
         }
 
         public static string GetTestProjectFilePath()
         {
-            return @"C:\programming\Vs Workspace\ghostfactor\WarningTest\WarningTest.csproj";
+            return @"C:\programming\VsWorkspace\ghostfactor\WarningTest\WarningTest.csproj";
         }
 
         public static string GetFakeSourceFolder()
         {
-            return @"C:\programming\VS Workspace\ghostfactor\WarningTest\fakesource\";
+            return @"C:\programming\VSWorkspace\ghostfactor\WarningTest\fakesource\";
         }
 
         public static string GetSolutionPath()
         {
-            return @"C:\programming\VS Workspace\ghostfactor\warnings.sln";
+            return @"C:\programming\VSWorkspace\ghostfactor\warnings.sln";
         }
 
         public static string GetAnotherSolutionPath()
         {
-            return @"C:\programming\VS Workspace\BeneWarShadow\CodeIssue1\CodeIssue1.sln";
+            return @"C:\programming\VSWorkspace\BeneWarShadow\CodeIssue1\CodeIssue1.sln";
         }
     }
 }

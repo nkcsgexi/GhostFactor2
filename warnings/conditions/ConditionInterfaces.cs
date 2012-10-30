@@ -56,6 +56,7 @@ namespace warnings.conditions
     public interface ICodeIssueComputer : IEquatable<ICodeIssueComputer>, IHasRefactoringType
     {
         bool IsDocumentCorrect(IDocument document);
+        IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document);
         IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node);
     }
 
@@ -65,6 +66,11 @@ namespace warnings.conditions
         public bool IsDocumentCorrect(IDocument document)
         {
             return false;
+        }
+
+        public IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
+        {
+            return Enumerable.Empty<SyntaxNode>();
         }
 
         public IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
@@ -89,6 +95,7 @@ namespace warnings.conditions
         public abstract bool Equals(ICodeIssueComputer other);
         public abstract RefactoringType RefactoringType { get; }
         public abstract bool IsDocumentCorrect(IDocument document);
+        public abstract IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document);
         public abstract IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node);
     }
 
@@ -101,7 +108,7 @@ namespace warnings.conditions
             this.documentUniqueName = documentUniqueName;
         }
 
-        public override bool  IsDocumentCorrect(IDocument document)
+        public override bool IsDocumentCorrect(IDocument document)
         {
             return document.Id.UniqueName.Equals(documentUniqueName);
         }

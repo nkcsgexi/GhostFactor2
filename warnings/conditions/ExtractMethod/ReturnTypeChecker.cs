@@ -12,6 +12,7 @@ using Roslyn.Services.Editor;
 using warnings.analyzer;
 using warnings.analyzer.comparators;
 using warnings.refactoring;
+using warnings.refactoring.detection;
 using warnings.resources;
 using warnings.retriever;
 using warnings.util;
@@ -127,33 +128,34 @@ namespace warnings.conditions
                 /* Declaration of the extracted method. */
                 private SyntaxNode declaration;
 
+                private IComparer<SyntaxNode> methodNameComparer; 
+
                 public ReturnTypeCheckingResult(SyntaxNode declaration,
                     IEnumerable<Tuple<string, string>> typeNameTuples, string uniqueName) :base(uniqueName)
                 {
                     this.declaration = declaration;
                     this.typeNameTuples = typeNameTuples;
+                    this.methodNameComparer = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+                }
+
+                public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
+                {
+                    return ((SyntaxNode)document.GetSyntaxRoot()).DescendantNodes(n => n.Kind != SyntaxKind.MethodDeclaration)
+                        .Where(n => n.Kind == SyntaxKind.MethodDeclaration);
                 }
 
                 public override IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
                 {
                     // If the given node is not method invocation, return directly.
-                    if (node.Kind == SyntaxKind.InvocationExpression)
+                    if (node.Kind == SyntaxKind.MethodDeclaration)
                     {
-                        // Retrieving all the method invocations of the extracted method 
-                        // in the given document instance.
-                        var retriever = RetrieverFactory.GetMethodInvocationRetriever();
-                        retriever.SetDocument(document);
-                        retriever.SetMethodDeclaration(declaration);
-                        var invocations = retriever.GetInvocations();
-
-                        // For all the invocations, if one of them equals the given node,
-                        // create a code issue at the given node.
-                        if (invocations.Any(i => i.Span.Equals(node.Span)))
+                        // If the method is the with the same name, then issue the issue to this method.
+                        if (methodNameComparer.Compare(node, declaration) == 0)
                         {
                             yield return new CodeIssue(CodeIssue.Severity.Error, node.Span,
                                 "Missing return values: " + StringUtil.ConcatenateAll(",",typeNameTuples.Select( t => t.Item2)),
                                     // Create a quick fix for adding the first missing return value.
-                                    new ICodeAction[]{new AddReturnValueCodeAction(document.Project.Solution, declaration, typeNameTuples) });
+                                    new ICodeAction[]{new AddReturnValueCodeAction(document, declaration, typeNameTuples) });
                         }
                     }
                 }
@@ -183,21 +185,20 @@ namespace warnings.conditions
             }
 
             /* Code action to add a return value automatically. */
-
             private class AddReturnValueCodeAction : ICodeAction
             {
                 private readonly IEnumerable<Tuple<string, string>> typeNameTuples;
                 private readonly SyntaxNode declaration;
-                private readonly ISolution solution;
+                private readonly IDocument document;
                 private readonly Logger logger;
 
                 // Can only handle one tuple, even though multiple are passed in.
                 private readonly Tuple<string, string> handledTypeName;
 
-                internal AddReturnValueCodeAction(ISolution solution, SyntaxNode declaration,
+                internal AddReturnValueCodeAction(IDocument document, SyntaxNode declaration,
                                                   IEnumerable<Tuple<string, string>> typeNameTuples)
                 {
-                    this.solution = solution;
+                    this.document = document;
                     this.declaration = declaration;
                     this.typeNameTuples = typeNameTuples;
                     this.handledTypeName = typeNameTuples.FirstOrDefault();
@@ -206,47 +207,16 @@ namespace warnings.conditions
 
                 public CodeActionEdit GetEdit(CancellationToken cancellationToken = new CancellationToken())
                 {
-                    // First find the document containing the method declaration.
-                    var document = FindContainingDocument();
-
+            
                     // Use the rewrite visiter to change the target method declaration.
                     var newRoot = new AddReturnValueRewriter(declaration,
-                                                             handledTypeName.Item1, handledTypeName.Item2).
-                        Visit((SyntaxNode) document.GetSyntaxRoot());
+                        handledTypeName.Item1, handledTypeName.Item2).
+                            Visit((SyntaxNode) document.GetSyntaxRoot());
 
                     // Update the document with the new root and return the code action.
-                    document = document.UpdateSyntaxRoot(newRoot);
-                    return new CodeActionEdit(document);
+                    var updatedDocument = document.UpdateSyntaxRoot(newRoot);
+                    return new CodeActionEdit(updatedDocument);
                 }
-
-                private IDocument FindContainingDocument()
-                {
-                    // Get the RefactoringType encloses the given method declaration.
-                    var nameAnalyzer = AnalyzerFactory.GetQualifiedNameAnalyzer();
-                    nameAnalyzer.SetSyntaxNode(declaration);
-                    var methodInType = nameAnalyzer.GetOutsideTypeQualifiedName();
-
-                    // Get all the documents in the solution.
-                    var solutionAnalyzer = AnalyzerFactory.GetSolutionAnalyzer();
-                    solutionAnalyzer.SetSolution(solution);
-                    var documents = solutionAnalyzer.GetAllDocuments();
-                    var documentAnalyzer = AnalyzerFactory.GetDocumentAnalyzer();
-
-                    // For each document in the solution.
-                    foreach (var document in documents)
-                    {
-                        documentAnalyzer.SetDocument(document);
-                        if (documentAnalyzer.ContainsQualifiedName(methodInType))
-                        {
-                            return document;
-                        }
-                    }
-
-                    // If not found, return null.
-                    logger.Fatal("Cannot find method declaration.");
-                    return null;
-                }
-
 
                 public ImageSource Icon
                 {

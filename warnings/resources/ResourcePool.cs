@@ -18,7 +18,7 @@ namespace warnings.resources
         /* Get the image source of the red R icon. */
         public static ImageSource GetIcon()
         {
-            var bmp = new Bitmap(Resources.redr);
+            var bmp = new Bitmap(Resources.warning_sign);
             var converter = new Bitmap2SourceConverter();
             return (ImageSource) converter.Convert(bmp, typeof (BitmapSource), null, null);
         }

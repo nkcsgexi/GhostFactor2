@@ -68,7 +68,7 @@ namespace warnings.refactoring.detection
         /* In method extract method detector that is based on the common statements count. */
         private class InMethodExtractMethodDetectorByCommonStatements : InMethodExtractMethodDetector
         {
-            private readonly static int MAX_COMMON_STATEMENTS = 1;
+            private readonly static int MAX_COMMON_STATEMENTS = 0;
             private readonly Logger logger;
             public InMethodExtractMethodDetectorByCommonStatements()
             {

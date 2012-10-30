@@ -67,6 +67,12 @@ namespace warnings.conditions
                     return true;
                 }
 
+                public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
+                {
+                    return ((SyntaxNode)document.GetSyntaxRoot()).DescendantNodes().
+                        Where(n => n.Kind == SyntaxKind.InvocationExpression);
+                }
+
                 public override IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
                 {
                     if (node.Kind == SyntaxKind.InvocationExpression)

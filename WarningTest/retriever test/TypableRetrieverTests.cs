@@ -53,7 +53,7 @@ namespace WarningTest.retriever_test
             foreach (var symbol in symbols)
             {
                 symbolAnalyzer.SetSymbol(symbol);
-                logger.Info(symbolAnalyzer.GetDeclarationSyntaxNode());
+                logger.Info(symbolAnalyzer.GetDeclarationToken());
                 logger.Info(symbolAnalyzer.GetSymbolTypeName());
             }
         }

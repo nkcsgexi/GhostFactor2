@@ -101,11 +101,15 @@ namespace warnings.conditions
                     get { return RefactoringType.INLINE_METHOD; }
                 }
 
+                public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
+                {
+                    return ((SyntaxNode) document.GetSyntaxRoot()).DescendantNodes().Where(n => n is StatementSyntax);
+                }
 
                 public override IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
                 {
                     // The node should be a statement instance and the document is correct.
-                    if(node is StatementSyntax && IsDocumentRight(document))
+                    if(node is StatementSyntax && CheckDocument(document))
                     {
                         // Get the methodAfter containing the node.
                         var method = GetContainingMethod(node);
@@ -145,7 +149,7 @@ namespace warnings.conditions
                 }
 
                 /* Is the document where the inline methodAfter refactoring happened? */
-                private bool IsDocumentRight(IDocument document)
+                private bool CheckDocument(IDocument document)
                 {
                     // Get the qualified name of the type that encloses the methodAfter.
                     var analyzer = AnalyzerFactory.GetQualifiedNameAnalyzer();

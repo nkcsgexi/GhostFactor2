@@ -12,6 +12,7 @@ using Roslyn.Services.Editor;
 using warnings.analyzer;
 using warnings.analyzer.comparators;
 using warnings.refactoring;
+using warnings.refactoring.detection;
 using warnings.resources;
 using warnings.retriever;
 using warnings.util;
@@ -76,31 +77,34 @@ namespace warnings.conditions
                 /* The missing typeNameTuples' RefactoringType and name tuples. */
                 private IEnumerable<Tuple<string, string>> typeNameTuples;
 
+                private readonly IComparer<SyntaxNode> methodNameComparer;
+
                 public ParameterCheckingCodeIssueComputer(SyntaxNode declaration,
                     IEnumerable<Tuple<string, string>> typeNameTuples, string documentUniqueName) 
                         : base(documentUniqueName)
                 {
                     this.declaration = declaration;
                     this.typeNameTuples = typeNameTuples;
+                    this.methodNameComparer = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+                }
+
+                public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
+                {
+                    return ((SyntaxNode) document.GetSyntaxRoot()).DescendantNodes().Where(
+                            n => n.Kind == SyntaxKind.MethodDeclaration);
                 }
 
                 public override IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
                 {
-                    // If the node is not method invocation, does not proceed.
-                    if (node.Kind == SyntaxKind.InvocationExpression)
+                    // If the node is not method declaration, does not proceed.
+                    if (node.Kind == SyntaxKind.MethodDeclaration)
                     {
-                        // Find all invocations of the extracted method.
-                        var retriever = RetrieverFactory.GetMethodInvocationRetriever();
-                        retriever.SetDocument(document);
-                        retriever.SetMethodDeclaration(declaration);
-                        var invocations = retriever.GetInvocations();
-
-                        // If the given node is one of these invocations, return a new issue.
-                        if (invocations.Any(i => i.Span.Equals(node.Span)))
+                        // If the given node is the declaration, return a new issue.
+                        if (methodNameComparer.Compare(node, declaration) == 0)
                         {
                             yield return new CodeIssue(CodeIssue.Severity.Error, node.Span,
                                 "Missing parameters: " + StringUtil.ConcatenateAll(",", typeNameTuples.Select(n => n.Item2)),
-                                    new ICodeAction[] { new AddParamterCodeAction(document.Project.Solution, declaration, typeNameTuples) });
+                                    new ICodeAction[] { new AddParamterCodeAction(document, declaration, typeNameTuples) });
                         }
                     }
                 }
@@ -116,9 +120,9 @@ namespace warnings.conditions
 
                         // If the method declarations are equal to each other.
                         return methodsComparator.Compare(declaration, other.declaration) == 0 &&
-                               // Also the contained parameter names are equal to each other, return true;
-                               stringEnumerablesComparator.Compare(typeNameTuples.Select(t => t.Item2),
-                                                                   other.typeNameTuples.Select(t => t.Item2)) == 0;
+                            // Also the contained parameter names are equal to each other, return true;
+                            stringEnumerablesComparator.Compare(typeNameTuples.Select(t => t.Item2),
+                                other.typeNameTuples.Select(t => t.Item2)) == 0;
                     }
                     return false;
                 }
@@ -127,21 +131,21 @@ namespace warnings.conditions
                 {
                     private readonly IEnumerable<Tuple<string, string>> typeNameTuples;
                     private readonly SyntaxNode declaration;
-                    private readonly ISolution originalSolution;
+                    private readonly IDocument document;
 
-                    internal AddParamterCodeAction(ISolution originalSolution, SyntaxNode declaration,
+                    internal AddParamterCodeAction(IDocument document, SyntaxNode declaration,
                                                    IEnumerable<Tuple<string, string>> typeNameTuples)
                     {
-                        this.originalSolution = originalSolution;
+                        this.document = document;
                         this.typeNameTuples = typeNameTuples;
                         this.declaration = declaration;
                     }
 
                     public CodeActionEdit GetEdit(CancellationToken cancellationToken = new CancellationToken())
                     {
-                        var updatedSolution = updateMethodDeclaration(originalSolution);
-                        updatedSolution = updateMethodInvocations(updatedSolution);
-                        return new CodeActionEdit(updatedSolution);
+                        var updatedDocument = updateMethodDeclaration(document);
+                        updatedDocument = updateMethodInvocations(updatedDocument);
+                        return new CodeActionEdit(updatedDocument);
                     }
 
                     public ImageSource Icon
@@ -154,57 +158,38 @@ namespace warnings.conditions
                         get { return "Add paramters " + StringUtil.ConcatenateAll(",", typeNameTuples.Select(t => t.Item2)); }
                     }
 
-                    private ISolution updateMethodDeclaration(ISolution solution)
+                    private IDocument updateMethodDeclaration(IDocument document)
                     {
-                        // Get the qualified name of the RefactoringType containing the declaration.
-                        var qualifidedNameAnalyzer = AnalyzerFactory.GetQualifiedNameAnalyzer();
-                        qualifidedNameAnalyzer.SetSyntaxNode(declaration);
-                        var typeName = qualifidedNameAnalyzer.GetOutsideTypeQualifiedName();
-
-                        // Get all documents in the given originalSolution.
-                        var solutionAnalyzer = AnalyzerFactory.GetSolutionAnalyzer();
-                        solutionAnalyzer.SetSolution(solution);
-                        var documents = solutionAnalyzer.GetAllDocuments();
-
                         // Get the simplified name of the method
                         var methodName = ((MethodDeclarationSyntax) declaration).Identifier.ValueText;
+                        var documentAnalyzer = AnalyzerFactory.GetDocumentAnalyzer();
+                        documentAnalyzer.SetDocument(document);
+                      
+                        // Get the root of the current document.
+                        var root = ((SyntaxNode) document.GetSyntaxRoot());
 
-                        // For each document in the originalSolution.
-                        foreach (var document in documents)
+                        // Find the method
+                        SyntaxNode method = root.DescendantNodes().Where(
+                            // Find all the method declarations.
+                            n => n.Kind == SyntaxKind.MethodDeclaration).
+                            // Convert all of them to the RefactoringType MethodDeclarationSyntax.
+                            Select(n => (MethodDeclarationSyntax) n).
+                            // Get the one whose name is same with the given method declaration.
+                            First(m => m.Identifier.ValueText.Equals(methodName));
+
+                        // If we can find this method.
+                        if (method != null)
                         {
-                            var documentAnalyzer = AnalyzerFactory.GetDocumentAnalyzer();
-                            documentAnalyzer.SetDocument(document);
+                            // Get the updated method declaration.
+                            var methodAnalyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
+                            methodAnalyzer.SetMethodDeclaration(method);
+                            var updatedMethod = methodAnalyzer.AddParameters(typeNameTuples);
 
-                            // If the document contains the RefactoringType in which the method is declared.
-                            if (documentAnalyzer.ContainsQualifiedName(typeName))
-                            {
-                                // Get the root of the current document.
-                                var root = ((SyntaxNode) document.GetSyntaxRoot());
-
-                                // Find the method
-                                SyntaxNode method = root.DescendantNodes().Where(
-                                    // Find all the method declarations.
-                                    n => n.Kind == SyntaxKind.MethodDeclaration).
-                                    // Convert all of them to the RefactoringType MethodDeclarationSyntax.
-                                    Select(n => (MethodDeclarationSyntax) n).
-                                    // Get the one whose name is same with the given method declaration.
-                                    First(m => m.Identifier.ValueText.Equals(methodName));
-
-                                // If we can find this method.
-                                if (method != null)
-                                {
-                                    // Get the updated method declaration.
-                                    var methodAnalyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
-                                    methodAnalyzer.SetMethodDeclaration(method);
-                                    var updatedMethod = methodAnalyzer.AddParameters(typeNameTuples);
-
-                                    // Update the root, document and finally return the code action.
-                                    var updatedRoot = new MethodDeclarationRewriter(method, updatedMethod).Visit(root);
-                                    return solution.UpdateDocument(document.Id, updatedRoot);
-                                }
-                            }
+                            // Update the root, document and finally return the code action.
+                            var updatedRoot = new MethodDeclarationRewriter(method, updatedMethod).Visit(root);
+                            return document.UpdateSyntaxRoot(updatedRoot);
                         }
-                        return solution;
+                        return document;
                     }
 
                     /* Sytnax writer to change a method to an updated one. */
@@ -230,38 +215,29 @@ namespace warnings.conditions
                     }
 
                     /* Update all the method invocations in the solution. */
-                    private ISolution updateMethodInvocations(ISolution solution)
+                    private IDocument updateMethodInvocations(IDocument document)
                     {
-                        // Get all the documents in the solution.
-                        var solutionAnalyzer = AnalyzerFactory.GetSolutionAnalyzer();
-                        solutionAnalyzer.SetSolution(solution);
-                        var documents = solutionAnalyzer.GetAllDocuments();
-
                         // Get the retriever for method invocations.
                         var retriever = RetrieverFactory.GetMethodInvocationRetriever();
                         retriever.SetMethodDeclaration(declaration);
+             
+                        // Get all the invocations in the document for the given method
+                        // declaration.
+                        retriever.SetDocument(document);
+                        var invocations = retriever.GetInvocations();
 
-                        // For each document
-                        foreach (var document in documents)
+                        // If there are invocations in the document.
+                        if (invocations.Any())
                         {
-                            // Get all the invocations in the document for the given method
-                            // declaration.
-                            retriever.SetDocument(document);
-                            var invocations = retriever.GetInvocations();
+                            // Update root
+                            var root = (SyntaxNode) document.GetSyntaxRoot();
+                            var updatedRoot = new InvocationsAddArgumentsRewriter(invocations, typeNameTuples.Select(t => t.Item2)).
+                                Visit(root);
 
-                            // If there are invocations in the document.
-                            if (invocations.Any())
-                            {
-                                // Update root
-                                var root = (SyntaxNode) document.GetSyntaxRoot();
-                                var updatedRoot = new InvocationsAddArgumentsRewriter(invocations, typeNameTuples.Select(t => t.Item2)).
-                                    Visit(root);
-
-                                // Update solution by update the document.
-                                solution = solution.UpdateDocument(document.Id, updatedRoot);
-                            }
+                            // Update solution by update the document.
+                            document = document.UpdateSyntaxRoot(updatedRoot);
                         }
-                        return solution;
+                        return document;
                     }
 
                     // Syntax rewriter for adding arguments to given method invocations.

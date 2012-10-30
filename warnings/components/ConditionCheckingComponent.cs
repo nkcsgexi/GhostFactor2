@@ -46,7 +46,7 @@ namespace warnings.components
 
         private void onFailedItem(object sender, WorkItemEventArgs workItemEventArgs)
         {
-            logger.Fatal("Work item failed.");
+            logger.Fatal("Work item failed: " + workItemEventArgs.WorkItem);
         }
 
         public void Enqueue(IWorkItem item)

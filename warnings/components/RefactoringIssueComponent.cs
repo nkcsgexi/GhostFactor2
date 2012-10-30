@@ -105,7 +105,8 @@ namespace warnings.components
 
         private void OnItemFailed(object sender, WorkItemEventArgs workItemEventArgs)
         {
-            logger.Fatal("Work item failed.");
+            logger.Fatal("Work item failed: " + workItemEventArgs.WorkItem);
+            logger.Fatal(workItemEventArgs.WorkItem.FailedException.StackTrace);
         }
 
         public void Enqueue(IWorkItem item)
@@ -335,27 +336,26 @@ namespace warnings.components
                 analyzer.SetSolution(solution);
                 var documents = analyzer.GetAllDocuments();
 
-                // For each of the document.
-                foreach (IDocument document in documents)
+                foreach (ICodeIssueComputer computer in computers)
                 {
-                    // Get all the decendant nodes. 
-                    var nodes = ((SyntaxNode) document.GetSyntaxRoot()).DescendantNodes();
-                    
-                    // For each computer in the given list.
-                    foreach (ICodeIssueComputer computer in computers)
+                    foreach (IDocument document in documents)
                     {
                         if (computer.IsDocumentCorrect(document))
                         {
-                            // Find all the issues in the document. 
-                            var issues = nodes.SelectMany(n => computer.ComputeCodeIssues(document, n));
-
-                            // For each code issue in the document, create a warning message and add it to the list.
-                            foreach (CodeIssue issue in issues)
+                            var nodes = computer.GetPossibleSyntaxNodes(document);
+                            if (nodes.Any())
                             {
-                                var warningMessage = RefactoringWarningMessageFactory.
-                                    CreateRefactoringWarningMessage(document, issue, computer);
-                                messagesList.Add(warningMessage);
-                                logger.Info("Create a refactoring warning.");
+                                // Find all the issues in the document. 
+                                var issues = nodes.SelectMany(n => computer.ComputeCodeIssues(document, n));
+
+                                // For each code issue in the document, create a warning message and add it to the list.
+                                foreach (CodeIssue issue in issues)
+                                {
+                                    var warningMessage = RefactoringWarningMessageFactory.
+                                        CreateRefactoringWarningMessage(document, issue, computer);
+                                    messagesList.Add(warningMessage);
+                                    logger.Info("Create a refactoring warning.");
+                                }
                             }
                         }
                     }

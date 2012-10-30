@@ -14,7 +14,7 @@ namespace warnings.analyzer
     public interface ISymbolAnalyzer
     {
         void SetSymbol(ISymbol symbol);
-        SyntaxNode GetDeclarationSyntaxNode();
+        SyntaxToken GetDeclarationToken();
         string GetSymbolTypeName();
     }
 
@@ -23,71 +23,89 @@ namespace warnings.analyzer
         private ISymbol symbol;
         private IDocument document;
         private readonly string OBJECT = "object";
-        //private readonly Logger logger = NLoggerUtil.GetNLogger(typeof (ISymbolAnalyzer));
-
+    
         public void SetSymbol(ISymbol symbol)
         {
             this.symbol = symbol;
         }
 
-        public SyntaxNode GetDeclarationSyntaxNode()
+        public SyntaxToken GetDeclarationToken()
         {
             // Get the default declaration location of the symbol
             var definition = symbol.OriginalDefinition.Locations.FirstOrDefault();
-            
-            // Get the source code and span of the definition
-            var source = definition.SourceTree.GetRoot().GetText();
-            var span = definition.SourceSpan;
 
-            // Convert the source code to IDocument to use document analyzer.
-            var converter = new String2IDocumentConverter();
-            document = (IDocument) converter.Convert(source, null, null, null);
-            var analyzer = AnalyzerFactory.GetDocumentAnalyzer();
-            analyzer.SetDocument(document);
-            return analyzer.
-                // First get all the declarations in the document.
-                GetAllDeclarations().
-                    // Select the declaration that contains the symbol declaration. 
-                    Where(d => d.Span.Contains(span)).
-                        // Order them by the length, the shortest shall be the declaration for the symbol.
-                        OrderBy(d => d.Span.Length).First();
+            // Get the source code and span of the definition
+            var root = (SyntaxNode)definition.SourceTree.GetRoot(); 
+            var span = definition.SourceSpan;
+            var token = root.DescendantTokens(n => n.Span.Contains(span)).First(n => n.Span.Equals(span));
+            return token;
         }
 
         public string GetSymbolTypeName()
         {
-            return GetTypeName(GetDeclarationSyntaxNode());
+            return GetTypeName(GetDeclarationToken());
         }
 
         /* Get the RefactoringType name of a declaration. */
-        private string GetTypeName(SyntaxNode node)
+        private string GetTypeName(SyntaxToken token)
         {
-            // If this declaration is an instance declarator.
-            if(node.Kind == SyntaxKind.VariableDeclarator)
+            var parent = GetParentDeclaratorOrParameter(token);
+            
+            // If this declaration is an instance declarator, get the type name of the
+            // declarator.
+            if(parent.Kind == SyntaxKind.VariableDeclarator)
             {
-                var declarator = (VariableDeclaratorSyntax) node;
+                return GetDeclaratorTypeName(parent);
+            }
 
-                // Get the declaration contains this declarator.
-                var declaration = (VariableDeclarationSyntax)declarator.Ancestors().
-                    // Whose kind is declaration.
-                    Where(n => n.Kind == SyntaxKind.VariableDeclaration).
-                        // Order them by the span length.
-                        OrderBy(n => n.Span.Length).
-                            // Get the shortest.
-                            First();
-
-                // If the RefactoringType declared is var, get the real RefactoringType string.
-                if(declaration.Type.IsVar)
-                {
-                    return HandleVarDeclaration(declarator);
-                }
-
-                // Return the plain name for the declaration.
-                return declaration.Type.PlainName;
+            // If the declaration is a parameter, get the type name of the parameter.
+            if(parent.Kind == SyntaxKind.Parameter)
+            {
+                return GetParameterTypeName(parent);
             }
             
             // If not declarator, return object.
             return OBJECT;
         }
+
+        private SyntaxNode GetParentDeclaratorOrParameter(SyntaxToken token)
+        {
+            var analyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
+            analyzer.SetSyntaxNode(token.Parent);
+            return analyzer.GetClosestAncestor(n => n.Kind == SyntaxKind.VariableDeclarator 
+                || n.Kind == SyntaxKind.Parameter);
+        }
+
+        private string GetDeclaratorTypeName(SyntaxNode node)
+        {
+            var declarator = (VariableDeclaratorSyntax)node;
+
+            // Get the declaration contains this declarator.
+            var declaration = (VariableDeclarationSyntax)declarator.Ancestors().
+                // Whose kind is declaration.
+                Where(n => n.Kind == SyntaxKind.VariableDeclaration).
+                // Order them by the span length.
+                    OrderBy(n => n.Span.Length).
+                // Get the shortest.
+                        First();
+
+            // If the RefactoringType declared is var, get the real RefactoringType string.
+            if (declaration.Type.IsVar)
+            {
+                return HandleVarDeclaration(declarator);
+            }
+
+            // Return the plain name for the declaration.
+            return declaration.Type.PlainName;
+        }
+
+        private string GetParameterTypeName(SyntaxNode node)
+        {
+            var analyzer = AnalyzerFactory.GetParameterAnalyzer();
+            analyzer.SetParameter(node);
+            return analyzer.GetParameterType().GetText();
+        }
+
 
         /* Get the real RefactoringType name when the declaration is using var keyword. */
         private string HandleVarDeclaration(VariableDeclaratorSyntax declarator)

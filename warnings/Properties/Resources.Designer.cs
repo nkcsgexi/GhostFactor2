@@ -60,9 +60,9 @@ namespace warnings.Properties {
             }
         }
         
-        public static System.Drawing.Bitmap redr {
+        public static System.Drawing.Bitmap warning_sign {
             get {
-                object obj = ResourceManager.GetObject("redr", resourceCulture);
+                object obj = ResourceManager.GetObject("warning_sign", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

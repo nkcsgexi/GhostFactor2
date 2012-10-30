@@ -93,6 +93,7 @@
     <Compile Include="analyzer test\RenamableRetrieverTests.cs" />
     <Compile Include="refactoring detector test\RenameDetectorTests.cs" />
     <Compile Include="component test\ResourcesTests.cs" />
+    <Compile Include="util test\ResourceTests.cs" />
     <Compile Include="util test\RoslynRefactoringUtilTest.cs" />
     <Compile Include="util test\RoslynUtilTests.cs" />
     <Compile Include="analyzer test\StatementAnalyzerTests.cs" />

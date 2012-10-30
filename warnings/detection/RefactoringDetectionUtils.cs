@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Roslyn.Compilers.CSharp;
 using Roslyn.Services;
+using warnings.analyzer;
 using warnings.util;
 
 namespace warnings.refactoring.detection
@@ -40,6 +41,20 @@ namespace warnings.refactoring.detection
             }
         }
 
+        /* Compare the two nodes by the qualified name of the type enclosing these nodes. */
+         private class NodeOutsideTypeComparer : IComparer<SyntaxNode>
+         {
+             public int Compare(SyntaxNode x, SyntaxNode y)
+             {
+                 var analyzer = AnalyzerFactory.GetQualifiedNameAnalyzer();
+                 analyzer.SetSyntaxNode(x);
+                 var nameX = analyzer.GetOutsideTypeQualifiedName();
+                 analyzer.SetSyntaxNode(y);
+                 var nameY = analyzer.GetOutsideTypeQualifiedName();
+                 return nameX.Equals(nameY) ? 0 : 1;
+             }
+         }
+
         public static IComparer<SyntaxNode> GetClassDeclarationNameComparer()
         {
             return new ClassNameComparer();
@@ -48,6 +63,11 @@ namespace warnings.refactoring.detection
         public static IComparer<SyntaxNode> GetMethodDeclarationNameComparer()
         {
             return new MethodNameComparer();
+        }
+
+        public static IComparer<SyntaxNode> GetNodeOutSideTypeQualifiedNameComparer()
+        {
+            return new NodeOutsideTypeComparer();
         }
 
         /* Get the common node pairs in before and after set of nodes. */

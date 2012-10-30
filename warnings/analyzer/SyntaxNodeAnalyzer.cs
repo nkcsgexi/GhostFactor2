@@ -81,7 +81,7 @@ namespace warnings.analyzer
             SyntaxNode ancestor;
 
             // Iteratively get parent node until the node met with the given condition.
-            for (ancestor = node; ancestor != null && ! condition.Invoke(ancestor); ancestor = ancestor.Parent) ;
+            for (ancestor = node; ancestor != null && !condition.Invoke(ancestor); ancestor = ancestor.Parent) ;
             return ancestor;
         }
 

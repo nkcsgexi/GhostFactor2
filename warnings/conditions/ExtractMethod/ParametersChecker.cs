@@ -90,8 +90,8 @@ namespace warnings.conditions
 
                 public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
                 {
-                    return ((SyntaxNode) document.GetSyntaxRoot()).DescendantNodes().Where(
-                            n => n.Kind == SyntaxKind.MethodDeclaration);
+                    return ((SyntaxNode)document.GetSyntaxRoot()).DescendantNodes(n => n.Kind != 
+                        SyntaxKind.MethodDeclaration).Where(n => n.Kind == SyntaxKind.MethodDeclaration);
                 }
 
                 public override IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
@@ -104,7 +104,7 @@ namespace warnings.conditions
                         {
                             yield return new CodeIssue(CodeIssue.Severity.Error, node.Span,
                                 "Missing parameters: " + StringUtil.ConcatenateAll(",", typeNameTuples.Select(n => n.Item2)),
-                                    new ICodeAction[] { new AddParamterCodeAction(document, declaration, typeNameTuples) });
+                                    new ICodeAction[] { new AddParamterCodeAction(document, declaration, typeNameTuples, this) });
                         }
                     }
                 }
@@ -115,14 +115,10 @@ namespace warnings.conditions
                     if (o is ParameterCheckingCodeIssueComputer)
                     {
                         var other = (ParameterCheckingCodeIssueComputer) o;
-                        var methodsComparator = new MethodsComparator();
-                        var stringEnumerablesComparator = new StringEnumerablesComparator();
-
+                        var methodsComparator = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+                   
                         // If the method declarations are equal to each other.
-                        return methodsComparator.Compare(declaration, other.declaration) == 0 &&
-                            // Also the contained parameter names are equal to each other, return true;
-                            stringEnumerablesComparator.Compare(typeNameTuples.Select(t => t.Item2),
-                                other.typeNameTuples.Select(t => t.Item2)) == 0;
+                        return methodsComparator.Compare(declaration, other.declaration) == 0;
                     }
                     return false;
                 }
@@ -132,20 +128,25 @@ namespace warnings.conditions
                     private readonly IEnumerable<Tuple<string, string>> typeNameTuples;
                     private readonly SyntaxNode declaration;
                     private readonly IDocument document;
+                    private readonly ICodeIssueComputer computer;
 
-                    internal AddParamterCodeAction(IDocument document, SyntaxNode declaration,
-                                                   IEnumerable<Tuple<string, string>> typeNameTuples)
+                    internal AddParamterCodeAction(IDocument document, SyntaxNode declaration, 
+                        IEnumerable<Tuple<string, string>> typeNameTuples, ICodeIssueComputer computer)
                     {
                         this.document = document;
                         this.typeNameTuples = typeNameTuples;
                         this.declaration = declaration;
+                        this.computer = computer;
                     }
 
                     public CodeActionEdit GetEdit(CancellationToken cancellationToken = new CancellationToken())
                     {
                         var updatedDocument = updateMethodDeclaration(document);
                         updatedDocument = updateMethodInvocations(updatedDocument);
-                        return new CodeActionEdit(updatedDocument);
+                        var updatedSolution = document.Project.Solution.UpdateDocument(updatedDocument);
+                        var edit = new CodeActionEdit(null, updatedSolution, 
+                            ConditionCheckersUtils.GetRemoveCodeIssueComputerOperation(computer));
+                        return edit;
                     }
 
                     public ImageSource Icon

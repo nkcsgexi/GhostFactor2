@@ -125,7 +125,7 @@ namespace warnings.conditions
                             {
                                 yield return new CodeIssue(CodeIssue.Severity.Error, node.Span, GetDescription(), 
                                     new ICodeAction[]{new ModifiedFlowOutDataFix(document, methodAfter, inlinedMethod, inlinedMethodInvocation, 
-                                        inlinedStatements, addedSymbols, missingSymbols)});
+                                        inlinedStatements, addedSymbols, missingSymbols, this)});
                             }
                         }   
                     }
@@ -216,13 +216,12 @@ namespace warnings.conditions
                     private readonly IEnumerable<SyntaxNode> inlinedStatements;
                     private readonly IEnumerable<ISymbol> addedSymbols;
                     private readonly IEnumerable<ISymbol> missingSymbols;
-                    
-                    internal ModifiedFlowOutDataFix(IDocument document, SyntaxNode methodAfter, 
-                        SyntaxNode inlinedMethod, SyntaxNode inlinedMethodInvocation,
-                        IEnumerable<SyntaxNode> inlinedStatements, 
-                        IEnumerable<ISymbol> addedSymbols, IEnumerable<ISymbol> missingSymbols)
+                    private readonly ICodeIssueComputer computer;
+
+                    internal ModifiedFlowOutDataFix(IDocument document, SyntaxNode methodAfter, SyntaxNode inlinedMethod, 
+                        SyntaxNode inlinedMethodInvocation, IEnumerable<SyntaxNode> inlinedStatements, 
+                        IEnumerable<ISymbol> addedSymbols, IEnumerable<ISymbol> missingSymbols, ICodeIssueComputer computer)
                     {
-                        this.logger = NLoggerUtil.GetNLogger(typeof (ModifiedFlowOutDataFix));
                         this.document = document;
                         this.methodAfter = methodAfter;
                         this.inlinedMethod = inlinedMethod;
@@ -230,6 +229,8 @@ namespace warnings.conditions
                         this.inlinedStatements = inlinedStatements;
                         this.addedSymbols = addedSymbols;
                         this.missingSymbols = missingSymbols;
+                        this.computer = computer;
+                        this.logger = NLoggerUtil.GetNLogger(typeof(ModifiedFlowOutDataFix));
                     }
 
                     public CodeActionEdit GetEdit(CancellationToken cancellationToken = new CancellationToken())
@@ -263,7 +264,10 @@ namespace warnings.conditions
                         // Update root and document, return the code edition. 
                         var root = (SyntaxNode) document.GetSyntaxRoot();
                         var updatedRoot = root.ReplaceNodes(new[] {methodAfter}, (node1, node2) => updatedMethod);
-                        return new CodeActionEdit(document.UpdateSyntaxRoot(updatedRoot));
+                        var updatedDocument = document.UpdateSyntaxRoot(updatedRoot);
+                        var updatedSolution = document.Project.Solution.UpdateDocument(updatedDocument);
+                        return new CodeActionEdit(null, updatedSolution, ConditionCheckersUtils.
+                            GetRemoveCodeIssueComputerOperation(computer));
                     }
 
 

@@ -155,7 +155,7 @@ namespace warnings.conditions
                             yield return new CodeIssue(CodeIssue.Severity.Error, node.Span,
                                 "Missing return values: " + StringUtil.ConcatenateAll(",",typeNameTuples.Select( t => t.Item2)),
                                     // Create a quick fix for adding the first missing return value.
-                                    new ICodeAction[]{new AddReturnValueCodeAction(document, declaration, typeNameTuples) });
+                                    new ICodeAction[]{new AddReturnValueCodeAction(document, declaration, typeNameTuples, this) });
                         }
                     }
                 }
@@ -166,14 +166,10 @@ namespace warnings.conditions
                     if (o is ReturnTypeCheckingResult)
                     {
                         var other = (ReturnTypeCheckingResult) o;
-                        var methodsComparator = new MethodsComparator();
-                        var stringEnumerablesComparator = new StringEnumerablesComparator();
-
+                        var methodsComparator = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+                        
                         // If the method declarations are equal to each other.
-                        return methodsComparator.Compare(declaration, other.declaration) == 0 &&
-                               // Also the contained return names are equal to each other, return true;
-                               stringEnumerablesComparator.Compare(typeNameTuples.Select(t => t.Item2),
-                                                                   other.typeNameTuples.Select(t => t.Item2)) == 0;
+                        return methodsComparator.Compare(declaration, other.declaration) == 0;
                     }
                     return false;
                 }
@@ -191,17 +187,19 @@ namespace warnings.conditions
                 private readonly SyntaxNode declaration;
                 private readonly IDocument document;
                 private readonly Logger logger;
+                private readonly ICodeIssueComputer computer;
 
                 // Can only handle one tuple, even though multiple are passed in.
                 private readonly Tuple<string, string> handledTypeName;
 
-                internal AddReturnValueCodeAction(IDocument document, SyntaxNode declaration,
-                                                  IEnumerable<Tuple<string, string>> typeNameTuples)
+                internal AddReturnValueCodeAction(IDocument document, SyntaxNode declaration, IEnumerable<Tuple<string, string>> 
+                    typeNameTuples, ICodeIssueComputer computer)
                 {
                     this.document = document;
                     this.declaration = declaration;
                     this.typeNameTuples = typeNameTuples;
                     this.handledTypeName = typeNameTuples.FirstOrDefault();
+                    this.computer = computer;
                     this.logger = NLoggerUtil.GetNLogger(typeof (AddReturnValueCodeAction));
                 }
 
@@ -215,7 +213,9 @@ namespace warnings.conditions
 
                     // Update the document with the new root and return the code action.
                     var updatedDocument = document.UpdateSyntaxRoot(newRoot);
-                    return new CodeActionEdit(updatedDocument);
+                    var updatedSolution = document.Project.Solution.UpdateDocument(updatedDocument);
+                    return new CodeActionEdit(null, updatedSolution, ConditionCheckersUtils.
+                        GetRemoveCodeIssueComputerOperation(computer));
                 }
 
                 public ImageSource Icon

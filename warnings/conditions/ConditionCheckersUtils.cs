@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Roslyn.Compilers.CSharp;
 using Roslyn.Compilers.Common;
 using Roslyn.Services;
+using Roslyn.Services.Editor;
 using warnings.analyzer;
+using warnings.components;
 
 namespace warnings.conditions
 {
@@ -103,6 +106,29 @@ namespace warnings.conditions
             return analyzer.GetClosestAncestor(n => n is StatementSyntax);
         }
 
+        public static ICodeActionOperation GetRemoveCodeIssueComputerOperation(ICodeIssueComputer computer)
+        {
+            return new RemoveCodeIssueComputerOperation(computer);
+        }
 
+        private class RemoveCodeIssueComputerOperation : ICodeActionOperation
+        {
+            private readonly ICodeIssueComputer computer;
+
+            public RemoveCodeIssueComputerOperation(ICodeIssueComputer computer)
+            {
+                this.computer = computer;
+            }
+
+            public void Apply(IWorkspace workspace, CancellationToken cancellationToken = new CancellationToken())
+            {
+                GhostFactorComponents.RefactoringCodeIssueComputerComponent.RemoveCodeIssueComputers(new[] {computer});
+            }
+
+            public object GetPreview(CancellationToken cancellationToken = new CancellationToken())
+            {
+                return null;
+            }
+        }
     }
 }

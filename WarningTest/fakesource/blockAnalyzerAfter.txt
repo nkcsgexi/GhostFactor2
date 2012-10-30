@@ -1,0 +1,79 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Roslyn.Compilers.CSharp;
+using warnings.util;
+
+namespace warnings.analyzer
+{
+    public interface IBlocksAnalyzer
+    {
+        void SetBlockBefore(SyntaxNode blockBefore);
+        void SetBlockAfter(SyntaxNode blockAfter);
+        IEnumerable<SyntaxNodePair> GetChangedBlocks();
+    }
+
+    internal class BlockAnalyzer : IBlocksAnalyzer
+    {
+        private BlockSyntax blockBefore;
+        private BlockSyntax blockAfter;
+
+        public void SetBlockBefore(SyntaxNode blockBefore)
+        {
+            this.blockBefore = (BlockSyntax) blockBefore;
+        }
+
+        public void SetBlockAfter(SyntaxNode blockAfter)
+        {
+            this.blockAfter = (BlockSyntax) blockAfter;
+        }
+
+        public IEnumerable<SyntaxNodePair> GetChangedBlocks()
+        {
+            return GetChangedSubBlocks(blockBefore, blockAfter);
+        }
+
+        private IEnumerable<SyntaxNodePair> GetChangedSubBlocks(BlockSyntax before, BlockSyntax after)
+        {
+            if(!before.EquivalentTo(after))
+            {
+                if (AreStatementsCountSame(before, after))
+                {
+                    var subBlocksBefore = GetChildBlocks(before);
+                    var subBlocksAfter = GetChildBlocks(after);
+                    if (subBlocksBefore.Count() == subBlocksAfter.Count())
+                    {
+                        var pairs = new List<SyntaxNodePair>();
+                        for (int i = 0; i < subBlocksBefore.Count(); i++)
+                        {
+							int j;
+							j = 1;
+                            var subBlockB = subBlocksBefore.ElementAt(i);
+                            var subBlockA = subBlocksAfter.ElementAt(i);
+                            pairs.AddRange(GetChangedSubBlocks(subBlockB, subBlockA));
+                        }
+                        return pairs;
+                    }
+                }
+                return new[] {new SyntaxNodePair(before, after)};
+            }
+            return new SyntaxNodePair[]{};
+        }
+
+
+        private IEnumerable<BlockSyntax> GetChildBlocks(BlockSyntax block)
+        {
+            return block.Statements.Where(s => s.ChildNodes().Any(c => c.Kind == SyntaxKind.Block)).
+                Select(s => (BlockSyntax) s.ChildNodes().First(c => c.Kind == SyntaxKind.Block));
+        }
+
+        private bool AreStatementsCountSame(BlockSyntax before, BlockSyntax after)
+        {
+            return before.Statements.Count == after.Statements.Count;
+        }
+
+
+
+    }
+}

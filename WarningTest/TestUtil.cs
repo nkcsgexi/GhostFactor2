@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Roslyn.Services;
+using warnings.util;
 
 namespace WarningTest
 {
@@ -51,6 +53,13 @@ namespace WarningTest
         public static string GetAnotherSolutionPath()
         {
             return @"C:\programming\VSWorkspace\BeneWarShadow\CodeIssue1\CodeIssue1.sln";
+        }
+
+        public static IDocument GetDocumentForFakeSource(string name)
+        {
+            var source = FileUtil.ReadAllText(GetFakeSourceFolder() + name);
+            var converter = new String2IDocumentConverter();
+            return (IDocument)converter.Convert(source, null, null, null);
         }
     }
 }

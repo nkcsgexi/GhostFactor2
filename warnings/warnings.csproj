@@ -102,6 +102,7 @@
   <ItemGroup>
     <Compile Include="Algorithm\Levenshtein.cs" />
     <Compile Include="analyzer\AnalyzerFactory.cs" />
+    <Compile Include="analyzer\BlockAnalyzer.cs" />
     <Compile Include="analyzer\CallGraphBuilder.cs" />
     <Compile Include="analyzer\comparators\Comparators.cs" />
     <Compile Include="analyzer\DataFlowAnalyzer.cs" />
@@ -180,6 +181,7 @@
     </Compile>
     <Compile Include="util\ASTUtil\ASTUtil.cs" />
     <Compile Include="util\ASTUtil\MethodBodyRetriever.cs" />
+    <Compile Include="util\ASTUtil\DataStructures.cs" />
     <Compile Include="util\Cache\Cachables.cs" />
     <Compile Include="util\Cache\Cache.cs" />
     <Compile Include="util\Converters.cs" />

@@ -56,6 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="analyzer test\BlockAnalyzerTests.cs" />
+    <Compile Include="analyzer test\ForEachStatementsAnalyzerTests.cs" />
+    <Compile Include="analyzer test\IfStatementAnalyzerTests.cs" />
     <Compile Include="analyzer test\MethodInvocationAnalyzerTests.cs" />
     <Compile Include="analyzer test\ReturnStatementAnalyzerTests.cs" />
     <Compile Include="analyzer test\SolutionAnalyzerTests.cs" />

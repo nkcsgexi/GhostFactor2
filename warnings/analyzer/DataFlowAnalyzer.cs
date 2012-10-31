@@ -23,6 +23,7 @@ namespace warnings.analyzer
         IEnumerable<ISymbol> GetWrittenData();
         IEnumerable<ISymbol> GetReadData();
         IEnumerable<ISymbol> GetUsedData();
+        IEnumerable<ISymbol> GetDeclaredData();
     }
 
 
@@ -96,6 +97,12 @@ namespace warnings.analyzer
             return analysis.ReadInside.Union(analysis.WrittenInside);
         }
 
+        public IEnumerable<ISymbol> GetDeclaredData()
+        {
+            var analysis = model.AnalyzeExpressionDataFlow(expression);
+            return analysis.VariablesDeclared;
+        }
+
         public IEnumerable<ISymbol> GetFlowInData()
         {
             var analysis = model.AnalyzeExpressionDataFlow(expression);
@@ -166,6 +173,12 @@ namespace warnings.analyzer
         {
             IRegionDataFlowAnalysis analysis = model.AnalyzeStatementsDataFlow(statements.First(), statements.Last());
             return analysis.ReadInside.Union(analysis.WrittenInside);
+        }
+
+        public IEnumerable<ISymbol> GetDeclaredData()
+        {
+            IRegionDataFlowAnalysis analysis = model.AnalyzeStatementsDataFlow(statements.First(), statements.Last());
+            return analysis.VariablesDeclared;
         }
     }
 }

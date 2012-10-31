@@ -16,6 +16,8 @@ namespace warnings.analyzer
 
     internal class BlockAnalyzer : IBlocksAnalyzer
     {
+        private readonly IIfStatementAnalyzer ifAnalyzer = 
+            AnalyzerFactory.GetIfStatementAnalyzer();
         private BlockSyntax blockBefore;
         private BlockSyntax blockAfter;
 
@@ -62,8 +64,24 @@ namespace warnings.analyzer
 
         private IEnumerable<BlockSyntax> GetChildBlocks(BlockSyntax block)
         {
-            return block.Statements.Where(s => s.ChildNodes().Any(c => c.Kind == SyntaxKind.Block)).
-                Select(s => (BlockSyntax) s.ChildNodes().First(c => c.Kind == SyntaxKind.Block));
+            return block.Statements.SelectMany(GetDirectBlockOfStatement);
+        }
+
+        /// <summary>
+        ///  Get the direct block contained in a statement, for any if statement, the direct blocks may be two,
+        /// on is from if block and the other is else block.
+        /// </summary>
+        /// <param name="statement"></param>
+        /// <returns></returns>
+        private IEnumerable<BlockSyntax> GetDirectBlockOfStatement(StatementSyntax statement)
+        {
+            if (statement.Kind == SyntaxKind.IfStatement)
+            {
+                ifAnalyzer.SetIfStatement(statement);
+                return ifAnalyzer.GetDirectBlocks().Select(b => (BlockSyntax)b);
+            }
+            return statement.ChildNodes().Where(c => c.Kind == SyntaxKind.Block).
+                Select(b => (BlockSyntax)b);        
         }
 
         private bool AreStatementsCountSame(BlockSyntax before, BlockSyntax after)

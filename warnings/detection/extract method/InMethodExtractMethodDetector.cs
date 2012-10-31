@@ -71,7 +71,8 @@ namespace warnings.refactoring.detection
         {
             private readonly static int MAX_COMMON_STATEMENTS = 0;
             private readonly Logger logger;
-            public InMethodExtractMethodDetectorByCommonStatements()
+
+            internal InMethodExtractMethodDetectorByCommonStatements()
             {
                 logger = NLoggerUtil.GetNLogger(typeof (InMethodExtractMethodDetectorByCommonStatements));
             }
@@ -91,9 +92,9 @@ namespace warnings.refactoring.detection
 
                 // Get the first invocation of the new method in the after-version of method.
                 var invocation = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, treeAfter).First();
-
                 var changedBlockPairs = GetChangedBlocks(callerBefore.Body, callerAfter.Body);
-
+                LogChangedBlocks(changedBlockPairs);
+                
                 if (changedBlockPairs.Count() == 1)
                 {
                     // Get the statements in the method after and the new method.
@@ -115,6 +116,16 @@ namespace warnings.refactoring.detection
                     }
                 }
                 return false;
+            }
+
+            private void LogChangedBlocks(IEnumerable<SyntaxNodePair> pairs)
+            {
+                logger.Debug("Changed blocks count: " + pairs.Count());
+                foreach (var pair in pairs)
+                {
+                    logger.Debug("Block before:\n" + pair.NodeBefore.GetText());
+                    logger.Debug("Block after:\n" + pair.NodeAfter.GetText());
+                }
             }
         }
 

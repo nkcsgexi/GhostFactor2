@@ -61,6 +61,36 @@ namespace warnings.analyzer
             return new SyntaxNodePair[]{};
         }
 
+		 private IEnumerable<SyntaxNodePair> GetChangedSubBlocks1(BlockSyntax before, BlockSyntax after)
+        {
+            if(!before.EquivalentTo(after))
+            {
+                if (AreStatementsCountSame(before, after))
+                {
+                    var subBlocksBefore = GetChildBlocks(before);
+                    var subBlocksAfter = GetChildBlocks(after);
+                    if (subBlocksBefore.Count() == subBlocksAfter.Count())
+                    {
+                        var pairs = new List<SyntaxNodePair>();
+                        for (int i = 0; i < subBlocksBefore.Count(); i++)
+                        {
+                            var subBlockB = subBlocksBefore.ElementAt(i);
+                            var subBlockA = subBlocksAfter.ElementAt(i);
+                            pairs.AddRange(GetChangedSubBlocks(subBlockB, subBlockA));
+                        }
+                        return pairs;
+                    }
+					else
+					{
+						int i;
+						i = 1;
+						i = 2;
+					}
+                }
+                return new[] {new SyntaxNodePair(before, after)};
+            }
+            return new SyntaxNodePair[]{};
+        }
 
         private IEnumerable<BlockSyntax> GetChildBlocks(BlockSyntax block)
         {

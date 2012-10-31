@@ -63,7 +63,6 @@ namespace warnings.analyzer
             return new SemanticModelAnalyzer();
         }
 
-
         public static IMemberAccessAnalyzer GetMemberAccessAnalyzer()
         {
             return new MemberAccessAnalyzer();
@@ -97,6 +96,16 @@ namespace warnings.analyzer
         public static IDeclaratorAnalyzer GetDeclaratorAnalyzer()
         {
             return new DeclaratorAnalyzer();
+        }
+
+        public static IIfStatementAnalyzer GetIfStatementAnalyzer()
+        {
+            return new IfStatementAnalyzer();
+        }
+
+        public static IForEachStatementAnalyzer GetForEachStatementAnalyzer()
+        {
+            return new ForEachStatementAnalyzer();
         }
 
         public static String GetAnalyzersCountInfo()

@@ -34,7 +34,7 @@ namespace warnings.conditions
                 // Calculate the needed typeNameTuples, depending on what to extract.
                 IEnumerable<ISymbol> needed;
                 if (input.ExtractedStatements != null)
-                    needed = ConditionCheckersUtils.GetUsedData(input.ExtractedStatements, before);
+                    needed = ConditionCheckersUtils.GetUsedButNotDeclaredData(input.ExtractedStatements, before);
                 else
                     needed = ConditionCheckersUtils.GetFlowInData(input.ExtractedExpression, before);
 

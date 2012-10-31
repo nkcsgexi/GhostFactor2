@@ -53,5 +53,21 @@ namespace WarningTest.analyzer_test
             Assert.IsTrue(((BlockSyntax)blocks.First().NodeAfter).Statements.Count == 5);
             Assert.IsTrue(((BlockSyntax)blocks.First().NodeBefore).Statements.Count == 3);
         }
+        
+        [TestMethod]
+        public void TestMethod3()
+        {
+            var block1 = GetMethodBlock(beforeDocument, "GetChangedSubBlocks1");
+            var block2 = GetMethodBlock(afterDocument, "GetChangedSubBlocks1");
+            Assert.IsNotNull(block1);
+            Assert.IsNotNull(block2);
+            var analyzer = AnalyzerFactory.GetBlockAnalyzer();
+            analyzer.SetBlockBefore(block1);
+            analyzer.SetBlockAfter(block2);
+            var blocks = analyzer.GetChangedBlocks();
+            Assert.IsTrue(blocks.Count() == 1);
+            Assert.IsTrue(((BlockSyntax)blocks.First().NodeAfter).Statements.Count == 3);
+            Assert.IsTrue(((BlockSyntax)blocks.First().NodeBefore).Statements.Count == 0);
+        }
     }
 }

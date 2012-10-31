@@ -69,6 +69,24 @@ namespace warnings.conditions
             return statementsDataFlowAnalyzer.GetUsedData();
         }
 
+        /// <summary>
+        /// Get the declared data in a sequence of statements.
+        /// </summary>
+        /// <param name="statements"></param>
+        /// <param name="document"></param>
+        /// <returns></returns>
+ 
+        public static IEnumerable<ISymbol> GetUsedButNotDeclaredData(IEnumerable<SyntaxNode> statements, IDocument document)
+        {
+            var usedData = GetUsedData(statements, document);
+            var statementsDataFlowAnalyzer = AnalyzerFactory.GetStatementsDataFlowAnalyzer();
+            statementsDataFlowAnalyzer.SetDocument(document);
+            statementsDataFlowAnalyzer.SetStatements(statements);
+            var declaredData = statementsDataFlowAnalyzer.GetDeclaredData();
+            return usedData.Except(declaredData);
+        }
+
+
         public static IEnumerable<ISymbol> GetFlowOutData(SyntaxNode statement, IDocument document)
         {
             return GetFlowOutData(new[] { statement }, document);

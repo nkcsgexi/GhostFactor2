@@ -107,6 +107,8 @@
     <Compile Include="analyzer\comparators\Comparators.cs" />
     <Compile Include="analyzer\DataFlowAnalyzer.cs" />
     <Compile Include="analyzer\DocumentAnalyzer.cs" />
+    <Compile Include="analyzer\ForEachStatementAnalyzer.cs" />
+    <Compile Include="analyzer\IfStatementAnalyzer.cs" />
     <Compile Include="analyzer\MemberAccessAnalyzer.cs" />
     <Compile Include="analyzer\MethodDeclarationAnalyzer.cs" />
     <Compile Include="analyzer\MethodInvocationAnalyzer.cs" />

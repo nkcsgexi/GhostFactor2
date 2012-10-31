@@ -20,10 +20,12 @@ namespace warnings.analyzer
 
     internal class SymbolAnalyzer : ISymbolAnalyzer
     {
+        private readonly static string OBJECT = "object";
+        private readonly Logger logger = NLoggerUtil.GetNLogger(typeof (ISymbolAnalyzer));
+
         private ISymbol symbol;
         private IDocument document;
-        private readonly string OBJECT = "object";
-    
+
         public void SetSymbol(ISymbol symbol)
         {
             this.symbol = symbol;
@@ -51,21 +53,45 @@ namespace warnings.analyzer
         {
             var parent = GetParentDeclaratorOrParameter(token);
             
-            // If this declaration is an instance declarator, get the type name of the
-            // declarator.
-            if(parent.Kind == SyntaxKind.VariableDeclarator)
+            logger.Debug("Declared Token: " + token.GetText());
+            logger.Debug("Declarator: " + parent.GetText());
+
+            if (parent != null)
             {
-                return GetDeclaratorTypeName(parent);
+                // If this declaration is an instance declarator, get the type name of the
+                // declarator.
+                if (parent.Kind == SyntaxKind.VariableDeclarator)
+                {
+                    return GetDeclaratorTypeName(parent);
+                }
+
+                // If the declaration is a parameter, get the type name of the parameter.
+                if (parent.Kind == SyntaxKind.Parameter)
+                {
+                    return GetParameterTypeName(parent);
+                }
+                
+                // If the symbol is the identifier in the for each loop.
+                if (parent.Kind == SyntaxKind.ForEachStatement)
+                {
+                    return GetForEachIdentifierTypeName(parent);
+                }
             }
 
-            // If the declaration is a parameter, get the type name of the parameter.
-            if(parent.Kind == SyntaxKind.Parameter)
-            {
-                return GetParameterTypeName(parent);
-            }
-            
             // If not declarator, return object.
             return OBJECT;
+        }
+
+        private string GetForEachIdentifierTypeName(SyntaxNode parent)
+        {
+            var analyzer = AnalyzerFactory.GetForEachStatementAnalyzer();
+            analyzer.SetStatement(parent);
+            var type = (TypeSyntax) analyzer.GetIdentifierType();
+            if(type.IsVar)
+            {
+                return OBJECT;
+            }
+            return type.GetText();
         }
 
         private SyntaxNode GetParentDeclaratorOrParameter(SyntaxToken token)
@@ -73,7 +99,7 @@ namespace warnings.analyzer
             var analyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
             analyzer.SetSyntaxNode(token.Parent);
             return analyzer.GetClosestAncestor(n => n.Kind == SyntaxKind.VariableDeclarator 
-                || n.Kind == SyntaxKind.Parameter);
+                || n.Kind == SyntaxKind.Parameter || n.Kind == SyntaxKind.ForEachStatement);
         }
 
         private string GetDeclaratorTypeName(SyntaxNode node)

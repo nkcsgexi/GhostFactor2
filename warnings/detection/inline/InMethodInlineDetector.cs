@@ -148,6 +148,7 @@ namespace warnings.refactoring.detection
         {
             public override bool HasRefactoring()
             {
+                refactorings.Clear();
                 var refactoring = ManualRefactoringFactory.CreateSimpleInlineMethodRefactoring(methodBefore, methodAfter, 
                     methodRemoved);
                 refactorings.Add(refactoring);

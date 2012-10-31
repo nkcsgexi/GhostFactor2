@@ -60,6 +60,15 @@ namespace warnings.conditions
             return statementsDataFlowAnalyzer.GetFlowInData();
         }
 
+        /* Get the data read and written in a given set of statements. */
+        public static IEnumerable<ISymbol> GetUsedData(IEnumerable<SyntaxNode> statements, IDocument document)
+        {
+            var statementsDataFlowAnalyzer = AnalyzerFactory.GetStatementsDataFlowAnalyzer();
+            statementsDataFlowAnalyzer.SetDocument(document);
+            statementsDataFlowAnalyzer.SetStatements(statements);
+            return statementsDataFlowAnalyzer.GetUsedData();
+        }
+
         public static IEnumerable<ISymbol> GetFlowOutData(SyntaxNode statement, IDocument document)
         {
             return GetFlowOutData(new[] { statement }, document);

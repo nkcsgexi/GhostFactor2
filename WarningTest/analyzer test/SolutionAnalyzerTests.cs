@@ -111,6 +111,7 @@ namespace WarningTest.analyzer_test
             {
                 logger.Info(tuple.Item1.GetText() + ":" + tuple.Item2);
             }
+           
         }
     }
 }

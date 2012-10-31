@@ -78,25 +78,18 @@ namespace warnings.analyzer
 
         private string GetDeclaratorTypeName(SyntaxNode node)
         {
-            var declarator = (VariableDeclaratorSyntax)node;
-
-            // Get the declaration contains this declarator.
-            var declaration = (VariableDeclarationSyntax)declarator.Ancestors().
-                // Whose kind is declaration.
-                Where(n => n.Kind == SyntaxKind.VariableDeclaration).
-                // Order them by the span length.
-                    OrderBy(n => n.Span.Length).
-                // Get the shortest.
-                        First();
-
-            // If the RefactoringType declared is var, get the real RefactoringType string.
-            if (declaration.Type.IsVar)
+            // Get the declared type of the declarator.
+            var analyzer = AnalyzerFactory.GetDeclaratorAnalyzer();
+            analyzer.SetDeclarator(node);
+            var type = (TypeSyntax)analyzer.GetDeclaredType();
+    
+            // Handle var declaration.
+            if (type.IsVar)
             {
-                return HandleVarDeclaration(declarator);
+                return HandleVarDeclaration((VariableDeclaratorSyntax)node);
             }
 
-            // Return the plain name for the declaration.
-            return declaration.Type.PlainName;
+            return type.GetText();
         }
 
         private string GetParameterTypeName(SyntaxNode node)

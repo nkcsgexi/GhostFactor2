@@ -148,6 +148,7 @@
     <Compile Include="conditions\InlineMethod\VariableNamesChecker.cs" />
     <Compile Include="conditions\Rename\RenameConditionChecker.cs" />
     <Compile Include="configuration\GlobalConfigurations.cs" />
+    <Compile Include="analyzer\DeclaratorAnalyzer.cs" />
     <Compile Include="detection\ChangeMethodSignatureDetector.cs" />
     <Compile Include="detection\extract method\InMethodExtractMethodDetector.cs" />
     <Compile Include="detection\extract method\SimpleExtractMethodDetector.cs" />

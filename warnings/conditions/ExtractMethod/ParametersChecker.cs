@@ -34,7 +34,7 @@ namespace warnings.conditions
                 // Calculate the needed typeNameTuples, depending on what to extract.
                 IEnumerable<ISymbol> needed;
                 if (input.ExtractedStatements != null)
-                    needed = ConditionCheckersUtils.GetFlowInData(input.ExtractedStatements, before);
+                    needed = ConditionCheckersUtils.GetUsedData(input.ExtractedStatements, before);
                 else
                     needed = ConditionCheckersUtils.GetFlowInData(input.ExtractedExpression, before);
 
@@ -198,16 +198,19 @@ namespace warnings.conditions
                     {
                         private readonly SyntaxNode originalMethod;
                         private readonly SyntaxNode updatedMethod;
+                        private readonly IComparer<SyntaxNode> methodNameComparer; 
 
                         internal MethodDeclarationRewriter(SyntaxNode originalMethod, SyntaxNode updatedMethod)
                         {
                             this.originalMethod = originalMethod;
                             this.updatedMethod = updatedMethod;
+                            this.methodNameComparer = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
                         }
 
                         public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
                         {
-                            if (node.Span.Equals(originalMethod.Span))
+                            // If the visited method has the same name with the target extracted method.
+                            if (methodNameComparer.Compare(node, originalMethod) == 0)
                             {
                                 return updatedMethod;
                             }
@@ -258,7 +261,7 @@ namespace warnings.conditions
 
                         public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node)
                         {
-                            if (invocations.Any(i => i.Span.Equals(node.Span)))
+                            if (invocations.Any(i => ASTUtil.AreSyntaxNodesSame(i, node)))
                             {
                                 analyzer.SetMethodInvocation(node);
                                 return analyzer.AddArguments(addedArguments);

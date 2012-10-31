@@ -231,21 +231,25 @@ namespace warnings.conditions
                 /* Sytnax rewriter for updating a given method declaration by adding the given returning value. */
                 private class AddReturnValueRewriter : SyntaxRewriter
                 {
+                    // private readonly Logger logger;
                     private readonly SyntaxNode declaration;
                     private readonly string returnSymbolName;
                     private readonly string returnSymbolType;
+                    private readonly IComparer<SyntaxNode> methodNameComparer; 
 
                     internal AddReturnValueRewriter(SyntaxNode declaration, String returnSymbolType,
                                                     String returnSymbolName)
                     {
+                        // this.logger = NLoggerUtil.GetNLogger(typeof (AddReturnValueRewriter));
                         this.declaration = declaration;
                         this.returnSymbolType = returnSymbolType;
                         this.returnSymbolName = returnSymbolName;
+                        this.methodNameComparer = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
                     }
 
                     public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
                     {
-                        if (node.Span.Equals(declaration.Span))
+                        if (methodNameComparer.Compare(node, declaration) == 0)
                         {
                             // Use method analyzer to add the return value and change the return RefactoringType.
                             var methodAnalyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();

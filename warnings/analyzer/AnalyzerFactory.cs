@@ -94,6 +94,11 @@ namespace warnings.analyzer
             return new BlockAnalyzer();
         }
 
+        public static IDeclaratorAnalyzer GetDeclaratorAnalyzer()
+        {
+            return new DeclaratorAnalyzer();
+        }
+
         public static String GetAnalyzersCountInfo()
         {
             var sb = new StringBuilder(Environment.NewLine);

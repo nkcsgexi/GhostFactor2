@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using NLog;
 using Roslyn.Compilers.CSharp;
+using warnings.analyzer;
 using warnings.analyzer.comparators;
 using warnings.util;
 
@@ -75,6 +76,15 @@ namespace warnings.refactoring.detection
                 logger = NLoggerUtil.GetNLogger(typeof (InMethodExtractMethodDetectorByCommonStatements));
             }
 
+            private IEnumerable<SyntaxNodePair> GetChangedBlocks(SyntaxNode blockBefore, SyntaxNode blockAfter)
+            {
+                var analyzer = AnalyzerFactory.GetBlockAnalyzer();
+                analyzer.SetBlockBefore(blockBefore);
+                analyzer.SetBlockAfter(blockAfter);
+                return analyzer.GetChangedBlocks();
+            }
+
+
             public override bool HasRefactoring()
             {
                 refactoring = null;
@@ -82,21 +92,27 @@ namespace warnings.refactoring.detection
                 // Get the first invocation of the new method in the after-version of method.
                 var invocation = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, treeAfter).First();
 
-                // Get the statements in the method after and the new method.
-                var statements1 = callerBefore.Body.Statements;
-                var statements2 = calleeAfter.Body.Statements;
+                var changedBlockPairs = GetChangedBlocks(callerBefore.Body, callerAfter.Body);
 
-                // Get their longest common statements.
-                var commons = RefactoringDetectionUtils.GetLongestCommonStatements(statements1, statements2, 
-                    new SyntaxNodeExactComparer());
-                
-                logger.Info("Common statements count: " + commons.Count());
-                // If the number of common statements is larger than the threshhold, a refactoring is detected.
-                if (commons.Count() > MAX_COMMON_STATEMENTS)
+                if (changedBlockPairs.Count() == 1)
                 {
-                    refactoring = ManualRefactoringFactory.CreateManualExtractMethodRefactoring(calleeAfter, invocation, 
-                        commons.Select(p => p.Key));
-                    return true;
+                    // Get the statements in the method after and the new method.
+                    var statements1 = ((BlockSyntax)changedBlockPairs.First().NodeBefore).Statements;
+                    var statements2 = calleeAfter.Body.Statements;
+
+                    // Get their longest common statements.
+                    var commons = RefactoringDetectionUtils.GetLongestCommonStatements(statements1, statements2,
+                        new SyntaxNodeExactComparer());
+
+                    logger.Info("Common statements count: " + commons.Count());
+                    
+                    // If the number of common statements is larger than the threshhold, a refactoring is detected.
+                    if (commons.Count() > MAX_COMMON_STATEMENTS)
+                    {
+                        refactoring = ManualRefactoringFactory.CreateManualExtractMethodRefactoring(calleeAfter,
+                            invocation, commons.Select(p => p.Key));
+                        return true;
+                    }
                 }
                 return false;
             }

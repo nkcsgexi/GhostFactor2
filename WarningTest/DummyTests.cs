@@ -15,6 +15,8 @@ namespace WarningTest
         {
             var assignment = Syntax.ParseExpression("i = 1");
             Assert.IsNotNull(assignment);
+            RegionDirectiveSyntax start;
+            EndRegionDirectiveSyntax end;
         }
     }
 }

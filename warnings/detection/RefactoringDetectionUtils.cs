@@ -16,11 +16,14 @@ namespace warnings.refactoring.detection
         {
             public int Compare(SyntaxNode x, SyntaxNode y)
             {
-                var classX = (ClassDeclarationSyntax) x;
-                var classY = (ClassDeclarationSyntax)y;
-                if(classX.Identifier.ValueText.Equals(classY.Identifier.ValueText))
+                var classX = x as ClassDeclarationSyntax ;
+                var classY = y as ClassDeclarationSyntax;
+                if (classX != null && classY != null)
                 {
-                    return 0;
+                    if (classX.Identifier.ValueText.Equals(classY.Identifier.ValueText))
+                    {
+                        return 0;
+                    }
                 }
                 return 1;
             }
@@ -31,11 +34,14 @@ namespace warnings.refactoring.detection
         {
             public int Compare(SyntaxNode x, SyntaxNode y)
             {
-                var methodX = (MethodDeclarationSyntax)x;
-                var methodY = (MethodDeclarationSyntax)y;
-                if (methodX.Identifier.ValueText.Equals(methodY.Identifier.ValueText))
+                var methodX = x as MethodDeclarationSyntax;
+                var methodY = y as MethodDeclarationSyntax;
+                if (methodX != null && methodY != null)
                 {
-                    return 0;
+                    if (methodX.Identifier.ValueText.Equals(methodY.Identifier.ValueText))
+                    {
+                        return 0;
+                    }
                 }
                 return 1;
             }
@@ -46,12 +52,16 @@ namespace warnings.refactoring.detection
          {
              public int Compare(SyntaxNode x, SyntaxNode y)
              {
-                 var analyzer = AnalyzerFactory.GetQualifiedNameAnalyzer();
-                 analyzer.SetSyntaxNode(x);
-                 var nameX = analyzer.GetOutsideTypeQualifiedName();
-                 analyzer.SetSyntaxNode(y);
-                 var nameY = analyzer.GetOutsideTypeQualifiedName();
-                 return nameX.Equals(nameY) ? 0 : 1;
+                 if (x != null && y != null)
+                 {
+                     var analyzer = AnalyzerFactory.GetQualifiedNameAnalyzer();
+                     analyzer.SetSyntaxNode(x);
+                     var nameX = analyzer.GetOutsideTypeQualifiedName();
+                     analyzer.SetSyntaxNode(y);
+                     var nameY = analyzer.GetOutsideTypeQualifiedName();
+                     return nameX.Equals(nameY) ? 0 : 1;
+                 }
+                 return 1;
              }
          }
 

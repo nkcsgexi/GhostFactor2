@@ -300,15 +300,16 @@ namespace warnings.conditions
                         return node;
                     }
 
-                    private bool NeedAssignment(SyntaxNode invocation)
-                    {
-                        return true;
-                    }
-
                     private SyntaxNode GetOutSideMethod(SyntaxNode node)
                     {
                         var syntaxNodeAnalyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
+                        syntaxNodeAnalyzer.SetSyntaxNode(node);
                         return syntaxNodeAnalyzer.GetClosestAncestor(n => n.Kind == SyntaxKind.MethodDeclaration);
+                    }
+
+                    private bool NeedAssignment(SyntaxNode invocation)
+                    {
+                        return true;
                     }
                 }
             }

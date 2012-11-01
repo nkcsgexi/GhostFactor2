@@ -101,7 +101,7 @@ namespace warnings.components
             private readonly IDocument document;
             private readonly StrongBox<IDocument> documentBox;
 
-            public UpdateActiveDocumentWorkItem(StrongBox<IDocument> documentBox, IDocument document)
+            internal UpdateActiveDocumentWorkItem(StrongBox<IDocument> documentBox, IDocument document)
             {
                 this.documentBox = documentBox;
                 this.document = document;

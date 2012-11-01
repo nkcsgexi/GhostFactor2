@@ -25,15 +25,17 @@ namespace warnings.components
         {
             this.timeInterval = timeInterval;
             this.thread = new Thread(run);
-            this.thread.Priority = ThreadPriority.BelowNormal;
+            this.thread.Priority = ThreadPriority.Normal;
             TimesUp += handler;
         }
 
         public void start()
         {
             // Start the thread if not started.
-            if(thread.ThreadState == ThreadState.Unstarted)
+            if (thread.ThreadState == ThreadState.Unstarted)
+            {
                 thread.Start();
+            }
         }
 
         public void end()

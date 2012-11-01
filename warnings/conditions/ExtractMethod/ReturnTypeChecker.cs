@@ -51,8 +51,10 @@ namespace warnings.conditions
 
                 if (missing.Any())
                 {
-                    return new ReturnTypeCheckingResult(input.ExtractedMethodDeclaration,
-                        ConditionCheckersUtils.GetTypeNameTuples(missing), input.MetaData.DocumentUniqueName);
+                   
+                    return new ReturnTypeCheckingResult(input.ExtractedMethodDeclaration, 
+                        input.ExtractMethodInvocation, ConditionCheckersUtils.GetTypeNameTuples(missing), 
+                            input.MetaData);
                 }
                 return new NullCodeIssueComputer();
             }
@@ -123,17 +125,20 @@ namespace warnings.conditions
             private class ReturnTypeCheckingResult : SingleDocumentValidCodeIssueComputer
             {
                 /* The RefactoringType/name tuples for missing return values. */
-                private IEnumerable<Tuple<string, string>> typeNameTuples;
+                private readonly IEnumerable<Tuple<string, string>> typeNameTuples;
 
                 /* Declaration of the extracted method. */
-                private SyntaxNode declaration;
+                private readonly SyntaxNode declaration;
+                private readonly SyntaxNode invocation;
 
-                private IComparer<SyntaxNode> methodNameComparer; 
+                private readonly IComparer<SyntaxNode> methodNameComparer;
+               
 
-                public ReturnTypeCheckingResult(SyntaxNode declaration,
-                    IEnumerable<Tuple<string, string>> typeNameTuples, string uniqueName) :base(uniqueName)
+                public ReturnTypeCheckingResult(SyntaxNode declaration, SyntaxNode invocation, 
+                    IEnumerable<Tuple<string, string>> typeNameTuples, RefactoringMetaData metaData) : base(metaData)
                 {
                     this.declaration = declaration;
+                    this.invocation = invocation;
                     this.typeNameTuples = typeNameTuples;
                     this.methodNameComparer = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
                 }
@@ -155,7 +160,8 @@ namespace warnings.conditions
                             yield return new CodeIssue(CodeIssue.Severity.Error, node.Span,
                                 "Missing return values: " + StringUtil.ConcatenateAll(",",typeNameTuples.Select( t => t.Item2)),
                                     // Create a quick fix for adding the first missing return value.
-                                    new ICodeAction[]{new AddReturnValueCodeAction(document, declaration, typeNameTuples, this) });
+                                    new ICodeAction[]{new AddReturnValueCodeAction(document, declaration, invocation, 
+                                        typeNameTuples, this) });
                         }
                     }
                 }
@@ -188,6 +194,7 @@ namespace warnings.conditions
             {
                 private readonly IEnumerable<Tuple<string, string>> typeNameTuples;
                 private readonly SyntaxNode declaration;
+                private readonly SyntaxNode invocation;
                 private readonly IDocument document;
                 private readonly Logger logger;
                 private readonly ICodeIssueComputer computer;
@@ -195,11 +202,13 @@ namespace warnings.conditions
                 // Can only handle one tuple, even though multiple are passed in.
                 private readonly Tuple<string, string> handledTypeName;
 
-                internal AddReturnValueCodeAction(IDocument document, SyntaxNode declaration, IEnumerable<Tuple<string, string>> 
-                    typeNameTuples, ICodeIssueComputer computer)
+                internal AddReturnValueCodeAction(IDocument document, SyntaxNode declaration, 
+                    SyntaxNode invocation, IEnumerable<Tuple<string, string>> typeNameTuples, 
+                        ICodeIssueComputer computer)
                 {
                     this.document = document;
                     this.declaration = declaration;
+                    this.invocation = invocation;
                     this.typeNameTuples = typeNameTuples;
                     this.handledTypeName = typeNameTuples.FirstOrDefault();
                     this.computer = computer;
@@ -210,7 +219,7 @@ namespace warnings.conditions
                 {
             
                     // Use the rewrite visiter to change the target method declaration.
-                    var newRoot = new AddReturnValueRewriter(declaration,
+                    var newRoot = new AddReturnValueRewriter(declaration, invocation,
                         handledTypeName.Item1, handledTypeName.Item2).
                             Visit((SyntaxNode) document.GetSyntaxRoot());
 
@@ -234,33 +243,72 @@ namespace warnings.conditions
                 /* Sytnax rewriter for updating a given method declaration by adding the given returning value. */
                 private class AddReturnValueRewriter : SyntaxRewriter
                 {
-                    // private readonly Logger logger;
                     private readonly SyntaxNode declaration;
+                    private readonly SyntaxNode invocation;
+                    private readonly SyntaxNode invokingMethod;
                     private readonly string returnSymbolName;
                     private readonly string returnSymbolType;
-                    private readonly IComparer<SyntaxNode> methodNameComparer; 
+                    private readonly IComparer<SyntaxNode> methodNameComparer;
+                    private readonly IMethodInvocationAnalyzer methodInvocationAnalyzer;
+                    private readonly ISyntaxNodeAnalyzer syntaxNodeAnalyzer;
 
-                    internal AddReturnValueRewriter(SyntaxNode declaration, String returnSymbolType,
-                                                    String returnSymbolName)
+                    internal AddReturnValueRewriter(SyntaxNode declaration, SyntaxNode invocation,
+                        String returnSymbolType, String returnSymbolName)
                     {
-                        // this.logger = NLoggerUtil.GetNLogger(typeof (AddReturnValueRewriter));
                         this.declaration = declaration;
+                        this.invocation = invocation;
+                        this.invokingMethod = GetOutSideMethod(invocation);
                         this.returnSymbolType = returnSymbolType;
                         this.returnSymbolName = returnSymbolName;
                         this.methodNameComparer = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+                        this.methodInvocationAnalyzer = AnalyzerFactory.GetMethodInvocationAnalyzer();
+                        
                     }
 
                     public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
                     {
+                        // If the declaration is the invoking method, visit its decendent to update invocations.
+                        if (methodNameComparer.Compare(node, invokingMethod) == 0)
+                            return base.VisitMethodDeclaration(node);
+
+                        // If the declaration is the extracted method, update its body to add return statement.
                         if (methodNameComparer.Compare(node, declaration) == 0)
                         {
-                            // Use method analyzer to add the return value and change the return RefactoringType.
+                            // Use method methodInvocationAnalyzer to add the return value and change 
+                            // the return RefactoringType.
                             var methodAnalyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
                             methodAnalyzer.SetMethodDeclaration(node);
                             methodAnalyzer.ChangeReturnValue(returnSymbolName);
                             return methodAnalyzer.ChangeReturnType(returnSymbolType);
                         }
                         return node;
+                    }
+
+                    public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node)
+                    {
+                        methodInvocationAnalyzer.SetMethodInvocation(node);
+                        if(methodInvocationAnalyzer.HasSameMethodName(invocation))
+                        {
+                            if (NeedAssignment(invocation))
+                            {
+                                // Return an expression with the assignment to the missed return value.
+                                return Syntax.ParseExpression(returnSymbolName + " = " + node.GetText()).
+                                    WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(
+                                        node.GetTrailingTrivia());
+                            }
+                        }
+                        return node;
+                    }
+
+                    private bool NeedAssignment(SyntaxNode invocation)
+                    {
+                        return true;
+                    }
+
+                    private SyntaxNode GetOutSideMethod(SyntaxNode node)
+                    {
+                        var syntaxNodeAnalyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
+                        return syntaxNodeAnalyzer.GetClosestAncestor(n => n.Kind == SyntaxKind.MethodDeclaration);
                     }
                 }
             }

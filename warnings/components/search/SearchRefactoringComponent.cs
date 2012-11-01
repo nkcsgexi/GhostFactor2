@@ -15,7 +15,7 @@ namespace warnings.components
 {
     public interface ISearchRefactoringComponent : IFactorComponent, ILoggerKeeper
     {
-        void StartRefactoringSearch(ICodeHistoryRecord record);
+        void StartRefactoringSearch(ICodeHistoryRecord record, DocumentId documentId);
     }
 
     /* Component for searching a manual refactoring in the code history. */
@@ -64,7 +64,7 @@ namespace warnings.components
         public abstract Logger GetLogger();
 
         /* Start the searching of performed refactorings. */
-        public abstract void StartRefactoringSearch(ICodeHistoryRecord record);
+        public abstract void StartRefactoringSearch(ICodeHistoryRecord record, DocumentId documentId);
     }
 
     /* The kind of work item for search refactoring component. */
@@ -72,12 +72,14 @@ namespace warnings.components
     {
         /* The latest code history record from where the detector trace back. */
         private readonly ICodeHistoryRecord latestRecord;
+        private readonly DocumentId documentId;
 
         protected readonly Logger logger;
 
-        protected SearchRefactoringWorkitem(ICodeHistoryRecord latestRecord)
+        protected SearchRefactoringWorkitem(ICodeHistoryRecord latestRecord, DocumentId documentId)
         {
             this.latestRecord = latestRecord;
+            this.documentId = documentId;
             this.logger = GetLogger();
         }
 
@@ -112,10 +114,10 @@ namespace warnings.components
                     {
                         var refactorings = detector.GetRefactorings();
                         
-                        // Get the metadata of detected refactorings. 
+                        // Set the metadata of detected refactorings. 
                         foreach (var refactoring in refactorings)
                         {
-                            SetRefactoringMetaData(refactoring, currentRecord);
+                            SetRefactoringMetaData(refactoring, documentId);
                         }
 
                         OnRefactoringDetected(detector.GetBeforeDocument(), detector.GetAfterDocument(), 
@@ -133,9 +135,10 @@ namespace warnings.components
             }
         }
 
-        private void SetRefactoringMetaData(ManualRefactoring refactoring, ICodeHistoryRecord record)
+        private void SetRefactoringMetaData(ManualRefactoring refactoring, DocumentId id)
         {
-            refactoring.MetaData.DocumentUniqueName = record.GetUniqueName();
+            refactoring.MetaData.DocumentId = id;
+            refactoring.MetaData.DocumentUniqueName = id.UniqueName;
         }
 
         protected abstract IExternalRefactoringDetector GetRefactoringDetector();

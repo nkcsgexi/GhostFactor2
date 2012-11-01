@@ -37,15 +37,15 @@ namespace warnings.components
             return NLoggerUtil.GetNLogger(typeof (SearchChangeMethodSignatureComponent));
         }
 
-        public override void StartRefactoringSearch(ICodeHistoryRecord record)
+        public override void StartRefactoringSearch(ICodeHistoryRecord record, DocumentId documentId)
         {
-            Enqueue(new SearchChangeMethodSignatureWorkItem(record));
+            Enqueue(new SearchChangeMethodSignatureWorkItem(record, documentId));
         }
 
         private class SearchChangeMethodSignatureWorkItem : SearchRefactoringWorkitem
         {
-            public SearchChangeMethodSignatureWorkItem(ICodeHistoryRecord latestRecord)
-                : base(latestRecord)
+            public SearchChangeMethodSignatureWorkItem(ICodeHistoryRecord latestRecord, DocumentId documentId)
+                : base(latestRecord, documentId)
             {
             }
 
@@ -65,7 +65,8 @@ namespace warnings.components
                 logger.Info("Change Method Signature Detected.");
 
                 // Enqueue the condition checking process for this detected refactoring.
-                GhostFactorComponents.conditionCheckingComponent.CheckRefactoringCondition(before, after, refactorings.First());
+                GhostFactorComponents.conditionCheckingComponent.CheckRefactoringCondition
+                    (before, after, refactorings.First());
             }
 
             protected override void OnNoRefactoringDetected(ICodeHistoryRecord record)

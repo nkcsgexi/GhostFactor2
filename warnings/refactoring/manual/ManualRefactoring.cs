@@ -12,6 +12,7 @@ namespace warnings.refactoring
 {
     public class RefactoringMetaData
     {
+        public DocumentId DocumentId { set; get; }
         public string DocumentUniqueName { get; set; }
     }
 

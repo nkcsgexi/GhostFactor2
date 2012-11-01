@@ -56,6 +56,7 @@ namespace warnings.conditions
     public interface ICodeIssueComputer : IEquatable<ICodeIssueComputer>, IHasRefactoringType
     {
         bool IsDocumentCorrect(IDocument document);
+        IEnumerable<IDocument> GetPossibleDocuments(ISolution solution);
         IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document);
         IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node);
     }
@@ -66,6 +67,11 @@ namespace warnings.conditions
         public bool IsDocumentCorrect(IDocument document)
         {
             return false;
+        }
+
+        public IEnumerable<IDocument> GetPossibleDocuments(ISolution solution)
+        {
+            return Enumerable.Empty<IDocument>();
         }
 
         public IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
@@ -95,23 +101,36 @@ namespace warnings.conditions
         public abstract bool Equals(ICodeIssueComputer other);
         public abstract RefactoringType RefactoringType { get; }
         public abstract bool IsDocumentCorrect(IDocument document);
+        public abstract IEnumerable<IDocument> GetPossibleDocuments(ISolution solution); 
         public abstract IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document);
         public abstract IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node);
     }
 
     internal abstract class SingleDocumentValidCodeIssueComputer : ValidCodeIssueComputer
     {
-        private string documentUniqueName;
+        private readonly RefactoringMetaData metaData;
 
-        protected SingleDocumentValidCodeIssueComputer(string documentUniqueName)
+        protected SingleDocumentValidCodeIssueComputer(RefactoringMetaData metaData)
         {
-            this.documentUniqueName = documentUniqueName;
+            this.metaData = metaData;
         }
 
-        public override bool IsDocumentCorrect(IDocument document)
+        public sealed override bool IsDocumentCorrect(IDocument document)
         {
-            return document.Id.UniqueName.Equals(documentUniqueName);
+            return document.Id.Equals(metaData.DocumentId);
         }
+
+        /// <summary>
+        /// Get the possible documents where this issue lies, in this case, only return the 
+        /// document associated with the known documentId.
+        /// </summary>
+        /// <param name="solution"></param>
+        /// <returns></returns>
+        public sealed override IEnumerable<IDocument> GetPossibleDocuments(ISolution solution)
+        {
+            return new[] {solution.GetDocument(metaData.DocumentId)};
+        }
+
         /// <summary>
         /// Utility used to decide whether two computers are applied to the same document.
         /// </summary>
@@ -122,7 +141,7 @@ namespace warnings.conditions
             var another = a as SingleDocumentValidCodeIssueComputer;
             if (another != null)
             {
-                return documentUniqueName.Equals(documentUniqueName);
+                return metaData.DocumentId.Equals(another.metaData.DocumentId);
             }
             return false;
         }

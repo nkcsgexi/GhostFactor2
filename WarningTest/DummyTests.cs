@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Roslyn.Compilers.CSharp;
 
 namespace WarningTest
 {
@@ -12,7 +13,8 @@ namespace WarningTest
         [TestMethod]
         public void TestMethod1()
         {
-            Assert.IsFalse(1 != 1);
+            var assignment = Syntax.ParseExpression("i = 1");
+            Assert.IsNotNull(assignment);
         }
     }
 }

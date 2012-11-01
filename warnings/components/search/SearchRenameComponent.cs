@@ -40,16 +40,16 @@ namespace warnings.components
             return NLoggerUtil.GetNLogger(typeof (SearchRenameComponent));
         }
 
-        public override void StartRefactoringSearch(ICodeHistoryRecord record)
+        public override void StartRefactoringSearch(ICodeHistoryRecord record, DocumentId documentId)
         {
-            Enqueue(new SearchRenameWorkItem(record));
+            Enqueue(new SearchRenameWorkItem(record, documentId));
         }
 
         /* Item to be schedule to rename searching component. */
         private class SearchRenameWorkItem : SearchRefactoringWorkitem
         {
-            public SearchRenameWorkItem(ICodeHistoryRecord latestRecord)
-                : base(latestRecord)
+            public SearchRenameWorkItem(ICodeHistoryRecord latestRecord, DocumentId documentId)
+                : base(latestRecord, documentId)
             {
             }
 

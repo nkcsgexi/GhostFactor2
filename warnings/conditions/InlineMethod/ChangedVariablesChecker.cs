@@ -51,14 +51,14 @@ namespace warnings.conditions
                     logger.Info("Missing changed symbols: " + StringUtil.ConcatenateAll(",", missingSymbols.Select(s => s.Name)));
                     return new ModifiedFlowOutData(refactoring.CallerMethodAfter, refactoring.InlinedMethod, 
                             refactoring.InlinedMethodInvocation, refactoring.InlinedStatementsInMethodAfter,
-                                addedSymbols, missingSymbols, refactoring.MetaData.DocumentUniqueName);
+                                addedSymbols, missingSymbols, refactoring.MetaData);
                 }
                 return new NullCodeIssueComputer();
             }
 
     
 
-            private class ModifiedFlowOutData : SingleDocumentValidCodeIssueComputer
+            private sealed class ModifiedFlowOutData : SingleDocumentValidCodeIssueComputer
             {
                 private readonly IEnumerable<ISymbol> missingSymbols;
                 private readonly IEnumerable<ISymbol> addedSymbols;
@@ -68,9 +68,11 @@ namespace warnings.conditions
                 private readonly IEnumerable<SyntaxNode> inlinedStatements;
           
 
-                internal ModifiedFlowOutData(SyntaxNode methodAfter, SyntaxNode inlinedMethod, SyntaxNode inlinedMethodInvocation,
-                    IEnumerable<SyntaxNode> inlinedStatements, IEnumerable<ISymbol> addedSymbols, IEnumerable<ISymbol> missingSymbols,
-                        string uniqueName): base(uniqueName)
+
+                internal ModifiedFlowOutData(SyntaxNode methodAfter, SyntaxNode inlinedMethod, 
+                    SyntaxNode inlinedMethodInvocation, IEnumerable<SyntaxNode> inlinedStatements, 
+                    IEnumerable<ISymbol> addedSymbols, IEnumerable<ISymbol> missingSymbols,
+                        RefactoringMetaData metaData) : base(metaData)
                 {
                     this.methodAfter = methodAfter;
                     this.inlinedMethod = inlinedMethod;
@@ -111,8 +113,8 @@ namespace warnings.conditions
 
                 public override IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
                 {
-                    // The node should be a statement instance and the document is correct.
-                    if(node is StatementSyntax && CheckDocument(document))
+                    // The node should be a statement instance.
+                    if(node is StatementSyntax)
                     {
                         // Get the methodAfter containing the node.
                         var method = GetContainingMethod(node);
@@ -130,7 +132,7 @@ namespace warnings.conditions
                                     new ICodeAction[]{new ModifiedFlowOutDataFix(document, methodAfter, inlinedMethod, inlinedMethodInvocation, 
                                         inlinedStatements, addedSymbols, missingSymbols, this)});
                             }
-                        }   
+                        }
                     }
                 }
 
@@ -151,28 +153,12 @@ namespace warnings.conditions
                     return sb.ToString();
                 }
 
-                /* Is the document where the inline methodAfter refactoring happened? */
-                private bool CheckDocument(IDocument document)
-                {
-                    // Get the qualified name of the type that encloses the methodAfter.
-                    var analyzer = AnalyzerFactory.GetQualifiedNameAnalyzer();
-                    analyzer.SetSyntaxNode(methodAfter);
-                    var containingMethodName = analyzer.GetOutsideTypeQualifiedName();
-
-                    // Get the qualified names of types that are contained in the document.
-                    analyzer.SetSyntaxNode((SyntaxNode)document.GetSyntaxRoot());
-                    var documentContainedNames = analyzer.GetInsideQualifiedNames();
-
-                    // If the type names in the document contains the name we want. 
-                    return documentContainedNames.Contains(containingMethodName);
-                }
-
                 /* Get the methodAfter that encloses a syntax node. */
                 private SyntaxNode GetContainingMethod(SyntaxNode node)
                 {
-                    SyntaxNode method;
-                    for (method = node; method != null && method.Kind != SyntaxKind.MethodDeclaration; method = method.Parent) ;
-                    return method;
+                    var analyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
+                    analyzer.SetSyntaxNode(node);
+                    return analyzer.GetClosestAncestor(n => n.Kind == SyntaxKind.MethodDeclaration);
                 }
 
                 /* Get statements in the current methodAfter that map with the previously detected inlined statements. */

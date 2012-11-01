@@ -150,18 +150,18 @@ namespace warnings.components
                 {
                     if (records.IsDocumentUpdated(document))
                     {
-                        var uniqueName = document.Id.UniqueName;
+                        var id = document.Id;
                         var code = document.GetText().GetText();
-                        logger.Info("Saved document:" + document.Id.UniqueName);
+                        logger.Info("Saved document:" + id.UniqueName);
 
                         // Add the new IDocuemnt to the code history.
-                        CodeHistory.GetInstance().AddRecord(uniqueName, code);
+                        CodeHistory.GetInstance().AddRecord(id.UniqueName, code);
 
                         // Update the records of saved documents.
                         records.AddSavedDocument(document);
 
                         // Add work item to search component.
-                        StartRefactoringSearch(uniqueName);
+                        StartRefactoringSearch(id);
                     }
                 }
                 catch (Exception e)
@@ -171,33 +171,33 @@ namespace warnings.components
                 }
             }
 
-            private void StartRefactoringSearch(string uniqueName)
+            private void StartRefactoringSearch(DocumentId documentId)
             {
                 // Get the latest record of the file just editted.    
-                ICodeHistoryRecord record = CodeHistory.GetInstance().GetLatestRecord(uniqueName);
+                ICodeHistoryRecord record = CodeHistory.GetInstance().GetLatestRecord(documentId.UniqueName);
 
                 if (GlobalConfigurations.IsSupported(RefactoringType.EXTRACT_METHOD))
                 {
                     // Search for extract method refactoring.
-                    GhostFactorComponents.searchExtractMethodComponent.StartRefactoringSearch(record);
+                    GhostFactorComponents.searchExtractMethodComponent.StartRefactoringSearch(record, documentId);
                 }
                 
                 if(GlobalConfigurations.IsSupported(RefactoringType.RENAME))
                 {
                     // Search for rename refacotoring.
-                    GhostFactorComponents.searchRenameComponent.StartRefactoringSearch(record);
+                    GhostFactorComponents.searchRenameComponent.StartRefactoringSearch(record, documentId);
                 }
 
                if(GlobalConfigurations.IsSupported(RefactoringType.CHANGE_METHOD_SIGNATURE))
                {
                    // Search for change method signature refactorings.
-                   GhostFactorComponents.searchChangeMethodSignatureComponent.StartRefactoringSearch(record);
+                   GhostFactorComponents.searchChangeMethodSignatureComponent.StartRefactoringSearch(record, documentId);
                }
 
                 if(GlobalConfigurations.IsSupported(RefactoringType.INLINE_METHOD))
                 {
                     // Search for inline method refactorings.
-                    GhostFactorComponents.searchInlineMethodComponent.StartRefactoringSearch(record);
+                    GhostFactorComponents.searchInlineMethodComponent.StartRefactoringSearch(record, documentId);
                 }
             }
             

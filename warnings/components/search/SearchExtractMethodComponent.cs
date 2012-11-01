@@ -38,16 +38,16 @@ namespace warnings.components
             return NLoggerUtil.GetNLogger(typeof (SearchExtractMethodComponent));
         }
 
-        public override void StartRefactoringSearch(ICodeHistoryRecord record)
+        public override void StartRefactoringSearch(ICodeHistoryRecord record, DocumentId documentId)
         {
-             Enqueue(new SearchExtractMethodWorkitem(record));
+            Enqueue(new SearchExtractMethodWorkitem(record, documentId));
         }
 
         /* The kind of work item for search extract method component. */
         private class SearchExtractMethodWorkitem : SearchRefactoringWorkitem
         {
-            public SearchExtractMethodWorkitem(ICodeHistoryRecord latestRecord)
-                : base(latestRecord)
+            public SearchExtractMethodWorkitem(ICodeHistoryRecord latestRecord, DocumentId documentId)
+                : base(latestRecord, documentId)
             {
             }
 

@@ -31,14 +31,15 @@ namespace warnings.components
             return NLoggerUtil.GetNLogger(typeof (SearchInlineMethodComponent));
         }
 
-        public override void StartRefactoringSearch(ICodeHistoryRecord record)
+        public override void StartRefactoringSearch(ICodeHistoryRecord record, DocumentId documentId)
         {
-            Enqueue(new SearchInlineMethodWorkItem(record));
+            Enqueue(new SearchInlineMethodWorkItem(record, documentId));
         }
 
         private class SearchInlineMethodWorkItem : SearchRefactoringWorkitem
         {
-            public SearchInlineMethodWorkItem(ICodeHistoryRecord latestRecord) : base(latestRecord)
+            public SearchInlineMethodWorkItem(ICodeHistoryRecord latestRecord, DocumentId documentId)
+                : base(latestRecord, documentId)
             {
             }
 

@@ -331,31 +331,24 @@ namespace warnings.components
             {
                 var messagesList = new List<IRefactoringWarningMessage>();
 
-                // Get all the documents.
-                var analyzer = AnalyzerFactory.GetSolutionAnalyzer();
-                analyzer.SetSolution(solution);
-                var documents = analyzer.GetAllDocuments();
-
                 foreach (ICodeIssueComputer computer in computers)
                 {
+                    var documents = computer.GetPossibleDocuments(solution);
                     foreach (IDocument document in documents)
                     {
-                        if (computer.IsDocumentCorrect(document))
+                        var nodes = computer.GetPossibleSyntaxNodes(document);
+                        if (nodes.Any())
                         {
-                            var nodes = computer.GetPossibleSyntaxNodes(document);
-                            if (nodes.Any())
-                            {
-                                // Find all the issues in the document. 
-                                var issues = nodes.SelectMany(n => computer.ComputeCodeIssues(document, n));
+                            // Find all the issues in the document. 
+                            var issues = nodes.SelectMany(n => computer.ComputeCodeIssues(document, n));
 
-                                // For each code issue in the document, create a warning message and add it to the list.
-                                foreach (CodeIssue issue in issues)
-                                {
-                                    var warningMessage = RefactoringWarningMessageFactory.
-                                        CreateRefactoringWarningMessage(document, issue, computer);
-                                    messagesList.Add(warningMessage);
-                                    logger.Info("Create a refactoring warning.");
-                                }
+                            // For each code issue in the document, create a warning message and add it to the list.
+                            foreach (CodeIssue issue in issues)
+                            {
+                                var warningMessage = RefactoringWarningMessageFactory.
+                                    CreateRefactoringWarningMessage(document, issue, computer);
+                                messagesList.Add(warningMessage);
+                                logger.Info("Create a refactoring warning.");
                             }
                         }
                     }

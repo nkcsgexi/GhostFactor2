@@ -17,6 +17,7 @@ namespace warnings.analyzer
         bool HasArguments();
         SyntaxNode ReorderAuguments(IEnumerable<Tuple<int, int>> mapping);
         SyntaxNode AddArguments(IEnumerable<string> names);
+        bool HasSameMethodName(SyntaxNode invocation);
     }
 
     internal class MethodInvocationAnalyzer : IMethodInvocationAnalyzer
@@ -50,6 +51,11 @@ namespace warnings.analyzer
 
         public SyntaxNode GetMethodName()
         {
+            return GetMethodName(invocation);
+        }
+
+        private SyntaxNode GetMethodName(InvocationExpressionSyntax invocation)
+        {
             // The left parentheses is the rightmost position for the method name.
             int rightMost = invocation.ArgumentList.OpenParenToken.Span.Start;
 
@@ -57,8 +63,7 @@ namespace warnings.analyzer
             var orderedDecendents = invocation.DescendantNodes().OrderBy(n => n.Span.Length);
 
             // The decendent whose length is the most and end is before ( should be method name node.
-            var name = orderedDecendents.Last(n => n.Span.End <= rightMost);
-            return name;
+            return orderedDecendents.Last(n => n.Span.End <= rightMost);
         }
 
         public IEnumerable<SyntaxNode> GetArguments()
@@ -120,6 +125,18 @@ namespace warnings.analyzer
                 names.Select(name => Syntax.Argument( Syntax.ParseExpression(name).WithLeadingTrivia(
                     Syntax.ParseLeadingTrivia(" ")))).ToArray());
             return invocation;
+        }
+
+        public bool HasSameMethodName(SyntaxNode inv)
+        {
+            var another = inv as InvocationExpressionSyntax;
+            if (another != null)
+            {
+                var thisName = GetMethodName(invocation).GetText();
+                var anotherName = GetMethodName(another).GetText();
+                return thisName.Equals(anotherName);
+            }
+            return false;
         }
     }
 }

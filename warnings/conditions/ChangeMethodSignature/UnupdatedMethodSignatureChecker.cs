@@ -44,29 +44,26 @@ namespace warnings.conditions
             {
                 var signatureRefactoring = (IChangeMethodSignatureRefactoring) input;
                 return new UnchangedMethodInvocationComputer(((IChangeMethodSignatureRefactoring) input).ChangedMethodDeclaration
-                    , signatureRefactoring.ParametersMap.AsEnumerable());
+                    , signatureRefactoring.ParametersMap.AsEnumerable(), input.MetaData);
             }
 
 
             /* The computer for calculating the unchanged method invocations. */
-            private class UnchangedMethodInvocationComputer : ValidCodeIssueComputer
+            private class UnchangedMethodInvocationComputer : SingleDocumentValidCodeIssueComputer
             {
                 private readonly Cache<DocumentId, SyntaxNodesCachable> InvocationsCache;
                 private readonly SyntaxNode declaration;
                 private readonly IEnumerable<Tuple<int, int>> mappings;
 
-                public UnchangedMethodInvocationComputer(SyntaxNode declaration, IEnumerable<Tuple<int, int>> mappings)
+                public UnchangedMethodInvocationComputer(SyntaxNode declaration, IEnumerable<Tuple<int, int>> mappings
+                    , RefactoringMetaData metaData) : base(metaData)
                 {
                     this.declaration = declaration;
                     this.mappings = mappings;
                     this.InvocationsCache = new Cache<DocumentId, SyntaxNodesCachable>();
                 }
 
-                public override bool IsDocumentCorrect(IDocument document)
-                {
-                    return true;
-                }
-
+            
                 public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
                 {
                     return ((SyntaxNode)document.GetSyntaxRoot()).DescendantNodes().
@@ -117,7 +114,6 @@ namespace warnings.conditions
                 }
 
                 /* Get all the invocations in a document by brutal force. */
-
                 private IEnumerable<SyntaxNode> GetInvocationsByHardForce(IDocument document)
                 {
                     // Retrievers for method invocations.
@@ -147,7 +143,6 @@ namespace warnings.conditions
             }
 
             /* Correct the current invocation expression by changing all the parameters to the right places. */
-
             private class CorrectSignatureCodeAction : ICodeAction
             {
                 private readonly IDocument document;
@@ -212,7 +207,6 @@ namespace warnings.conditions
             }
 
             /* Code action that corrects all the invocations of a given method declaration in a solution. */
-
             private class CorrectAllSignaturesInSolution : ICodeAction
             {
                 private readonly SyntaxNode declaration;

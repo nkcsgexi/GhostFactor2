@@ -67,5 +67,42 @@ namespace WarningTest.analyzer_test
             analyzer.SetIfStatement(statement);
             Assert.IsTrue(analyzer.GetDirectBlocks().Count() == 3);
         }
+
+        [TestMethod]
+        public  void TestMethod4()
+        {
+            var source = @"    if (true)
+                if (true)
+                {
+                    int i = 0;
+                }";
+            var statement = Syntax.ParseStatement(source);
+            Assert.IsNotNull(statement);
+            analyzer.SetIfStatement(statement);
+            Assert.IsTrue(analyzer.GetDirectBlocks().Count() == 1);
+        }
+
+        [TestMethod]
+        public void TestMethod5()
+        {
+            var source = @" if(true)
+                if(true)
+                {
+                    
+                }
+                else
+                {
+                
+                }
+            else
+            {
+                
+            }
+            ";
+            var statement = Syntax.ParseStatement(source);
+            Assert.IsNotNull(statement);
+            analyzer.SetIfStatement(statement);
+            Assert.IsTrue(analyzer.GetDirectBlocks().Count() == 3);
+        }
     }
 }

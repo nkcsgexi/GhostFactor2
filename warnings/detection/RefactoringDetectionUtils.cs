@@ -143,5 +143,32 @@ namespace warnings.refactoring.detection
             var converter = new String2IDocumentConverter();
             return (IDocument) converter.Convert(code, null, null, null);
         }
+
+
+        /// <summary>
+        /// Get the contained blocks whose statements are changed (added, removed)
+        /// </summary>
+        /// <param name="blockBefore"></param>
+        /// <param name="blockAfter"></param>
+        /// <returns></returns>
+        public static IEnumerable<SyntaxNodePair> GetChangedBlocks(SyntaxNode blockBefore, SyntaxNode blockAfter)
+        {
+            var analyzer = AnalyzerFactory.GetBlockAnalyzer();
+            analyzer.SetBlockBefore(blockBefore);
+            analyzer.SetBlockAfter(blockAfter);
+            return analyzer.GetChangedBlocks();
+        }
+
+        /// <summary>
+        /// Get all the statements in a method.
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        public static IEnumerable<SyntaxNode> GetMethodStatements(SyntaxNode method)
+        {
+            var methodAnalyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
+            methodAnalyzer.SetMethodDeclaration(method);
+            return methodAnalyzer.GetStatements();
+        }
     }
 }

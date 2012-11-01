@@ -51,6 +51,7 @@ namespace warnings.components
 
         public void Enqueue(IWorkItem item)
         {
+            logger.Info("enqueue.");
             queue.Add(item);
         }
 

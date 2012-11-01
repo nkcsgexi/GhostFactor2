@@ -70,10 +70,20 @@ namespace warnings.analyzer
         {
             var list = new List<SyntaxNode>();
 
-            // Add the block in the if branch.
-            if(statement.Statement.Kind == SyntaxKind.Block)
+
+            if (statement.Statement != null)
             {
-                list.Add(statement.Statement);
+                // If a block is under the if branch. 
+                if (statement.Statement.Kind == SyntaxKind.Block)
+                {
+                    list.Add(statement.Statement);
+                }
+                
+                // If a if statment is under the if branch.
+                if(statement.Statement.Kind == SyntaxKind.IfStatement)
+                {
+                    list.AddRange(GetBlocks((IfStatementSyntax) statement.Statement));
+                }
             }
 
             // If the if statement has an else branch.

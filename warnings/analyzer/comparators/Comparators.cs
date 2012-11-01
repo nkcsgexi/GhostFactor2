@@ -56,11 +56,8 @@ namespace warnings.analyzer.comparators
             var s1 = n1.GetText().Replace(" ", "");
             var s2 = n2.GetText().Replace(" ", "");
             if(s1.Equals(s2))
-            {
                 return 0;
-            }
             return 1;
         }
     }
-
 }

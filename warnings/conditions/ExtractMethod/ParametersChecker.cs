@@ -111,14 +111,17 @@ namespace warnings.conditions
 
                 public override bool Equals(ICodeIssueComputer o)
                 {
-                    // If the other is not in the same RefactoringType, return false
-                    if (o is ParameterCheckingCodeIssueComputer)
+                    if (IsIssuedToSameDocument(o))
                     {
-                        var other = (ParameterCheckingCodeIssueComputer) o;
-                        var methodsComparator = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
-                   
-                        // If the method declarations are equal to each other.
-                        return methodsComparator.Compare(declaration, other.declaration) == 0;
+                        // If the other is not in the same RefactoringType, return false
+                        if (o is ParameterCheckingCodeIssueComputer)
+                        {
+                            var other = (ParameterCheckingCodeIssueComputer) o;
+                            var methodsComparator = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+
+                            // If the method declarations are equal to each other.
+                            return methodsComparator.Compare(declaration, other.declaration) == 0;
+                        }
                     }
                     return false;
                 }

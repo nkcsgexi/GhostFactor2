@@ -82,14 +82,17 @@ namespace warnings.conditions
 
                 public override bool Equals(ICodeIssueComputer o)
                 {
-                    if(o is ModifiedFlowOutData)
+                    if (IsIssuedToSameDocument(o))
                     {
-                        var other = (ModifiedFlowOutData) o;
-                        if(ConditionCheckersUtils.CompareSymbolListByName(other.missingSymbols, this.missingSymbols))
+                        if (o is ModifiedFlowOutData)
                         {
-                            if(ConditionCheckersUtils.CompareSymbolListByName(other.addedSymbols, this.addedSymbols))
+                            var other = (ModifiedFlowOutData) o;
+                            if (ConditionCheckersUtils.CompareSymbolListByName(other.missingSymbols, missingSymbols))
                             {
-                                return true;
+                                if (ConditionCheckersUtils.CompareSymbolListByName(other.addedSymbols, addedSymbols))
+                                {
+                                    return true;
+                                }
                             }
                         }
                     }

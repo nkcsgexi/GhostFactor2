@@ -112,5 +112,19 @@ namespace warnings.conditions
         {
             return document.Id.UniqueName.Equals(documentUniqueName);
         }
+        /// <summary>
+        /// Utility used to decide whether two computers are applied to the same document.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <returns></returns>
+        protected bool IsIssuedToSameDocument(ICodeIssueComputer a)
+        {
+            var another = a as SingleDocumentValidCodeIssueComputer;
+            if (another != null)
+            {
+                return documentUniqueName.Equals(documentUniqueName);
+            }
+            return false;
+        }
     }
 }

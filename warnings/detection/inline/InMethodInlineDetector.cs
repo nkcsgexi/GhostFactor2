@@ -90,56 +90,34 @@ namespace warnings.refactoring.detection
             {
                 refactorings.Clear();
 
-                // Get the inlined statements.
-                var inlinedStatements = GetLongestNeigboredStatements(GetCommonStatements(methodAfter, methodRemoved));
-                logger.Info("Longest common statements length: " + inlinedStatements.Count());
-
-                // If the inlined statements are above threshhold, an inline method refactoring is detected.
-                if (inlinedStatements.Count() > COUNT_THRESHHOLD)
+                // Get the changed blocks between the method before and method after.
+                var changedBlocks = RefactoringDetectionUtils.GetChangedBlocks(GetMethodBlock(methodBefore), 
+                    GetMethodBlock(methodAfter));
+                
+                // If only one block changes, it is likely to have inline method refactoring.
+                if (changedBlocks.Count() == 1)
                 {
-                    var refactoring = ManualRefactoringFactory.CreateManualInlineMethodRefactoring
-                        // Only considering the first invocation.
-                        (methodBefore, methodAfter, methodRemoved, invocationsRemoved.First(), inlinedStatements);
-                    refactorings.Add(refactoring);
-                    return true;
+                    var removedMethodStatements = RefactoringDetectionUtils.GetMethodStatements(methodRemoved);
+                    var changedBlockAfterStatements = ((BlockSyntax) changedBlocks.First().NodeAfter).Statements;
+                    var inlinedStatements = RefactoringDetectionUtils.GetLongestCommonStatements(
+                        removedMethodStatements, changedBlockAfterStatements, new SyntaxNodeExactComparer()).Select(p => p.Value);        
+                   
+                    // If the inlined statements are above threshhold, an inline method refactoring is detected.
+                    if (inlinedStatements.Count() > COUNT_THRESHHOLD)
+                    {
+                        var refactoring = ManualRefactoringFactory.CreateManualInlineMethodRefactoring
+                            // Only considering the first invocation.
+                            (methodBefore, methodAfter, methodRemoved, invocationsRemoved.First(), inlinedStatements);
+                        refactorings.Add(refactoring);
+                        return true;
+                    }
                 }
                 return false;
             }
 
-            private IEnumerable<SyntaxNode> GetCommonStatements(SyntaxNode methodAfter, SyntaxNode inlinedMethod)
+            private SyntaxNode GetMethodBlock(SyntaxNode method)
             {
-                // Get all the statements in the caller after inlining. 
-                var methodAnalyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
-                methodAnalyzer.SetMethodDeclaration(methodAfter);
-                var afterMethodStatements = methodAnalyzer.GetStatements();
-
-                // Get all the statements in the inlined method.
-                methodAnalyzer.SetMethodDeclaration(inlinedMethod);
-                var inlinedMethodStatements = methodAnalyzer.GetStatements();
-                var commonStatements = new List<SyntaxNode>();
-                var statementComparerer = new SyntaxNodeExactComparer();
-
-                // Get the statements in the caller method after inlining that also appear in the
-                // inlined method.
-                foreach (var afterStatement in afterMethodStatements)
-                {
-                    foreach (var inlinedStatement in inlinedMethodStatements)
-                    {
-                        if (statementComparerer.Compare(afterStatement, inlinedStatement) == 0)
-                        {
-                            logger.Info("Common statement: " + inlinedStatement);
-                            commonStatements.Add(afterStatement);
-                        }
-                    }
-                }
-                return commonStatements;
-            }
-
-            private IEnumerable<SyntaxNode> GetLongestNeigboredStatements(IEnumerable<SyntaxNode> statements)
-            {
-                var analyzer = AnalyzerFactory.GetSyntaxNodesAnalyzer();
-                analyzer.SetSyntaxNodes(statements);
-                return analyzer.GetLongestNeighborredNodesGroup();
+                return ((MethodDeclarationSyntax)method).Body;
             }
         }
 

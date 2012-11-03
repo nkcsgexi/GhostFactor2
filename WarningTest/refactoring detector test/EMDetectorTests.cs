@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NLog;
 using warnings.conditions;
+using warnings.refactoring;
 using warnings.refactoring.detection;
 using warnings.util;
 
@@ -27,7 +28,8 @@ namespace WarningTest
         [TestMethod]
         public void TestMethod1()
         {
-            var detector = RefactoringDetectorFactory.CreateExtractMethodDetectorBasedOnStringDistances();
+            var detector = RefactoringDetectorFactory.GetRefactoringDetectorByType
+                (RefactoringType.EXTRACT_METHOD);
             var sourceBefore = FileUtil.ReadAllText(fileBefore);
             var sourceAfter = FileUtil.ReadAllText(fileAfter);
             detector.SetSourceBefore(sourceBefore);
@@ -44,7 +46,8 @@ namespace WarningTest
         [TestMethod]
         public void TestMethod2()
         {
-            var detector = RefactoringDetectorFactory.CreateExtractMethodDetectorBasedOnCommonStatements();
+            var detector = RefactoringDetectorFactory.GetRefactoringDetectorByType
+                (RefactoringType.EXTRACT_METHOD);
             var sourceBefore = FileUtil.ReadAllText(fileBefore);
             var sourceAfter = FileUtil.ReadAllText(fileAfter);
             detector.SetSourceBefore(sourceBefore);

@@ -47,4 +47,13 @@ namespace BlackHen.Threading
             reset.WaitOne();
         }
     }
+
+    public abstract class TimableWorkItem : WorkItem
+    {
+        public TimeSpan GetProcessingTime()
+        {
+            return ProcessingTime;
+        }
+    }
+
 }

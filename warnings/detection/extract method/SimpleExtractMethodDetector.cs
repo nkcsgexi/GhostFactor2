@@ -234,5 +234,9 @@ namespace warnings.detection
         }
 
 
+        public RefactoringType RefactoringType 
+        { 
+            get { return RefactoringType.EXTRACT_METHOD;}
+        }
     }
 }

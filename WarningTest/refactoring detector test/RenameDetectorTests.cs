@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NLog;
 using Roslyn.Compilers;
 using Roslyn.Compilers.CSharp;
+using warnings.refactoring;
 using warnings.refactoring.detection;
 using warnings.retriever;
 using warnings.util;
@@ -26,11 +27,14 @@ namespace WarningTest
 
         public RenameDetectorTests()
         {
-            var sourceBefore = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() + "RenameDetectorExampleBefore.txt");
-            var sourceAfter = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() + "RenameDetectorExampleAfter.txt");
+            var sourceBefore = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() + 
+                "RenameDetectorExampleBefore.txt");
+            var sourceAfter = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() + 
+                "RenameDetectorExampleAfter.txt");
             before = ASTUtil.GetSyntaxTreeFromSource(sourceBefore).GetRoot();
             after = ASTUtil.GetSyntaxTreeFromSource(sourceAfter).GetRoot();
-            detector = RefactoringDetectorFactory.CreateRenameDetector();
+            detector = RefactoringDetectorFactory.GetRefactoringDetectorByType
+                (RefactoringType.RENAME);
             logger = NLoggerUtil.GetNLogger(typeof (RenameDetectorTests));
         }
 

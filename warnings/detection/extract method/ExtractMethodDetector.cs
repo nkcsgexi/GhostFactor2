@@ -106,7 +106,7 @@ namespace warnings.refactoring.detection
 
         public IEnumerable<ManualRefactoring> GetRefactorings()
         {
-            return this.refactorings;
+            return refactorings;
         }
 
         /* Extract method detector for same classes before and after. */
@@ -185,7 +185,8 @@ namespace warnings.refactoring.detection
                 return methodsAfter.Except(methodsBefore, new MethodNameEqualityComparer());
             }
 
-            private IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetCommonMethod(ClassDeclarationSyntax before, ClassDeclarationSyntax after)
+            private IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetCommonMethod(ClassDeclarationSyntax before, 
+                ClassDeclarationSyntax after)
             {
                 var methodsBefore = ASTUtil.GetMethodsDeclarations(before);
                 var methodsAfter = ASTUtil.GetMethodsDeclarations(after);
@@ -225,6 +226,9 @@ namespace warnings.refactoring.detection
 
         }
 
-  
+        public RefactoringType RefactoringType 
+        { 
+            get { return RefactoringType.EXTRACT_METHOD;}
+        }
     }  
 }

@@ -30,16 +30,22 @@ namespace warnings.configuration
         /* Get the time interval between two snapshots, in millisencond. */
         public static int GetSnapshotTakingInterval()
         {
-            return 2000;
+            return 5000;
         }
 
         /* 
-         * Get the time interval between two queries of all the refactoring warnings in the solution, used by
-         * the refactoring form. 
+         * Get the time interval between two queries of all the refactoring warnings in 
+         * the solution, used by the refactoring form. 
          */
         public static int GetRefactoringWarningListUpdateInterval()
         {
             return 6000;
+        }
+
+
+        public static bool ShutDown()
+        {
+            return false;
         }
 
 
@@ -49,16 +55,36 @@ namespace warnings.configuration
             switch (type)
             {
                 case RefactoringType.RENAME:
-                    return 30;
+                    return 10;
                 case RefactoringType.EXTRACT_METHOD:
-                    return 30;
+                    return 10;
                 case RefactoringType.CHANGE_METHOD_SIGNATURE:
-                    return 30;
+                    return 10;
                 case RefactoringType.INLINE_METHOD:
-                    return 30;
+                    return 10;
                 default:
                     throw new Exception("Unknown Refactoring Type.");
             }
         }
+
+        /// <summary>
+        /// Get the number of maximum meaningful versions of a same source file.
+        /// </summary>
+        /// <returns></returns>
+        public static int GetHistoryRecordsMaximumLength()
+        {
+            return RefactoringTypeUtil.GetAllValidRefactoringTypes().
+                Select(GetSearchDepth).Max();
+        }
+
+        /// <summary>
+        /// Get all refatoring types that are currently supported.
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<RefactoringType> GetSupportedRefactoringTypes()
+        {
+            return RefactoringTypeUtil.GetAllValidRefactoringTypes().Where(IsSupported);
+        }
+
     }
 }

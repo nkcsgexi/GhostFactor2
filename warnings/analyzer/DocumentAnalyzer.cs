@@ -37,7 +37,10 @@ namespace warnings.analyzer
         ISymbol GetFirstMethod();
         String DumpSyntaxTree();
 
-        /* Whether this document contains the definition of the RefactoringType of the given qualified name.*/
+        /* 
+         * Whether this document contains the definition of the RefactoringType of the given 
+         * qualified name.
+         */
         bool ContainsQualifiedName(string qualifiedName);
     }
 
@@ -130,7 +133,8 @@ namespace warnings.analyzer
         {
             ISemanticModel model = document.GetSemanticModel();
             
-            // Only the following kind of declarations can find their symbol, otherwise throw exception.
+            // Only the following kind of declarations can find their symbol, 
+            // otherwise throw exception.
             switch (declaration.Kind)
             {
                     case SyntaxKind.NamespaceDeclaration:
@@ -183,9 +187,10 @@ namespace warnings.analyzer
                         sb.Append("\t\t");
                         sb.AppendLine(method.Identifier.ValueText);
 
-                        // Iterate the local variable declarations in each method, print only the first one
-                        // in a declaration.
-                        foreach (VariableDeclaratorSyntax variable in GetVariableDeclarations(method))
+                        // Iterate the local variable declarations in each method, print only the 
+                        // first one in a declaration.
+                        foreach (VariableDeclaratorSyntax variable in GetVariableDeclarations
+                            (method))
                         {
                             sb.Append("\t\t\t");
                             sb.AppendLine(variable.Identifier.ValueText);

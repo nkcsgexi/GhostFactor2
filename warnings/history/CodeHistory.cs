@@ -5,6 +5,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using NLog;
+using Roslyn.Services;
 using warnings.util;
 
 namespace warnings.source.history
@@ -16,12 +17,29 @@ namespace warnings.source.history
         ICodeHistoryRecord GetLatestRecord(String uniqueName);
     }
 
-    public class CodeHistory : ICodeHistory
+    public interface ICodeHistoryRecord : IEquatable<ICodeHistoryRecord>
+    {
+        String GetUniqueName();
+        String GetSimpleName();
+        String GetSource();
+        long GetTime();
+        bool HasPreviousRecord();
+        ICodeHistoryRecord GetPreviousRecord();
+        ICodeHistoryRecord CreateNextRecord(string source);
+        IDocument Convert2Document();
+    }
+
+  
+
+    public partial class CodeHistory : ICodeHistory
     {
         /* Singleton the code history instance. */
-        private static CodeHistory instance = new CodeHistory();
+        private static CodeHistory instance; 
+            
         public static ICodeHistory GetInstance()
         {
+            if(instance == null)
+                instance = new CodeHistory();
             return instance;
         }
 
@@ -37,10 +55,6 @@ namespace warnings.source.history
             // Delete and recreate the folder for saving the source code record.
             FileUtil.DeleteDirectory(CompilationUnitRecord.ROOT);
             FileUtil.CreateDirectory(CompilationUnitRecord.ROOT);
-
-            // Delete and recreate the folder for saving the metadata record.
-            FileUtil.DeleteDirectory(RecordMetaData.ROOT);
-            FileUtil.CreateDirectory(RecordMetaData.ROOT);
         }
 
         /* Add a new record, the latest record will be replaced.*/
@@ -55,7 +69,8 @@ namespace warnings.source.history
             }
             else
             {
-                ICodeHistoryRecord record = CompilationUnitRecord.CreateNewCodeRecord(uniqueName, source);
+                ICodeHistoryRecord record = CompilationUnitRecord.CreateNewCodeRecord(uniqueName, 
+                    source);
                 latestRecordDictionary.Add(uniqueName, record);
             }
         }

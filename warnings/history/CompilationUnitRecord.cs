@@ -5,106 +5,120 @@ using System.Linq;
 using System.Text;
 using Roslyn.Compilers.CSharp;
 using Roslyn.Services;
+using warnings.configuration;
 using warnings.util;
 
 namespace warnings.source.history
 {
-    public interface ICodeHistoryRecord : IEquatable<ICodeHistoryRecord>
+    public partial class CodeHistory
     {
-        String GetUniqueName();
-        String GetSimpleName();
-        String GetSource();
-        long GetTime();
-        bool HasPreviousRecord();
-        ICodeHistoryRecord GetPreviousRecord();
-        ICodeHistoryRecord CreateNextRecord(string source);
-        IDocument Convert2Document();
-    }
-
-    internal class CompilationUnitRecord : ICodeHistoryRecord
-    {
-        /* The root folder to where this file is stored. */
-        public static readonly String ROOT = "Source";
-
-        /* The metadata describing this souce version. */
-        private readonly IRecordMetaData metaData;
-
-        /* File extension for the source record. */
-        private static readonly String EXTENSION = ".rec";
-
-        public static ICodeHistoryRecord CreateNewCodeRecord(String uniqueName,
-                String source){
-            // current time in ticks
-            long time = DateTime.Now.Ticks;
-
-            // record file name
-            string recordfilename = time + EXTENSION;
-            string sourcePath = ROOT + Path.DirectorySeparatorChar + recordfilename;
-            FileUtil.WriteToFileStream(FileUtil.CreateFile(sourcePath), source);
-            IRecordMetaData metaData =
-                RecordMetaData.CreateMetaData(uniqueName, sourcePath, "", time);
-            return new CompilationUnitRecord(metaData);
-        }
-
-        public string GetUniqueName()
+        internal partial class CompilationUnitRecord : ICodeHistoryRecord
         {
-            return metaData.GetUniqueName();
-        }
+            public static readonly String ROOT = "Source";
+            private static readonly String EXTENSION = ".rec";
+            
+            private readonly String uniqueName;
+            private readonly String sourePath;
+            private readonly long time;
 
-        public string GetSimpleName()
-        {
-            return Path.GetFileName(GetUniqueName());
-        }
+            private ICodeHistoryRecord previousRecord;
+            private IDataSource dataSource;
 
-        public string GetSource()
-        {
-            return FileUtil.ReadAllText(metaData.GetSourcePath());
-        }
+            public static ICodeHistoryRecord CreateNewCodeRecord(String uniqueName,
+                                                                 String source)
+            {
+                // current time in ticks
+                long time = DateTime.Now.Ticks;
 
-        public long GetTime()
-        {
-            return metaData.GetTime();
-        }
+                // record file name
+                string recordfilename = time + EXTENSION;
+                string sourcePath = ROOT + Path.DirectorySeparatorChar + recordfilename;
 
-        public bool HasPreviousRecord()
-        {
-            return File.Exists(metaData.GetPreviousMetaPath());
-        }
+                var dataSource = DataSourceFactory.GetMemoryDataSource();
+                dataSource.WriteData(sourcePath, source);
+                return new CompilationUnitRecord(uniqueName, sourcePath,
+                    time, dataSource, null);
+            }
 
-        public ICodeHistoryRecord GetPreviousRecord()
-        {      
-            IRecordMetaData previousMetaData = RecordMetaData.ReadMetaData(metaData.GetPreviousMetaPath());
-            return new CompilationUnitRecord(previousMetaData);
-        }
+            public string GetUniqueName()
+            {
+                return uniqueName;
+            }
 
+            public string GetSimpleName()
+            {
+                return Path.GetFileName(GetUniqueName());
+            }
 
-        public ICodeHistoryRecord CreateNextRecord(string source)
-        {
-            var time = DateTime.Now.Ticks;
-            var recordfilename = time + EXTENSION;
-            var sourcePath = ROOT + Path.DirectorySeparatorChar + recordfilename;
-            var fs = FileUtil.CreateFile(sourcePath);
-            FileUtil.WriteToFileStream(fs, source);
-            var nextMetaData =
-                RecordMetaData.CreateMetaData(GetUniqueName(), sourcePath, metaData.GetMetaDataPath(), time);
-            return new CompilationUnitRecord(nextMetaData);
-        }
+            public string GetSource()
+            {
+                return dataSource.ReadData(sourePath);
+            }
 
-        /* Convert the source code to an IDocument instance. */
-        public IDocument Convert2Document()
-        {
-            var converter = new String2IDocumentConverter();
-            return (IDocument)converter.Convert(GetSource(), null, null, null);
-        }
+            public long GetTime()
+            {
+                return time;
+            }
 
-        private CompilationUnitRecord(IRecordMetaData metaData)
-        {
-            this.metaData = metaData;
-        }
+            public bool HasPreviousRecord()
+            {
+                return previousRecord != null;
+            }
 
-        public bool Equals(ICodeHistoryRecord other)
-        {
-            return GetTime() == other.GetTime();
+            public ICodeHistoryRecord GetPreviousRecord()
+            {
+                return previousRecord;
+            }
+
+            public ICodeHistoryRecord CreateNextRecord(string source)
+            {
+                var time = DateTime.Now.Ticks;
+                var recordfilename = time + EXTENSION;
+                var sourcePath = ROOT + Path.DirectorySeparatorChar + recordfilename;
+                var dataSource = DataSourceFactory.GetMemoryDataSource();
+                dataSource.WriteData(sourcePath, source);
+                var record =  new CompilationUnitRecord(uniqueName, sourePath, time,
+                    dataSource, this);
+                PruneStaleRecords(record, GlobalConfigurations.GetHistoryRecordsMaximumLength());
+                return record;
+            }
+
+            public IDocument Convert2Document()
+            {
+                var converter = new String2IDocumentConverter();
+                return (IDocument) converter.Convert(GetSource(), null, null, null);
+            }
+            
+            public bool Equals(ICodeHistoryRecord other)
+            {
+                return GetTime() == other.GetTime();
+            }
+
+            private CompilationUnitRecord(string uniqueName, string sourePath, long time,
+                IDataSource dataSource, ICodeHistoryRecord previousRecord)
+            {
+                this.uniqueName = uniqueName;
+                this.sourePath = sourePath;
+                this.time = time;
+                this.dataSource = dataSource;
+                this.previousRecord = previousRecord;
+            }
+
+            private void PruneStaleRecords(CompilationUnitRecord record, int maxLength)
+            {
+                int length = 0;
+                for (CompilationUnitRecord current = record; current.HasPreviousRecord(); 
+                    current = (CompilationUnitRecord)current.GetPreviousRecord(), length ++)
+                {
+                    // If the current length equals the maximum length, then prone all
+                    // the previous records.
+                    if(length == maxLength)
+                    {
+                        current.previousRecord = null;
+                        break;
+                    }
+                }
+            }
         }
     }
 }

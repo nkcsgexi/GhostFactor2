@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using BlackHen.Threading;
 using NLog;
 using Roslyn.Compilers.CSharp;
@@ -50,21 +51,15 @@ namespace warnings.components
 
         private HistorySavingComponent()
         {
-            // Initialize the workqueue.
             this.queue = new WorkQueue();
-
-            // Disallow the concurrency for this component.
             this.queue.ConcurrentLimit = 1;
-
-            // Log the event if an item failed.
             this.queue.FailedWorkItem += onFailedWorkItem;
+            this.queue.CompletedWorkItem += onCompleteWorkItem;
 
             // Initiate the component timer.
             this.timer = new ComponentTimer( TIME_INTERVAL, TimeUpHandler);
 
-            // Initialize the logger used in this component.
-            logger = NLoggerUtil.GetNLogger(typeof (HistorySavingComponent));
-            
+            logger = NLoggerUtil.GetNLogger(typeof (HistorySavingComponent));            
             activeDocumentBox = new StrongBox<IDocument>();
         }
 
@@ -101,7 +96,8 @@ namespace warnings.components
             private readonly IDocument document;
             private readonly StrongBox<IDocument> documentBox;
 
-            internal UpdateActiveDocumentWorkItem(StrongBox<IDocument> documentBox, IDocument document)
+            internal UpdateActiveDocumentWorkItem(StrongBox<IDocument> documentBox, 
+                IDocument document)
             {
                 this.documentBox = documentBox;
                 this.document = document;
@@ -124,14 +120,23 @@ namespace warnings.components
             }
         }
 
-        /* Method called when a workitem failed. */
         private void onFailedWorkItem(object sender, WorkItemEventArgs workItemEventArgs)
         {
-            logger.Fatal("WorkItem failed.");
+            logger.Fatal("WorkItem failed: " + workItemEventArgs.WorkItem.FailedException);
+        }
+
+        private void onCompleteWorkItem(object sender, WorkItemEventArgs e)
+        {
+            var timable = e.WorkItem as TimableWorkItem;
+            if (timable != null)
+            {
+                var timeSpan = ((TimableWorkItem) e.WorkItem).GetProcessingTime();
+                logger.Info("Work item processing time: " + timeSpan.TotalMilliseconds);
+            }
         }
 
         /* The work item supposed to added to HistorySavingComponent. */
-        private class HistorySavingWorkItem : WorkItem
+        private class HistorySavingWorkItem : TimableWorkItem
         {
             private readonly static SavedDocumentRecords records = new SavedDocumentRecords();
             private readonly Logger logger;
@@ -174,46 +179,26 @@ namespace warnings.components
             private void StartRefactoringSearch(DocumentId documentId)
             {
                 // Get the latest record of the file just editted.    
-                ICodeHistoryRecord record = CodeHistory.GetInstance().GetLatestRecord(documentId.UniqueName);
-
-                if (GlobalConfigurations.IsSupported(RefactoringType.EXTRACT_METHOD))
-                {
-                    // Search for extract method refactoring.
-                    GhostFactorComponents.searchExtractMethodComponent.StartRefactoringSearch(record, documentId);
-                }
-                
-                if(GlobalConfigurations.IsSupported(RefactoringType.RENAME))
-                {
-                    // Search for rename refacotoring.
-                    GhostFactorComponents.searchRenameComponent.StartRefactoringSearch(record, documentId);
-                }
-
-               if(GlobalConfigurations.IsSupported(RefactoringType.CHANGE_METHOD_SIGNATURE))
-               {
-                   // Search for change method signature refactorings.
-                   GhostFactorComponents.searchChangeMethodSignatureComponent.StartRefactoringSearch(record, documentId);
-               }
-
-                if(GlobalConfigurations.IsSupported(RefactoringType.INLINE_METHOD))
-                {
-                    // Search for inline method refactorings.
-                    GhostFactorComponents.searchInlineMethodComponent.StartRefactoringSearch(record, documentId);
-                }
+                ICodeHistoryRecord record = CodeHistory.GetInstance().
+                    GetLatestRecord(documentId.UniqueName);
+                GhostFactorComponents.searchRefactoringComponent.
+                    StartRefactoringSearch(record, documentId);
             }
             
             /* 
-             * This class records whether a newly coming document is an update from its previous version, reducing the redundancy of
-             * saving multiple versions of same code.
+             * This class records whether a newly coming document is an update from its previous version, 
+             * reducing the redundancy of saving multiple versions of same code.
              */
             private class SavedDocumentRecords
             {
                 /* Dictionary saves document id and its version number of its latest saved code.*/
-                private Dictionary<DocumentId, VersionStamp> dictionary = new Dictionary<DocumentId, VersionStamp>();
+                private Dictionary<string, VersionStamp> dictionary = 
+                    new Dictionary<string, VersionStamp>();
 
                 /* Whether we have saved a document before. */
                 private bool HasSaved(IDocument document)
                 {
-                    return dictionary.ContainsKey(document.Id);
+                    return dictionary.ContainsKey(document.Id.UniqueName);
                 }
 
                 /* Whether a document differs from its previous version. */
@@ -222,8 +207,8 @@ namespace warnings.components
                     if (HasSaved(document))
                     {
                         VersionStamp version;
-                        dictionary.TryGetValue(document.Id, out version);
-                        return version != document.GetTextVersion();
+                        dictionary.TryGetValue(document.Id.UniqueName, out version);
+                        return document.GetTextVersion().IsNewerThan(version);
                     }
                     return true;
                 }
@@ -233,9 +218,10 @@ namespace warnings.components
                 {
                     if (HasSaved(document))
                     {
-                        dictionary.Remove(document.Id);
+                        dictionary.Remove(document.Id.UniqueName);
                     }
-                    dictionary.Add(document.Id, document.GetTextVersion());
+                    dictionary.Add(document.Id.UniqueName, 
+                        document.GetTextVersion());
                 }
             }
         }

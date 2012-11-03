@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Roslyn.Compilers.CSharp;
 using Roslyn.Services;
+using warnings.conditions;
 using warnings.detection;
 using warnings.source;
 using warnings.refactoring;
@@ -36,13 +37,16 @@ namespace warnings.refactoring.detection
         void SetSyntaxNodeAfter(SyntaxNode after);
     }
 
-    public interface IExternalRefactoringDetector : IRefactoringDetector, IBeforeAndAfterSourceKeeper
+    public interface IExternalRefactoringDetector : IRefactoringDetector, 
+        IBeforeAndAfterSourceKeeper, IHasRefactoringType
     {
         IDocument GetBeforeDocument();
         IDocument GetAfterDocument();
+
     }
 
-    internal interface IInternalRefactoringDetector : IRefactoringDetector, IBeforeAndAfterSyntaxNodeKeeper
+    internal interface IInternalRefactoringDetector : IRefactoringDetector, 
+        IBeforeAndAfterSyntaxNodeKeeper
     {
         
     }
@@ -50,39 +54,39 @@ namespace warnings.refactoring.detection
 
     public static class RefactoringDetectorFactory
     {
-        public static IExternalRefactoringDetector CreateRenameDetector()
+        public static IExternalRefactoringDetector GetRefactoringDetectorByType
+            (RefactoringType type)
         {
-            return new RenameDetector();
+            switch (type)
+            {
+                case RefactoringType.RENAME:
+                    return new RenameDetector();
+                case RefactoringType.INLINE_METHOD:
+                    return new InlineMethodDetector(InMethodInlineDetectorFactory.
+                        GetFineGrainedDetector());
+                case RefactoringType.EXTRACT_METHOD:
+                    return new ExtractMethodDetector(InMethodExtractMethodDetectorFactory.
+                        GetInMethodExtractMethodDetectorByCommonStatements());
+                case RefactoringType.CHANGE_METHOD_SIGNATURE:
+                    return new ChangeMethodSignatureDetector();
+                default:
+                    throw new Exception("Unknown refactoring type.");
+            }
         }
 
-        public static IExternalRefactoringDetector CreateExtractMethodDetectorBasedOnStringDistances()
+        public static IExternalRefactoringDetector GetDummyRefactoringDetectorByType
+            (RefactoringType type)
         {
-            return new ExtractMethodDetector(InMethodExtractMethodDetectorFactory.GetInMethodExtractMethodDetectorByStringDistances());
-        }
-
-        public static IExternalRefactoringDetector CreateExtractMethodDetectorBasedOnCommonStatements()
-        {
-            return new ExtractMethodDetector(InMethodExtractMethodDetectorFactory.GetInMethodExtractMethodDetectorByCommonStatements());
-        }
-
-        public static IExternalRefactoringDetector CreateDummyExtractMethodDetector()
-        {
-            return new SimpleExtractMethodDetector();
-        }
-
-        public static IExternalRefactoringDetector CreateChangeMethodSignatureDetector()
-        {
-            return  new ChangeMethodSignatureDetector();
-        }
-
-        public static IExternalRefactoringDetector CreateInlineMethodDetector()
-        {
-            return new InlineMethodDetector(InMethodInlineDetectorFactory.GetFineGrainedDetector());
-        }
-
-        public static IExternalRefactoringDetector CreateDummyInlineMethodDetector()
-        {
-            return new InlineMethodDetector(InMethodInlineDetectorFactory.GetDummyDetector());
+            switch (type)
+            {
+                case RefactoringType.EXTRACT_METHOD:
+                    return new SimpleExtractMethodDetector();
+                case RefactoringType.INLINE_METHOD:
+                    return new InlineMethodDetector(InMethodInlineDetectorFactory.
+                        GetDummyDetector());
+                default:
+                    throw new Exception("Unsupported refactoring type.");
+            }
         }
     }
 }

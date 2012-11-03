@@ -120,5 +120,10 @@ namespace warnings.refactoring.detection
         {
             return documentAfter;
         }
+
+        public RefactoringType RefactoringType
+        {
+            get { return RefactoringType.RENAME;}
+        }
     }
 }

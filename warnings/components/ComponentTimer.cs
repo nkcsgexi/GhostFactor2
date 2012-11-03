@@ -25,7 +25,7 @@ namespace warnings.components
         {
             this.timeInterval = timeInterval;
             this.thread = new Thread(run);
-            this.thread.Priority = ThreadPriority.Normal;
+            this.thread.Priority = ThreadPriority.Lowest;
             TimesUp += handler;
         }
 

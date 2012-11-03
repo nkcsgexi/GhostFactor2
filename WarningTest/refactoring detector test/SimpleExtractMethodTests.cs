@@ -22,9 +22,12 @@ namespace WarningTest.refactoring_detector_test
         public SimpleExtractMethodTests()
         {
             this.logger = NLoggerUtil.GetNLogger(typeof (SimpleExtractMethodTests));
-            this.sourceBefore = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() + "SimpleExtractMethodBefore.txt");
-            this.sourceAfter = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() + "SimpleExtractMethodAfter.txt");
-            this.detector = RefactoringDetectorFactory.CreateDummyExtractMethodDetector();
+            this.sourceBefore = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() + 
+                "SimpleExtractMethodBefore.txt");
+            this.sourceAfter = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() + 
+                "SimpleExtractMethodAfter.txt");
+            this.detector = RefactoringDetectorFactory.GetDummyRefactoringDetectorByType
+                (RefactoringType.EXTRACT_METHOD);
         }
 
         [TestMethod]

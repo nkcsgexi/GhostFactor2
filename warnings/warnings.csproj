@@ -128,12 +128,7 @@
     <Compile Include="components\HistorySavingComponent.cs" />
     <Compile Include="components\IFactorComponent.cs" />
     <Compile Include="components\ComponentTimer.cs" />
-    <Compile Include="components\search\SearchInlineMethodComponent.cs" />
-    <Compile Include="components\search\SearchRealDocumentComponent.cs" />
-    <Compile Include="components\search\SearchChangeMethodSignatureComponent.cs" />
-    <Compile Include="components\search\SearchExtractMethodComponent.cs" />
-    <Compile Include="components\search\SearchRefactoringComponent.cs" />
-    <Compile Include="components\search\SearchRenameComponent.cs" />
+    <Compile Include="components\SearchRefactoringComponent.cs" />
     <Compile Include="components\RefactoringIssueComponent.cs" />
     <Compile Include="components\ui\RefactoringFormViewComponent.cs" />
     <Compile Include="components\ui\RefactoringWarningMessage.cs" />
@@ -151,12 +146,14 @@
     <Compile Include="conditions\Rename\RenameConditionChecker.cs" />
     <Compile Include="configuration\GlobalConfigurations.cs" />
     <Compile Include="analyzer\DeclaratorAnalyzer.cs" />
+    <Compile Include="configuration\GlobalData.cs" />
     <Compile Include="detection\ChangeMethodSignatureDetector.cs" />
     <Compile Include="detection\extract method\InMethodExtractMethodDetector.cs" />
     <Compile Include="detection\extract method\SimpleExtractMethodDetector.cs" />
     <Compile Include="detection\inline\InlineMethodDetector.cs" />
     <Compile Include="detection\inline\InMethodInlineDetector.cs" />
     <Compile Include="detection\RefactoringDetectionUtils.cs" />
+    <Compile Include="history\DataSource.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -199,7 +196,6 @@
     <Compile Include="detection\IRefactoringDetector.cs" />
     <Compile Include="refactoring\manual\RefactoringType.cs" />
     <Compile Include="refactoring\manual\ManualRefactoring.cs" />
-    <Compile Include="history\RecordMetaData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="source.extension.vsixmanifest">

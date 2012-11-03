@@ -18,3 +18,9 @@ Counting line of code:
 	Top Left Drop down using the Find in Files Selection
 	Type the following as the text to find:
 	For C#: ^~(:Wh@//.+)~(:Wh@\{:Wh@)~(:Wh@\}:Wh@)~(:Wh@/#).+
+
+Run roslyn solely:
+
+cd "C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE"
+devenv.exe /rootsuffix Roslyn
+ 

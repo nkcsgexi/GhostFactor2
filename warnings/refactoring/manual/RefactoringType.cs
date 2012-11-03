@@ -13,4 +13,13 @@ namespace warnings.refactoring
         INLINE_METHOD,
         UNKOWN
     }
+
+    public class RefactoringTypeUtil
+    {
+        public static IEnumerable<RefactoringType> GetAllValidRefactoringTypes()
+        {
+            var types = Enum.GetValues(typeof(RefactoringType)).Cast<RefactoringType>();
+            return types.Where(t => t != RefactoringType.UNKOWN);
+        }
+    }
 }

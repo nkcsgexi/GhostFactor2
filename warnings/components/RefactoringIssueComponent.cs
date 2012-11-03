@@ -11,6 +11,7 @@ using Roslyn.Services.Editor;
 using warnings.analyzer;
 using warnings.components.ui;
 using warnings.conditions;
+using warnings.configuration;
 using warnings.quickfix;
 using warnings.util;
 
@@ -41,7 +42,6 @@ namespace warnings.components
   
     internal class RefactoringCodeIssueComputersComponent : IFactorComponent, ICodeIssueComputersRepository
     {
-        /* Singleton this component. */
         private static readonly ICodeIssueComputersRepository intance =
             new RefactoringCodeIssueComputersComponent();
 
@@ -50,12 +50,11 @@ namespace warnings.components
             return intance;
         }
 
-        /* Saving all of the code issue computers. */
         private readonly IList<ICodeIssueComputer> codeIssueComputers;
-
-        /* The black list of computers that are not allowed to add. */
         private readonly CodeIssueComputersBlackList blackList;
-
+        private readonly WorkQueue queue;
+        private readonly Logger logger;
+        private readonly IEnumerable<Predicate<SyntaxNode>> nodeFilter;
 
         /* Used for any listener to the event of code issue computers added or removed. */
         private delegate void CodeIssueComputersAdded(IEnumerable<ICodeIssueComputer> newCodeIssueComputers);
@@ -72,10 +71,7 @@ namespace warnings.components
         public event ProblematicRefactoringsCountChanged ProblematicRefactoringCountChanged;
 
 
-        /* A single thread workqueue. */
-        private WorkQueue queue;
-
-        private Logger logger;
+ 
 
         private RefactoringCodeIssueComputersComponent()
         {
@@ -87,19 +83,24 @@ namespace warnings.components
             // Add a listener for failed work item.
             queue.FailedWorkItem += OnItemFailed;
             logger = NLoggerUtil.GetNLogger(typeof (RefactoringCodeIssueComputersComponent));
-
             blackList = new CodeIssueComputersBlackList(5);
-
+            nodeFilter = InitializeNodeFilters();
             codeIssueComputersAddedEvent += OnCodeIssueComputersAdded;
         }
+
+        private IEnumerable<Predicate<SyntaxNode>> InitializeNodeFilters()
+        {
+            var filters = new List<Predicate<SyntaxNode>>();
+            filters.Add(n => n.Kind == SyntaxKind.MethodDeclaration);
+            return filters;
+        }
+
 
         /* When code issue computers are added, this method will be called. */
         private void OnCodeIssueComputersAdded(IEnumerable<ICodeIssueComputer> computers)
         {
-            var solution = GhostFactorComponents.searchRealDocumentComponent.GetSolution();
-            
-            // Create a work item for this task.
-            var item = new GetSolutionRefactoringWarningsWorkItem(solution, computers, AddGlobalWarnings);
+            var item = new GetSolutionRefactoringWarningsWorkItem(GlobalData.Solution, 
+                computers, AddGlobalWarnings);
             queue.Add(item);
         }
 
@@ -147,10 +148,15 @@ namespace warnings.components
         /* Get the code issues in the given node of the given document. */
         public IEnumerable<CodeIssue> GetCodeIssues(IDocument document, SyntaxNode node)
         {
-            // Create a work item for this task.
-            var item = new GetDocumentNodeCodeIssueWorkItem(document, node, codeIssueComputers);
-            new WorkItemSynchronizedExecutor(item, queue).Execute();
-            return item.GetCodeIssues();
+            // Check if an issue is likely to happen to the node.
+            if (nodeFilter.Any(f => f.Invoke(node)))
+            {
+                // Create a work item for this task.
+                var item = new GetDocumentNodeCodeIssueWorkItem(document, node, codeIssueComputers);
+                new WorkItemSynchronizedExecutor(item, queue).Execute();
+                return item.GetCodeIssues();
+            }
+            return Enumerable.Empty<CodeIssue>();
         }
 
 

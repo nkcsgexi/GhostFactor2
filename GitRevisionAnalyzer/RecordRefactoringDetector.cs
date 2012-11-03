@@ -28,10 +28,13 @@ namespace GitRevisionAnalyzer
         private static readonly string DETECTED_REFACTORINGS_ROOT = "DetectedRefactorings/";
 
         /* Several detectors.*/
-        private static readonly IExternalRefactoringDetector[] externalRefactoringDetectors = new IExternalRefactoringDetector[] 
+        private static readonly IExternalRefactoringDetector[] externalRefactoringDetectors = new 
+            IExternalRefactoringDetector[] 
         { 
-            RefactoringDetectorFactory.CreateDummyExtractMethodDetector(),
-            RefactoringDetectorFactory.CreateDummyInlineMethodDetector()
+            RefactoringDetectorFactory.GetDummyRefactoringDetectorByType
+                (RefactoringType.EXTRACT_METHOD),
+            RefactoringDetectorFactory.GetDummyRefactoringDetectorByType
+                (RefactoringType.INLINE_METHOD)
         };
 
         private readonly Logger logger;

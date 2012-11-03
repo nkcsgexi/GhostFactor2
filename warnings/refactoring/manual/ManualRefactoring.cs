@@ -25,7 +25,7 @@ namespace warnings.refactoring
         }
 
         public RefactoringMetaData MetaData { set; get; }
-        
+         
         // Map the refactoring a new pair of document, whose code are identical to the 
         // original sources from where the refactoring is detected. 
         public abstract void MapToDocuments(IDocument before, IDocument after);

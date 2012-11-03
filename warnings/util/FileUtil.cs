@@ -25,11 +25,10 @@ namespace warnings.util
          */
         public static String[] ReadFileLines(String path, int start, int end)
         {
-            List<String> lines = new List<string>();
+            var lines = new List<string>();
             int counter = 0;
             string line;
-            StreamReader file =
-               new System.IO.StreamReader(path);
+            var file = new System.IO.StreamReader(path);
             while ((line = file.ReadLine()) != null){
                 Console.WriteLine(line);
                 if(counter >= start && counter <= end){
@@ -39,13 +38,14 @@ namespace warnings.util
                     break;
                 counter++;
             }
+            file.Close();
             return lines.ToArray();
         }
 
         //Xi: to read a file, from the specified line number to the end of such file.
         public static String ReadFileFromLine(String path, int start)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             int end = int.MaxValue;
             String[] lines = ReadFileLines(path, start, end);
             foreach(String line in lines){
@@ -102,7 +102,10 @@ namespace warnings.util
                 Directory.CreateDirectory(root);
         }
 
-        /* Delete a directory if such directory exists. All the contents in the directory will be deleted. */
+        /* 
+         * Delete a directory if such directory exists. All the contents in the directory will be 
+         * deleted. 
+         */
         public static void DeleteDirectory(String root)
         {
             if(Directory.Exists(root))

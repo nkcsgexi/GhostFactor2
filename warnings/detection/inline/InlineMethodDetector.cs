@@ -191,6 +191,7 @@ namespace warnings.refactoring.detection
             }
         }
 
- 
+
+        public RefactoringType RefactoringType { get { return RefactoringType.INLINE_METHOD; } }
     }
 }

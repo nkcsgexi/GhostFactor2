@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NLog;
+using warnings.configuration;
 using warnings.source;
 using warnings.source.history;
 using warnings.util;
@@ -105,6 +106,13 @@ namespace WarningTest
             Assert.IsTrue(record1.GetSource().Equals(source[1]));
             Assert.IsTrue(record.GetUniqueName().Equals("test"));
             Assert.IsTrue(record1.GetUniqueName().Equals("test1"));
+        }
+
+        [TestMethod]
+        public void TestMethod1()
+        {
+            Assert.IsTrue(GlobalConfigurations.
+                GetHistoryRecordsMaximumLength() == 20);
         }
     }
 }

@@ -332,6 +332,10 @@ namespace warnings.refactoring.detection
 
         }
 
+        public RefactoringType RefactoringType
+        {
+            get { return RefactoringType.CHANGE_METHOD_SIGNATURE;}
+        }
     }
 
 

@@ -13,6 +13,7 @@ using Roslyn.Services.Editor;
 using Roslyn.Services.Host;
 using warnings.analyzer;
 using warnings.components;
+using warnings.configuration;
 using warnings.quickfix;
 using warnings.util;
 
@@ -23,13 +24,19 @@ namespace warnings
     {
         private readonly Logger logger = NLoggerUtil.GetNLogger(typeof(CodeIssueProvider));
 
-        public IEnumerable<CodeIssue> GetIssues(IDocument document, CommonSyntaxNode node, CancellationToken cancellationToken)
+        public IEnumerable<CodeIssue> GetIssues(IDocument document, CommonSyntaxNode node, 
+            CancellationToken cancellationToken)
         {
-            initialize(document);
+            if (!GlobalConfigurations.ShutDown())
+            {
+                initialize(document);
 
-            // Add the new record to the history component.
-            GhostFactorComponents.historyComponent.UpdateActiveDocument(document);
-            return GhostFactorComponents.RefactoringCodeIssueComputerComponent.GetCodeIssues(document, (SyntaxNode) node);  
+                // Add the new record to the history component.
+                GhostFactorComponents.historyComponent.UpdateActiveDocument(document);
+                return GhostFactorComponents.RefactoringCodeIssueComputerComponent.
+                    GetCodeIssues(document, (SyntaxNode) node);
+            }
+            return null;
         }
 
         private bool initialized = false;
@@ -42,7 +49,8 @@ namespace warnings
                 if (initialized == false)
                 {
                     // Start all the components.
-                    GhostFactorComponents.StartAllComponents(document.Project.Solution);
+                    GhostFactorComponents.StartAllComponents();
+                    GlobalData.Solution = document.Project.Solution;
                     initialized = true;
                 }
             }catch(Exception e)
@@ -54,12 +62,14 @@ namespace warnings
 
         #region Unimplemented ICodeIssueProvider members
 
-        public IEnumerable<CodeIssue> GetIssues(IDocument document, CommonSyntaxToken token, CancellationToken cancellationToken)
+        public IEnumerable<CodeIssue> GetIssues(IDocument document, CommonSyntaxToken token, 
+            CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<CodeIssue> GetIssues(IDocument document, CommonSyntaxTrivia trivia, CancellationToken cancellationToken)
+        public IEnumerable<CodeIssue> GetIssues(IDocument document, CommonSyntaxTrivia trivia, 
+            CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

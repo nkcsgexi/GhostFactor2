@@ -81,8 +81,9 @@ namespace warnings.refactoring.detection
         }
 
         /* Get the common node pairs in before and after set of nodes. */
-        public static IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetCommonNodePairs(IEnumerable<SyntaxNode> beforeNodes,
-            IEnumerable<SyntaxNode> afterNodes, IComparer<SyntaxNode> comparer)
+        public static IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetCommonNodePairs
+                (IEnumerable<SyntaxNode> beforeNodes, IEnumerable<SyntaxNode> afterNodes, 
+                    IComparer<SyntaxNode> comparer)
         {
             var result = new List<KeyValuePair<SyntaxNode, SyntaxNode>>();
             foreach (var before in beforeNodes)
@@ -100,7 +101,8 @@ namespace warnings.refactoring.detection
         }
 
         /* Get the longest common statements list between the given two statements list. */
-        public static IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetLongestCommonStatements(IEnumerable<SyntaxNode> statements1, 
+        public static IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetLongestCommonStatements
+            (IEnumerable<SyntaxNode> statements1, 
             IEnumerable<SyntaxNode> statements2, IComparer<SyntaxNode> comparer)
         {
             var results = new List<KeyValuePair<SyntaxNode, SyntaxNode>>();
@@ -161,7 +163,8 @@ namespace warnings.refactoring.detection
         /// <param name="blockBefore"></param>
         /// <param name="blockAfter"></param>
         /// <returns></returns>
-        public static IEnumerable<SyntaxNodePair> GetChangedBlocks(SyntaxNode blockBefore, SyntaxNode blockAfter)
+        public static IEnumerable<SyntaxNodePair> GetChangedBlocks(SyntaxNode blockBefore, SyntaxNode 
+            blockAfter)
         {
             var analyzer = AnalyzerFactory.GetBlockAnalyzer();
             analyzer.SetBlockBefore(blockBefore);

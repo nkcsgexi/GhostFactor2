@@ -29,7 +29,6 @@ namespace warnings.components
             return instance ?? (instance = new SearchRefactoringComponent());
         }
 
-
         private readonly WorkQueue queue;
         protected readonly Logger logger;
 
@@ -37,13 +36,25 @@ namespace warnings.components
         {
             queue = new WorkQueue {ConcurrentLimit = 1};
             queue.FailedWorkItem += onFailedWorkItem;
+            queue.CompletedWorkItem += onCompletedWorkItem;
 
             logger = NLoggerUtil.GetNLogger(typeof (ISearchRefactoringComponent));
         }
 
+        private void onCompletedWorkItem(object sender, WorkItemEventArgs workItemEventArgs)
+        {
+            var timable = workItemEventArgs.WorkItem as TimableWorkItem;
+            if(timable != null)
+            {
+                logger.Info("Search item time: " + timable.GetProcessingTime().
+                    TotalMilliseconds);
+            }
+        }
+
         private void onFailedWorkItem(object sender, WorkItemEventArgs e)
         {
-            logger.Fatal("WorkItem failed.");
+            logger.Fatal("Search refactoring work item failed.\n" + 
+                e.WorkItem.FailedException);
         }
 
         public void Enqueue(IWorkItem item)
@@ -87,40 +98,32 @@ namespace warnings.components
 
             public override void Perform()
             {
-                try
+                IEnumerable<DetectedRefactoring> detectedRefactorings;
+                var detectors = GetRefactoringDetectors();
+                var sourceAfter = latestRecord.GetSource();
+
+                int lookBackCount = 1;
+                for (var currentRecord = latestRecord; currentRecord.HasPreviousRecord() && 
+                    detectors.Any(); currentRecord = currentRecord.GetPreviousRecord(), 
+                        lookBackCount++)
                 {
-                    var detectedRefactorings = new List<DetectedRefactoring>();
-                    var detectors = GetRefactoringDetectors();
-                    SetDetectorsSourceAfter(detectors, latestRecord.GetSource());
-
-                    int lookBackCount = 1;
-                    for (var currentRecord = latestRecord; currentRecord.HasPreviousRecord() && detectors.Any()
-                        ; currentRecord = currentRecord.GetPreviousRecord(), lookBackCount++)
+                    detectors = GetActiveDetectors(detectors, lookBackCount);
+                    var sourceBefore = currentRecord.GetPreviousRecord().GetSource();
+                    
+                    SetDetectorsSource(detectors, sourceBefore, sourceAfter);
+                    detectedRefactorings = GetDetectRefactorings(detectors);
+                    if(detectedRefactorings.Any())
                     {
-                        detectors = GetActiveDetectors(detectors, lookBackCount);
-                        SetDetectorsSourceBefore(detectors, currentRecord.GetPreviousRecord().GetSource());
-                        detectors = GetDetectRefactorings(detectors, detectedRefactorings);
-                    }
-
-                    if (detectedRefactorings.Any())
-                    {
-                        foreach (var detectedRefactoring in detectedRefactorings)
-                        {
-                            detectedRefactoring.Refactoring.MetaData.DocumentId = documentId;
-                            detectedRefactoring.Refactoring.MetaData.DocumentUniqueName =
-                                documentId.UniqueName;
-                        }
-                        OnRefactoringDetected(detectedRefactorings);
-                    }
-                    else
-                    {
-                        OnNoRefactoringDetected(latestRecord);
+                        var detectedRefactoring = detectedRefactorings.First();
+                        detectedRefactoring.Refactoring.MetaData.DocumentId = documentId;
+                        detectedRefactoring.Refactoring.MetaData.DocumentUniqueName =
+                            documentId.UniqueName;
+                        OnRefactoringDetected(detectedRefactoring.BeforeDocument,
+                            detectedRefactoring.AfterDocument, detectedRefactoring.Refactoring);
+                        return;
                     }
                 }
-                catch (Exception e)
-                {
-                    logger.Fatal(e);
-                }
+                OnNoRefactoringDetected(latestRecord);
             }
 
             private IEnumerable<IExternalRefactoringDetector> GetRefactoringDetectors()
@@ -129,39 +132,31 @@ namespace warnings.components
                     (RefactoringDetectorFactory.GetRefactoringDetectorByType);
             }
 
-            private void SetDetectorsSourceBefore(IEnumerable<IExternalRefactoringDetector> detectors,
-                string before)
+            private void SetDetectorsSource(IEnumerable<IExternalRefactoringDetector> detectors,
+                string before, string after)
             {
                 foreach (var detector in detectors)
                 {
                     detector.SetSourceBefore(before);
+                    detector.SetSourceAfter(after);
                 }
             }
 
             private IEnumerable<IExternalRefactoringDetector> GetActiveDetectors
                 (IEnumerable<IExternalRefactoringDetector> detectors, int lookBack)
             {
-                return detectors.Where(d => GlobalConfigurations.GetSearchDepth(d.RefactoringType) > lookBack);
+                var activeDetectors = new List<IExternalRefactoringDetector>();
+                activeDetectors.AddRange(detectors.Where(d => GlobalConfigurations.GetSearchDepth(d.RefactoringType) >
+                    lookBack));
+                return activeDetectors;
             }
 
-            private void SetDetectorsSourceAfter(IEnumerable<IExternalRefactoringDetector> detectors,
-                string after)
+            private IEnumerable<DetectedRefactoring> GetDetectRefactorings
+                (IEnumerable<IExternalRefactoringDetector> detectors)
             {
-                foreach (var detector in detectors)
-                {
-                    detector.SetSourceAfter(after);
-                }
-            }
-
-            private IEnumerable<IExternalRefactoringDetector> GetDetectRefactorings
-                (IEnumerable<IExternalRefactoringDetector> detectors,
-                    List<DetectedRefactoring> detectedRefactorings)
-            {
-                var successfulDetectors = detectors.Where(d => d.HasRefactoring());
-                detectedRefactorings.AddRange(successfulDetectors.Select
+                return detectors.Where(d => d.HasRefactoring()).Select
                     (d => new DetectedRefactoring(d.GetBeforeDocument(), d.GetAfterDocument(),
-                        d.GetRefactorings().First())));
-                return detectors.Except(successfulDetectors);
+                        d.GetRefactorings().First()));
             }
 
             private class DetectedRefactoring
@@ -180,13 +175,18 @@ namespace warnings.components
             }
 
 
-            private void OnRefactoringDetected(IEnumerable<DetectedRefactoring> detectedrefactorings)
+            private void OnRefactoringDetected(IDocument beforeDocument, IDocument afterDocument,
+              ManualRefactoring refactoring)
             {
-
+                logger.Info("Refactoring detected:");
+                logger.Info(refactoring.ToString);
+                GhostFactorComponents.conditionCheckingComponent.CheckRefactoringCondition
+                    (beforeDocument, afterDocument, refactoring);
             }
+
             private void OnNoRefactoringDetected(ICodeHistoryRecord after)
             {
-
+                logger.Info("No refactoring detected.");
             }
         }
     }

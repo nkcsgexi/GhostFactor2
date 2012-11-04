@@ -77,10 +77,10 @@ namespace warnings.refactoring.detection
             var treeAfter = (SyntaxTree)afterDoc.GetSyntaxTree();
 
             // Get the classes in the code before and after.
-            var classesBefore = treeBefore.GetRoot().DescendantNodes(n => n.Kind != SyntaxKind.MethodDeclaration).
-                Where(n => n.Kind == SyntaxKind.ClassDeclaration);
-            var classesAfter = treeAfter.GetRoot().DescendantNodes(n => n.Kind != SyntaxKind.MethodDeclaration).
-                Where(n => n.Kind == SyntaxKind.ClassDeclaration);
+            var classesBefore = treeBefore.GetRoot().DescendantNodes(n => n.Kind != 
+                SyntaxKind.MethodDeclaration).Where(n => n.Kind == SyntaxKind.ClassDeclaration);
+            var classesAfter = treeAfter.GetRoot().DescendantNodes(n => n.Kind != 
+                SyntaxKind.MethodDeclaration).Where(n => n.Kind == SyntaxKind.ClassDeclaration);
             
             // Get the pairs of class declaration in the code before and after class;
             var pairs = RefactoringDetectionUtils.GetCommonNodePairs(classesBefore, classesAfter,
@@ -89,8 +89,9 @@ namespace warnings.refactoring.detection
             foreach (var pair in pairs)
             {
                 // Configure in class detector.
-                var detector = new InClassExtractMethodDetector((ClassDeclarationSyntax)pair.Key, (ClassDeclarationSyntax)pair.Value, 
-                    inMethodDetector);
+                var detector = new InClassExtractMethodDetector(
+                    (ClassDeclarationSyntax)pair.Key, (ClassDeclarationSyntax)pair.Value, 
+                        inMethodDetector);
                 detector.SetSyntaxTreeBefore(treeBefore);
                 detector.SetSyntaxTreeAfter(treeAfter);
                 

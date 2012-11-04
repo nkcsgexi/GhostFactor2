@@ -22,41 +22,24 @@ namespace warnings
     [ExportSyntaxNodeCodeIssueProvider("CodeIssue", LanguageNames.CSharp)]
     class CodeIssueProvider : ICodeIssueProvider
     {
-        private readonly Logger logger = NLoggerUtil.GetNLogger(typeof(CodeIssueProvider));
-
         public IEnumerable<CodeIssue> GetIssues(IDocument document, CommonSyntaxNode node, 
             CancellationToken cancellationToken)
         {
             if (!GlobalConfigurations.ShutDown())
             {
-                initialize(document);
+                SetGlobalData(document);
 
                 // Add the new record to the history component.
-                GhostFactorComponents.historyComponent.UpdateActiveDocument(document);
+                GhostFactorComponents.historyComponent.UpdateDocument(document);
                 return GhostFactorComponents.RefactoringCodeIssueComputerComponent.
                     GetCodeIssues(document, (SyntaxNode) node);
             }
             return null;
         }
 
-        private bool initialized = false;
-
-        /* Code runs only once when getIssues is called. */
-        private void initialize(IDocument document)
+        private void SetGlobalData(IDocument document)
         {
-            try
-            {
-                if (initialized == false)
-                {
-                    // Start all the components.
-                    GhostFactorComponents.StartAllComponents();
-                    GlobalData.Solution = document.Project.Solution;
-                    initialized = true;
-                }
-            }catch(Exception e)
-            {
-                logger.Fatal(e);
-            }
+            GlobalData.Solution = document.Project.Solution;
         }
 
 

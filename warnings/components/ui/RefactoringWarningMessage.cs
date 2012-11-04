@@ -21,7 +21,8 @@ namespace warnings.components.ui
 
     public class RefactoringWarningMessageFactory
     {
-        public static IRefactoringWarningMessage CreateRefactoringWarningMessage(IDocument document, CodeIssue issue, ICodeIssueComputer computer)
+        public static IRefactoringWarningMessage CreateRefactoringWarningMessage(IDocument document, 
+            CodeIssue issue, ICodeIssueComputer computer)
         {
             var instance = new RefactoringWarningMessage
             {

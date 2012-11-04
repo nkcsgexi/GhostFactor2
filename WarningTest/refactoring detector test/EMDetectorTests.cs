@@ -21,7 +21,8 @@ namespace WarningTest
         private static readonly string fileAfter = 
             TestUtil.GetFakeSourceFolder() + "EMDetectorAfter.cs";
 
-        private IRefactoringConditionsList conditionsList = ConditionCheckingFactory.GetExtractMethodConditionsList();
+        private IRefactoringConditionsList conditionsList =
+            ConditionCheckingFactory.GetConditionsListByRefactoringType(RefactoringType.EXTRACT_METHOD);
 
         private readonly Logger logger = NLoggerUtil.GetNLogger(typeof (EMDetectorTests));
 

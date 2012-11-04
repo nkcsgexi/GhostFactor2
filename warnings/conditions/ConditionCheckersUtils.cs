@@ -76,7 +76,8 @@ namespace warnings.conditions
         /// <param name="document"></param>
         /// <returns></returns>
  
-        public static IEnumerable<ISymbol> GetUsedButNotDeclaredData(IEnumerable<SyntaxNode> statements, IDocument document)
+        public static IEnumerable<ISymbol> GetUsedButNotDeclaredData(IEnumerable<SyntaxNode> statements, 
+            IDocument document)
         {
             var usedData = GetUsedData(statements, document);
             var statementsDataFlowAnalyzer = AnalyzerFactory.GetStatementsDataFlowAnalyzer();

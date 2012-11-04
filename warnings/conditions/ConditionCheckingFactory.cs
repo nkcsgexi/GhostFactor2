@@ -2,29 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using warnings.refactoring;
 
 namespace warnings.conditions
 {
     public class ConditionCheckingFactory
     {
-        public static IRefactoringConditionsList GetExtractMethodConditionsList()
+        public static IRefactoringConditionsList GetConditionsListByRefactoringType
+            (RefactoringType type)
         {
-            return ExtractMethodConditionsList.GetInstance();
-        }
-
-        public static IRefactoringConditionsList GetRenameConditionsList()
-        {
-            return RenameConditionsList.GetInstance();
-        }
-
-        public static IRefactoringConditionsList GetChangeMethodSignatureConditionsList()
-        {
-            return ChangeMethodSignatureConditionsList.GetInstance();
-        }
-
-        public static IRefactoringConditionsList GetInlineMethodConditionsList()
-        {
-            return InlineMethodConditionCheckersList.GetInstance();
+            switch (type)
+            {
+                case RefactoringType.RENAME:
+                    return RenameConditionsList.GetInstance();
+                case RefactoringType.INLINE_METHOD:
+                    return InlineMethodConditionCheckersList.GetInstance();
+                case RefactoringType.EXTRACT_METHOD:
+                    return ExtractMethodConditionsList.GetInstance();
+                case RefactoringType.CHANGE_METHOD_SIGNATURE:
+                    return ChangeMethodSignatureConditionsList.GetInstance();
+                default:
+                    throw new Exception("Unsupported Condition list.");
+            }
         }
     }
 }

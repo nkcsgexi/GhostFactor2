@@ -21,7 +21,8 @@ namespace warnings.components
     public delegate void AddGlobalRefactoringWarnings(IEnumerable<IRefactoringWarningMessage> messages);
 
     /* Used for any listeners to the event of removing refactoring warnings. */
-    public delegate void RemoveGlobalRefactoringWarnings(Predicate<IRefactoringWarningMessage> removeCondition);
+    public delegate void RemoveGlobalRefactoringWarnings(Predicate<IRefactoringWarningMessage> 
+        removeCondition);
 
     /* Used for any listeners who are instersted at how many refactorings are problematic. */
     public delegate void ProblematicRefactoringsCountChanged(int newCount);
@@ -40,7 +41,7 @@ namespace warnings.components
         IEnumerable<CodeIssue> GetCodeIssues(IDocument document, SyntaxNode node);
     }
   
-    internal class RefactoringCodeIssueComputersComponent : IFactorComponent, ICodeIssueComputersRepository
+    internal class RefactoringCodeIssueComputersComponent : ICodeIssueComputersRepository
     {
         private static readonly ICodeIssueComputersRepository intance =
             new RefactoringCodeIssueComputersComponent();
@@ -110,39 +111,20 @@ namespace warnings.components
             logger.Fatal(workItemEventArgs.WorkItem.FailedException.StackTrace);
         }
 
-        public void Enqueue(IWorkItem item)
-        {
-            queue.Add(item);
-        }
-
-        public string GetName()
-        {
-            return "Refactoring Issues Componenet.";
-        }
-
-        public int GetWorkQueueLength()
-        {
-            return queue.Count;
-        }
-
-        public void Start()
-        {
-        }
-
 
         /* Add a list of code issue computers to the current list. */
         public void AddCodeIssueComputers(IEnumerable<ICodeIssueComputer> computers)
         {
             // Create a code issue adding work item and push it to the work queue.
-            queue.Add(new AddCodeIssueComputersWorkItem(codeIssueComputers, computers, blackList, codeIssueComputersAddedEvent, 
-                ProblematicRefactoringCountChanged));
+            queue.Add(new AddCodeIssueComputersWorkItem(codeIssueComputers, computers, blackList,
+                codeIssueComputersAddedEvent, ProblematicRefactoringCountChanged));
         }
 
         /* Remove a list of code issue computers from the current list. */
         public void RemoveCodeIssueComputers(IEnumerable<ICodeIssueComputer> computers)
         {
-            queue.Add(new RemoveCodeIssueComputersWorkItem(codeIssueComputers, computers, blackList, RemoveGlobalWarnings, 
-                ProblematicRefactoringCountChanged));
+            queue.Add(new RemoveCodeIssueComputersWorkItem(codeIssueComputers, computers, 
+                blackList, RemoveGlobalWarnings, ProblematicRefactoringCountChanged));
         }
 
         /* Get the code issues in the given node of the given document. */
@@ -313,8 +295,8 @@ namespace warnings.components
         }
 
         /* 
-         * Work item for getting all the refactoring addWarningsEvent in a given solution and a set of computers.
-         * used to add element to the refactoring warning window.
+         * Work item for getting all the refactoring addWarningsEvent in a given solution 
+         * and a set of computers to add element to the refactoring warning window.
          */
         private class GetSolutionRefactoringWarningsWorkItem : WorkItem
         {
@@ -324,7 +306,8 @@ namespace warnings.components
             private readonly AddGlobalRefactoringWarnings addWarningsEvent;
 
 
-            internal GetSolutionRefactoringWarningsWorkItem(ISolution solution, IEnumerable<ICodeIssueComputer> computers, 
+            internal GetSolutionRefactoringWarningsWorkItem(ISolution solution, 
+                IEnumerable<ICodeIssueComputer> computers, 
                 AddGlobalRefactoringWarnings addWarningsEvent)
             {
                 this.solution = solution;
@@ -346,9 +329,11 @@ namespace warnings.components
                         if (nodes.Any())
                         {
                             // Find all the issues in the document. 
-                            var issues = nodes.SelectMany(n => computer.ComputeCodeIssues(document, n));
+                            var issues = nodes.SelectMany(n => computer.
+                                ComputeCodeIssues(document, n));
 
-                            // For each code issue in the document, create a warning message and add it to the list.
+                            // For each code issue in the document, create a warning 
+                            // message and add it to the list.
                             foreach (CodeIssue issue in issues)
                             {
                                 var warningMessage = RefactoringWarningMessageFactory.

@@ -13,8 +13,7 @@ using warnings.util;
 
 namespace warnings.components
 {
-    public interface IConditionCheckingComponent : IFactorComponent
-    {
+    public interface IConditionCheckingComponent{
         void CheckRefactoringCondition(IDocument before, IDocument after, ManualRefactoring refactoring);
     }
 
@@ -33,49 +32,39 @@ namespace warnings.components
 
         private ConditionCheckingComponent()
         {
-            // A single thread workqueue.
             queue = new WorkQueue();
             queue.ConcurrentLimit = 1;
             
-            // Set listener for failed work item.
             queue.FailedWorkItem += onFailedItem;
+            queue.CompletedWorkItem += OnCompletedWorkItem;
 
-            // Initiate the logger.
+
             logger = NLoggerUtil.GetNLogger(typeof (ConditionCheckingComponent));
+        }
+
+        private void OnCompletedWorkItem(object sender, WorkItemEventArgs workItemEventArgs)
+        {
+            var timable = workItemEventArgs.WorkItem as TimableWorkItem;
+            if(timable != null)
+            {
+                logger.Info("Condition checking processing time:" + timable.GetProcessingTime());
+            }
         }
 
         private void onFailedItem(object sender, WorkItemEventArgs workItemEventArgs)
         {
-            logger.Fatal("Work item failed: " + workItemEventArgs.WorkItem);
+            logger.Fatal("Condition checking work item failed:\n" + 
+                workItemEventArgs.WorkItem.FailedException);
         }
 
-        public void Enqueue(IWorkItem item)
+        public void CheckRefactoringCondition(IDocument before, IDocument after, ManualRefactoring 
+            refactoring)
         {
-            logger.Info("enqueue.");
-            queue.Add(item);
-        }
-
-        public string GetName()
-        {
-            return "Conditions Checking Component";
-        }
-
-        public int GetWorkQueueLength()
-        {
-            return queue.Count;
-        }
-
-        public void Start()
-        {
-        }
-
-        public void CheckRefactoringCondition(IDocument before, IDocument after, ManualRefactoring refactoring)
-        {
-            Enqueue(new ConditionCheckWorkItem(before, after, refactoring));
+            queue.Add(new ConditionCheckWorkItem(before, after, refactoring));
         }
 
         /* The work item to be pushed to the condition checking component. */
-        private class ConditionCheckWorkItem : WorkItem
+        private class ConditionCheckWorkItem : TimableWorkItem
         {
             // The refactoring instance from detector. 
             private readonly ManualRefactoring refactoring;
@@ -98,52 +87,17 @@ namespace warnings.components
 
             public override void Perform()
             {
-                try
-                {
-                    IEnumerable<ICodeIssueComputer> computers = Enumerable.Empty<ICodeIssueComputer>();
-                    switch (refactoring.RefactoringType)
-                    {
-                        // Checking all conditions for extract method.
-                        case RefactoringType.EXTRACT_METHOD:
-                            logger.Info("Checking conditions for extract method.");
-                            computers = ConditionCheckingFactory.GetExtractMethodConditionsList().
-                                CheckAllConditions(before, after, refactoring);
-                            break;
+                IEnumerable<ICodeIssueComputer> computers = Enumerable.Empty<ICodeIssueComputer>();
 
-                        // Checking all conditions for rename.
-                        case RefactoringType.RENAME:
-                            logger.Info("Checking conditions for rename.");
-                            computers = ConditionCheckingFactory.GetRenameConditionsList().
-                                CheckAllConditions(before, after, refactoring);
-                            break;
+                // Get the condition list corresponding to the refactoring type and check all 
+                // of the conditions.
+                var list = ConditionCheckingFactory.GetConditionsListByRefactoringType
+                    (refactoring.RefactoringType);
+                computers = list.CheckAllConditions(before, after, refactoring);
 
-                        // Checking conditions for change method signature.
-                        case RefactoringType.CHANGE_METHOD_SIGNATURE:
-                            logger.Info("Checking conditions for change method signature.");
-                            computers = ConditionCheckingFactory.GetChangeMethodSignatureConditionsList().
-                                CheckAllConditions(before, after, refactoring);
-                            break;
-
-                        // Checking conditions for inline method refactorings.
-                        case RefactoringType.INLINE_METHOD:
-                            logger.Info("Checking conditions for inline method.");
-                            computers = ConditionCheckingFactory.GetInlineMethodConditionsList().
-                                CheckAllConditions(before, after, refactoring);
-                            break;
-
-                        default:
-                            logger.Fatal("Unknown refactoring RefactoringType for conditions checking.");
-                            break;
-                    }
-
-                    // Add issue computers to the issue component.
-                    GhostFactorComponents.RefactoringCodeIssueComputerComponent.AddCodeIssueComputers(computers);
-                }
-                catch (Exception e)
-                {
-                    // All exception shall go to the fatal log.
-                    logger.Fatal(e);
-                }
+                // Add issue computers to the issue component.
+                GhostFactorComponents.RefactoringCodeIssueComputerComponent.AddCodeIssueComputers
+                    (computers);
             }
         }
     }

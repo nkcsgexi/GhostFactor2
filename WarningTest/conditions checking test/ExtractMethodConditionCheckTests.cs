@@ -26,7 +26,8 @@ namespace WarningTest
 
         private IEnumerable<SyntaxNode> afterMethods;
 
-        private IRefactoringConditionsList conditionsList = ConditionCheckingFactory.GetExtractMethodConditionsList();
+        private IRefactoringConditionsList conditionsList = 
+            ConditionCheckingFactory.GetConditionsListByRefactoringType(RefactoringType.EXTRACT_METHOD);
 
         public ExtractMethodConditionCheckTests()
         {

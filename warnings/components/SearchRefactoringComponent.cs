@@ -15,7 +15,7 @@ using warnings.util;
 
 namespace warnings.components
 {
-    public interface ISearchRefactoringComponent : IFactorComponent
+    public interface ISearchRefactoringComponent
     {
         void StartRefactoringSearch(ICodeHistoryRecord record, DocumentId documentId);
     }
@@ -57,24 +57,6 @@ namespace warnings.components
                 e.WorkItem.FailedException);
         }
 
-        public void Enqueue(IWorkItem item)
-        {
-        }
-
-        public int GetWorkQueueLength()
-        {
-            return queue.Count;
-        }
-
-        public void Start()
-        {
-        }
-
-        public string GetName()
-        {
-            return "Refactoring search component";
-        }
-
         public void StartRefactoringSearch(ICodeHistoryRecord record, DocumentId documentId)
         {
             queue.Add(new SearchRefactoringWorkitem(record, documentId));
@@ -85,11 +67,15 @@ namespace warnings.components
         /// </summary>
         private class SearchRefactoringWorkitem : TimableWorkItem
         {
+            private static readonly IEnumerable<IExternalRefactoringDetector>
+                allRefactoringDetectors = GetRefactoringDetectors();
+
             private readonly ICodeHistoryRecord latestRecord;
             private readonly DocumentId documentId;
             private readonly Logger logger;
 
-            internal SearchRefactoringWorkitem(ICodeHistoryRecord latestRecord, DocumentId documentId)
+            internal SearchRefactoringWorkitem(ICodeHistoryRecord latestRecord, 
+                DocumentId documentId)
             {
                 this.latestRecord = latestRecord;
                 this.documentId = documentId;
@@ -98,20 +84,19 @@ namespace warnings.components
 
             public override void Perform()
             {
-                IEnumerable<DetectedRefactoring> detectedRefactorings;
-                var detectors = GetRefactoringDetectors();
+                var currentDetectors = allRefactoringDetectors;
                 var sourceAfter = latestRecord.GetSource();
 
                 int lookBackCount = 1;
-                for (var currentRecord = latestRecord; currentRecord.HasPreviousRecord() && 
-                    detectors.Any(); currentRecord = currentRecord.GetPreviousRecord(), 
+                for (var currentRecord = latestRecord; currentRecord.HasPreviousRecord() &&
+                    currentDetectors.Any(); currentRecord = currentRecord.GetPreviousRecord(), 
                         lookBackCount++)
                 {
-                    detectors = GetActiveDetectors(detectors, lookBackCount);
+                    currentDetectors = GetActiveDetectors(currentDetectors, lookBackCount);
                     var sourceBefore = currentRecord.GetPreviousRecord().GetSource();
-                    
-                    SetDetectorsSource(detectors, sourceBefore, sourceAfter);
-                    detectedRefactorings = GetDetectRefactorings(detectors);
+
+                    SetDetectorsSource(currentDetectors, sourceBefore, sourceAfter);
+                    var detectedRefactorings = GetDetectRefactorings(currentDetectors);
                     if(detectedRefactorings.Any())
                     {
                         var detectedRefactoring = detectedRefactorings.First();
@@ -126,12 +111,22 @@ namespace warnings.components
                 OnNoRefactoringDetected(latestRecord);
             }
 
-            private IEnumerable<IExternalRefactoringDetector> GetRefactoringDetectors()
+            /// <summary>
+            /// Get the refactoring detectors by the supported refactoring types in global
+            /// configuration.
+            /// </summary>
+            /// <returns></returns>
+            private static IEnumerable<IExternalRefactoringDetector> GetRefactoringDetectors()
             {
                 return GlobalConfigurations.GetSupportedRefactoringTypes().Select
                     (RefactoringDetectorFactory.GetRefactoringDetectorByType);
             }
-
+            /// <summary>
+            /// Given a set of refactoring detectors, set the source before and after.
+            /// </summary>
+            /// <param name="detectors"></param>
+            /// <param name="before"></param>
+            /// <param name="after"></param>
             private void SetDetectorsSource(IEnumerable<IExternalRefactoringDetector> detectors,
                 string before, string after)
             {
@@ -142,21 +137,45 @@ namespace warnings.components
                 }
             }
 
+            /// <summary>
+            /// Given a set of refactorin detectors and the count of current look back,
+            /// returns the detectors that are still active, i.e., not excel its look back 
+            /// limit.
+            /// </summary>
+            /// <param name="detectors">Input detectors.</param>
+            /// <param name="lookBack">The number of current look backs.</param>
+            /// <returns></returns>
             private IEnumerable<IExternalRefactoringDetector> GetActiveDetectors
                 (IEnumerable<IExternalRefactoringDetector> detectors, int lookBack)
             {
                 var activeDetectors = new List<IExternalRefactoringDetector>();
-                activeDetectors.AddRange(detectors.Where(d => GlobalConfigurations.GetSearchDepth(d.RefactoringType) >
-                    lookBack));
+                activeDetectors.AddRange(detectors.Where(d => GlobalConfigurations.GetSearchDepth
+                    (d.RefactoringType) > lookBack));
                 return activeDetectors;
             }
 
+            /// <summary>
+            /// Given a set of detectors whose source before and after are set, return the 
+            /// detected refactorings by applying them.
+            /// </summary>
+            /// <param name="detectors"></param>
+            /// <returns></returns>
             private IEnumerable<DetectedRefactoring> GetDetectRefactorings
                 (IEnumerable<IExternalRefactoringDetector> detectors)
             {
-                return detectors.Where(d => d.HasRefactoring()).Select
-                    (d => new DetectedRefactoring(d.GetBeforeDocument(), d.GetAfterDocument(),
-                        d.GetRefactorings().First()));
+                var detectedRefactorings = new List<DetectedRefactoring>();
+                foreach (var detector in detectors)
+                {
+                    if(detector.HasRefactoring())
+                    {
+                        var beforeDoc = detector.GetBeforeDocument();
+                        var afterDoc = detector.GetAfterDocument();
+                        var refactoring = detector.GetRefactorings().First();
+                        detectedRefactorings.Add(new DetectedRefactoring(beforeDoc, 
+                            afterDoc, refactoring));
+                    }
+                }
+                return detectedRefactorings;
             }
 
             private class DetectedRefactoring

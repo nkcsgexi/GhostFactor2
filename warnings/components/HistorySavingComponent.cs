@@ -18,9 +18,9 @@ using warnings.util;
 
 namespace warnings.components
 {
-    public interface IHistorySavingComponent : IFactorComponent
+    public interface IHistorySavingComponent
     {
-        void UpdateActiveDocument(IDocument document);
+        void UpdateDocument(IDocument document);
     }
 
     /* Component for recording new version of a source code file.*/
@@ -40,15 +40,6 @@ namespace warnings.components
         /* logger for the history saving component. */
         private readonly Logger logger;
 
-        /* Current active document boxed to facilitate update. */
-        private StrongBox<IDocument> activeDocumentBox;
-
-        /* Timer for triggering saving current version. */
-        private readonly ComponentTimer timer;
-
-        /* Timer interval used by timer. */
-        private readonly int TIME_INTERVAL = GlobalConfigurations.GetSnapshotTakingInterval();
-
         private HistorySavingComponent()
         {
             this.queue = new WorkQueue();
@@ -56,73 +47,20 @@ namespace warnings.components
             this.queue.FailedWorkItem += onFailedWorkItem;
             this.queue.CompletedWorkItem += onCompleteWorkItem;
 
-            // Initiate the component timer.
-            this.timer = new ComponentTimer( TIME_INTERVAL, TimeUpHandler);
-
             logger = NLoggerUtil.GetNLogger(typeof (HistorySavingComponent));            
-            activeDocumentBox = new StrongBox<IDocument>();
         }
 
-        /* Add a new work item to the queue. */
-        public void Enqueue(IWorkItem item)
+   
+        public void UpdateDocument(IDocument newDoc)
         {
+            queue.Add(new HistorySavingWorkItem(newDoc));
         }
 
-        /* Return the name of this work queue. */
-        public string GetName()
-        {
-            return "HistorySavingComponent";
-        }
-
-        /* The length of this work queue. */
-        public int GetWorkQueueLength()
-        {
-            return queue.Count;
-        }
-
-        /* Start this component by starting the timing thread. */
-        public void Start()
-        {
-            this.timer.start();
-        }
-
-        public void UpdateActiveDocument(IDocument newDoc)
-        {
-             queue.Add(new UpdateActiveDocumentWorkItem(activeDocumentBox, newDoc));
-        }
-
-        private class UpdateActiveDocumentWorkItem : WorkItem
-        {
-            private readonly IDocument document;
-            private readonly StrongBox<IDocument> documentBox;
-
-            internal UpdateActiveDocumentWorkItem(StrongBox<IDocument> documentBox, 
-                IDocument document)
-            {
-                this.documentBox = documentBox;
-                this.document = document;
-            }
-
-            public override void Perform()
-            {
-                documentBox.Value = document;
-            }
-        }
-
-        /* handler when time up event is triggered. */
-        private void TimeUpHandler(object o, EventArgs args)
-        {
-            // If no active document is not null, continue with saving.
-            if (activeDocumentBox.Value != null)
-            {
-                // When timer is triggered, save current active file to the versions. 
-                queue.Add(new HistorySavingWorkItem(activeDocumentBox.Value));
-            }
-        }
-
+        
         private void onFailedWorkItem(object sender, WorkItemEventArgs workItemEventArgs)
         {
-            logger.Fatal("WorkItem failed: " + workItemEventArgs.WorkItem.FailedException);
+            logger.Fatal("Save code history record failed:\n" + 
+                workItemEventArgs.WorkItem.FailedException);
         }
 
         private void onCompleteWorkItem(object sender, WorkItemEventArgs e)
@@ -138,41 +76,33 @@ namespace warnings.components
         /* The work item supposed to added to HistorySavingComponent. */
         private class HistorySavingWorkItem : TimableWorkItem
         {
-            private readonly static SavedDocumentRecords records = new SavedDocumentRecords();
-            private readonly Logger logger;
+            private static readonly SavedDocumentRecords records = new SavedDocumentRecords();
+            private static readonly Logger logger = NLoggerUtil.GetNLogger
+                (typeof (HistorySavingWorkItem));
             private readonly IDocument document;
 
             /* Retrieve all the properties needed to save this new record. */
             internal HistorySavingWorkItem(IDocument document)
             {
-                this.logger = NLoggerUtil.GetNLogger(typeof(HistorySavingWorkItem));
                 this.document = document;
             }
 
             public override void Perform()
             {
-                try
+                if (records.IsDocumentUpdated(document))
                 {
-                    if (records.IsDocumentUpdated(document))
-                    {
-                        var id = document.Id;
-                        var code = document.GetText().GetText();
-                        logger.Info("Saved document:" + id.UniqueName);
+                    var id = document.Id;
+                    var code = document.GetText().GetText();
+                    logger.Info("Saved document:" + id.UniqueName);
 
-                        // Add the new IDocuemnt to the code history.
-                        CodeHistory.GetInstance().AddRecord(id.UniqueName, code);
+                    // Add the new IDocuemnt to the code history.
+                    CodeHistory.GetInstance().AddRecord(id.UniqueName, code);
 
-                        // Update the records of saved documents.
-                        records.AddSavedDocument(document);
+                    // Update the records of saved documents.
+                    records.AddSavedDocument(document);
 
-                        // Add work item to search component.
-                        StartRefactoringSearch(id);
-                    }
-                }
-                catch (Exception e)
-                {
-                    // Stacktrace of Exception will be logged.
-                    logger.Fatal(e.StackTrace);
+                    // Add work item to search component.
+                    StartRefactoringSearch(id);
                 }
             }
 

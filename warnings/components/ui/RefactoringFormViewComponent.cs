@@ -15,19 +15,24 @@ using warnings.util;
 
 namespace warnings.components.ui
 {
+    public interface IUIComponent
+    {
+    }
+
     /* delegate for update a control component. */
     public delegate void UIUpdate();
 
-    /*
-     * This the view part in the MVC pattern. It registers to the event of code issue changes. When code issues change, this component
-     * will ask the latest issues and update the form.
-     */
-    internal class RefactoringFormViewComponent : IFactorComponent
+    /// <summary>
+    ///  This the view part in the MVC pattern. It registers to the event of code issue changes. 
+    ///  When code issues change, this component will ask the latest issues and update the form.
+    /// </summary>
+    internal class RefactoringFormViewComponent : IUIComponent
     {
         /* Singleton this component. */
-        private static IFactorComponent instance = new RefactoringFormViewComponent();
+        private static RefactoringFormViewComponent instance = 
+            new RefactoringFormViewComponent();
 
-        public static IFactorComponent GetInstance()
+        public static IUIComponent GetInstance()
         {
             return instance;
         }
@@ -46,9 +51,12 @@ namespace warnings.components.ui
             form = new RefactoringWariningsForm();
             longRunningQueue = new WorkQueue() {ConcurrentLimit = 1};
             shortTaskQueue = new WorkQueue(){ConcurrentLimit = 1};
-            GhostFactorComponents.RefactoringCodeIssueComputerComponent.AddGlobalWarnings += OnAddGlobalWarnings;
-            GhostFactorComponents.RefactoringCodeIssueComputerComponent.RemoveGlobalWarnings += OnRemoveGlobalWarnings;
-            GhostFactorComponents.RefactoringCodeIssueComputerComponent.ProblematicRefactoringCountChanged += OnProblematicRefactoringsCountChanged;
+            GhostFactorComponents.RefactoringCodeIssueComputerComponent.AddGlobalWarnings += 
+                OnAddGlobalWarnings;
+            GhostFactorComponents.RefactoringCodeIssueComputerComponent.RemoveGlobalWarnings += 
+                OnRemoveGlobalWarnings;
+            GhostFactorComponents.RefactoringCodeIssueComputerComponent.
+                ProblematicRefactoringCountChanged += OnProblematicRefactoringsCountChanged;
         }
 
         private void OnProblematicRefactoringsCountChanged(int newCount)
@@ -66,23 +74,7 @@ namespace warnings.components.ui
             shortTaskQueue.Add(new AddWarningsWorkItem(form, messages));
         }
 
-
-        public void Enqueue(IWorkItem item)
-        {
-            shortTaskQueue.Add(item);
-        }
-
-        public string GetName()
-        {
-            return "Refactoring Form Component";
-        }
-
-        public int GetWorkQueueLength()
-        {
-            return shortTaskQueue.Count;
-        }
-
-        public void Start()
+        private void Start()
         {
             // Create an work item for showing dialog and add this work item
             // to the work longRunningQueue.

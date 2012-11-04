@@ -9,44 +9,37 @@ using warnings.components.ui;
 
 namespace warnings.components
 {
-    /* All the components in GhostFactor shall be implementing this interface.*/
-    public interface IFactorComponent
-    {
-        void Enqueue(IWorkItem item);
-        string GetName();
-        int GetWorkQueueLength();
-        void Start();
-    }
-
     public class GhostFactorComponents
     {
-        /* Component for saving the source code at certain time interval. */
+        /// <summary>
+        /// Component for saving different version of source files.
+        /// </summary>
         public static readonly IHistorySavingComponent historyComponent = 
             HistorySavingComponent.GetInstance();
 
-        /* Component for traversing the source code history and looking for manual rename refactoring. */
+        /// <summary>
+        /// Component for detecting the performed refactorings.
+        /// </summary>
         public static readonly ISearchRefactoringComponent searchRefactoringComponent =
             SearchRefactoringComponent.GetInstance();
-        
-        /* Component for checking the conditions of detected manual refactorings. */
+
+        /// <summary>
+        /// Component for checking the correctness of detected refactorings.
+        /// </summary>
         public static readonly IConditionCheckingComponent conditionCheckingComponent = 
             ConditionCheckingComponent.GetInstance();
 
-        /* Component for keeping track of all the refactoring issues and posting them to the editor.*/
+        /// <summary>
+        /// Component for saving and calculating the code issues that will be presented to the
+        /// editors.
+        /// </summary>
         public static readonly ICodeIssueComputersRepository RefactoringCodeIssueComputerComponent =
             RefactoringCodeIssueComputersComponent.GetInstance();
 
-        public static IFactorComponent refactoringFormComponent = 
+        /// <summary>
+        /// Component for handling user interface related issues.
+        /// </summary>
+        public static IUIComponent refactoringFormComponent = 
             RefactoringFormViewComponent.GetInstance(); 
-
-        public static void StartAllComponents()
-        {
-            // Start the history keeping component.
-            historyComponent.Start();
-            
-
-            // Start the refactoring form component, a new window will be displayed.
-            refactoringFormComponent.Start();
-        }
     }
 }

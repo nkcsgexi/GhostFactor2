@@ -33,7 +33,8 @@ namespace WarningTest.refactoring_detector_test
             var convertor = new String2IDocumentConverter();
             this.detector = RefactoringDetectorFactory.GetRefactoringDetectorByType
                 (RefactoringType.INLINE_METHOD);
-            this.checkersList = ConditionCheckingFactory.GetInlineMethodConditionsList();
+            this.checkersList = ConditionCheckingFactory.GetConditionsListByRefactoringType
+                (RefactoringType.INLINE_METHOD);
             this.codeBefore = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() + 
                 "InlineMethodBefore.txt");
             this.codeAfter = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() + 

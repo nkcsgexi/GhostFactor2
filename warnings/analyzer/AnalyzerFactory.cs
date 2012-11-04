@@ -107,22 +107,5 @@ namespace warnings.analyzer
         {
             return new ForEachStatementAnalyzer();
         }
-
-        public static String GetAnalyzersCountInfo()
-        {
-            var sb = new StringBuilder(Environment.NewLine);
-            sb.AppendLine("SolutionAnalyzer: " + SolutionAnalyzer.GetCount());
-            sb.AppendLine("DocumentAnalyzer: " + DocumentAnalyzer.GetCount());
-            sb.AppendLine("MethodDeclarationAnalyzer: " + MethodDeclarationAnalyzer.GetCount());
-            sb.AppendLine("MethodInvocationAnalyzer: " + MethodInvocationAnalyzer.GetCount());
-            sb.AppendLine("StatementAnalyzer :" + StatementAnalyzer.GetCount());
-            sb.AppendLine("SyntaxNodesAnalyzer: " + SyntaxNodesAnalyzer.GetCount());
-            sb.AppendLine("SyntaxNodeAnalyzer: " + SyntaxNodeAnalyzer.GetCount());
-            sb.AppendLine("StatementsDataFlowAnalyzer: " + StatementsDataFlowAnalyzer.GetCount());
-            sb.AppendLine("ExpressionDataFlowAnalyzer: " + ExpressionDataFlowAnalyzer.GetCount());
-            return sb.ToString();
-        }
-
-
     }
 }

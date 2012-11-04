@@ -42,7 +42,6 @@ namespace warnings.refactoring.detection
     {
         IDocument GetBeforeDocument();
         IDocument GetAfterDocument();
-
     }
 
     internal interface IInternalRefactoringDetector : IRefactoringDetector, 

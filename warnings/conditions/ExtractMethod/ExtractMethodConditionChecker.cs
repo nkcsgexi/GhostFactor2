@@ -12,16 +12,12 @@ namespace warnings.conditions
     /* Condition list for extract method. */
     internal partial class ExtractMethodConditionsList : RefactoringConditionsList
     {
-        private static Lazy<ExtractMethodConditionsList> instance = new Lazy<ExtractMethodConditionsList>();
-
         private ExtractMethodConditionsList()
         {
         }
 
-        public static IRefactoringConditionsList GetInstance()
+        public static IRefactoringConditionsList CreateInstance()
         {
-            if(instance.IsValueCreated)
-                return instance.Value;
             return new ExtractMethodConditionsList();
         }
 
@@ -30,7 +26,7 @@ namespace warnings.conditions
             var checkers = new List<IRefactoringConditionChecker>();
             checkers.Add(new ParametersChecker());
             checkers.Add(new ReturnTypeChecker());
-            return checkers.AsEnumerable();
+            return checkers;
         }
 
         public override RefactoringType RefactoringType
@@ -52,7 +48,8 @@ namespace warnings.conditions
             }
 
     
-            protected abstract ICodeIssueComputer CheckCondition(IDocument before, IDocument after, IManualExtractMethodRefactoring input);
+            protected abstract ICodeIssueComputer CheckCondition(IDocument before, IDocument after, 
+                IManualExtractMethodRefactoring input);
         }
     }
 

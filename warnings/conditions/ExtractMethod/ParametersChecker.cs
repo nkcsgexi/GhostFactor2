@@ -27,7 +27,7 @@ namespace warnings.conditions
             private Logger logger = NLoggerUtil.GetNLogger(typeof (ParametersChecker));
 
             protected override ICodeIssueComputer CheckCondition(IDocument before, IDocument after,
-                                                                 IManualExtractMethodRefactoring input)
+                IManualExtractMethodRefactoring input)
             {
                 var invocation = (InvocationExpressionSyntax) input.ExtractMethodInvocation;
 

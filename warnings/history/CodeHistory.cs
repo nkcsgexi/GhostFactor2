@@ -51,10 +51,6 @@ namespace warnings.source.history
         private CodeHistory()
         {
             latestRecordDictionary = new Dictionary<String, ICodeHistoryRecord>();
-
-            // Delete and recreate the folder for saving the source code record.
-            FileUtil.DeleteDirectory(CompilationUnitRecord.ROOT);
-            FileUtil.CreateDirectory(CompilationUnitRecord.ROOT);
         }
 
         /* Add a new record, the latest record will be replaced.*/

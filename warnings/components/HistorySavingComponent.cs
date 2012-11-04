@@ -65,12 +65,7 @@ namespace warnings.components
 
         private void onCompleteWorkItem(object sender, WorkItemEventArgs e)
         {
-            var timable = e.WorkItem as TimableWorkItem;
-            if (timable != null)
-            {
-                var timeSpan = ((TimableWorkItem) e.WorkItem).GetProcessingTime();
-                logger.Info("Work item processing time: " + timeSpan.TotalMilliseconds);
-            }
+
         }
 
         /* The work item supposed to added to HistorySavingComponent. */
@@ -97,11 +92,8 @@ namespace warnings.components
 
                     // Add the new IDocuemnt to the code history.
                     CodeHistory.GetInstance().AddRecord(id.UniqueName, code);
-
-                    // Update the records of saved documents.
+                    
                     records.AddSavedDocument(document);
-
-                    // Add work item to search component.
                     StartRefactoringSearch(id);
                 }
             }

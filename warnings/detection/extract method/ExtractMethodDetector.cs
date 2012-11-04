@@ -39,6 +39,7 @@ namespace warnings.refactoring.detection
         public void SetSourceBefore(String before)
         {
             this.before = before;
+            this.beforeDoc = RefactoringDetectionUtils.Convert2IDocument(before);
         }
 
         public string GetSourceBefore()
@@ -49,6 +50,7 @@ namespace warnings.refactoring.detection
         public void SetSourceAfter(String after)
         {
             this.after = after;
+            this.afterDoc = RefactoringDetectionUtils.Convert2IDocument(after);
         }
 
         public string GetSourceAfter()
@@ -70,11 +72,8 @@ namespace warnings.refactoring.detection
         {
             refactorings = Enumerable.Empty<ManualRefactoring>();
 
-            beforeDoc = RefactoringDetectionUtils.Convert2IDocument(before);
-            afterDoc = RefactoringDetectionUtils.Convert2IDocument(after);
-
             var treeBefore = (SyntaxTree) beforeDoc.GetSyntaxTree();
-            var treeAfter = (SyntaxTree)afterDoc.GetSyntaxTree();
+            var treeAfter = (SyntaxTree) afterDoc.GetSyntaxTree();
 
             // Get the classes in the code before and after.
             var classesBefore = treeBefore.GetRoot().DescendantNodes(n => n.Kind != 
@@ -179,7 +178,8 @@ namespace warnings.refactoring.detection
             }
 
 
-            private IEnumerable<SyntaxNode> GetAddedMethod(ClassDeclarationSyntax before, ClassDeclarationSyntax after)
+            private IEnumerable<SyntaxNode> GetAddedMethod(ClassDeclarationSyntax before, 
+                ClassDeclarationSyntax after)
             {
                 var methodsBefore = ASTUtil.GetMethodsDeclarations(before);
                 var methodsAfter = ASTUtil.GetMethodsDeclarations(after);

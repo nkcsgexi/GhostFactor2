@@ -61,5 +61,26 @@ namespace WarningTest
             conditionsList.CheckAllConditions(detector.GetBeforeDocument(), detector.GetAfterDocument(),
                 detector.GetRefactorings().First());
         }
+
+        
+        [TestMethod]
+        public void Test3()
+        {
+            var detector = RefactoringDetectorFactory.GetRefactoringDetectorByType
+                (RefactoringType.EXTRACT_METHOD);
+            var soureceBefore = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() +
+                                                        "DriverBefore.txt");
+            var soureceAfter = FileUtil.ReadAllText(TestUtil.GetFakeSourceFolder() +
+                                                    "DriverAfter.txt");
+            detector.SetSourceBefore(soureceBefore);
+            detector.SetSourceAfter(soureceAfter);
+            Assert.IsTrue(detector.HasRefactoring());
+            var refactoring = detector.GetRefactorings().First();
+            var condition = ConditionCheckingFactory.GetConditionsListByRefactoringType
+                (RefactoringType.EXTRACT_METHOD);
+            condition.CheckAllConditions(detector.GetBeforeDocument(), detector.GetAfterDocument()
+                    , refactoring);
+        }
+
     }
 }

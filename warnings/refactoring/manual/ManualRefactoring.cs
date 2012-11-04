@@ -14,6 +14,8 @@ namespace warnings.refactoring
     {
         public DocumentId DocumentId { set; get; }
         public string DocumentUniqueName { get; set; }
+        public IDocument BeforeDocument { set; get; }
+        public IDocument afterDocument { set; get; }
     }
 
     /* Refactoring input that shall be feed in to the checker. */

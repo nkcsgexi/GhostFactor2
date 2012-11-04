@@ -63,6 +63,7 @@
     <Compile Include="analyzer test\SolutionAnalyzerTests.cs" />
     <Compile Include="analyzer test\TypeHierarchyAnalyzerTests.cs" />
     <Compile Include="component test\GhostWorkQueueTests.cs" />
+    <Compile Include="component test\SearchRefactoringComponentTests.cs" />
     <Compile Include="DummyTests.cs" />
     <Compile Include="fakesource\TypeHierarchyFakeSource.cs" />
     <Compile Include="refactoring detector test\InlineMethodRefactoringTests.cs" />
@@ -85,6 +86,8 @@
     <Content Include="fakesource\blockAnalyzerBefore.txt" />
     <Content Include="fakesource\ChangeMethodSignatureAfter.txt" />
     <Content Include="fakesource\ChangeMethodSignatureBefore.txt" />
+    <Content Include="fakesource\DriverAfter.txt" />
+    <Content Include="fakesource\DriverBefore.txt" />
     <Content Include="fakesource\InlineMethodAfter.txt" />
     <Content Include="fakesource\InlineMethodBefore.txt" />
     <Content Include="fakesource\RenameDetectorExampleAfter.txt" />

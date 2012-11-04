@@ -58,8 +58,8 @@ namespace WarningTest
         [TestMethod]
         public void addMultipleRecords()
         {
-            int count = 50;
-            int sourceLength = 1000;
+            int count = 20;
+            int sourceLength = 2000;
             ICodeHistory history = CodeHistory.GetInstance();
             string[] source = new string[count];
             for(int i = 0; i < count; i++)

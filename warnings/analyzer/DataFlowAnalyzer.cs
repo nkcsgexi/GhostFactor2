@@ -42,26 +42,9 @@ namespace warnings.analyzer
 
     internal class ExpressionDataFlowAnalyzer : IExpressionDataFlowAnalyzer
     {
-        private static int ANALYZER_COUNT = 0;
-
-        public static int GetCount()
-        {
-            return ANALYZER_COUNT;
-        }
-
         private SyntaxNode expression;
 
         private ISemanticModel model;
-
-        internal ExpressionDataFlowAnalyzer()
-        {  
-            Interlocked.Increment(ref ANALYZER_COUNT);
-        }
-
-        ~ExpressionDataFlowAnalyzer()
-        {
-            Interlocked.Decrement(ref ANALYZER_COUNT);
-        }
 
         public void SetDocument(IDocument document)
         {
@@ -112,27 +95,10 @@ namespace warnings.analyzer
 
     internal class StatementsDataFlowAnalyzer : IStatementsDataFlowAnalyzer
     {
-        private static int ANALYZER_COUNT = 0;
-
-        public static int GetCount()
-        {
-            return ANALYZER_COUNT;
-        }
-
+        private static Logger logger = NLoggerUtil.
+            GetNLogger(typeof (IStatementsDataFlowAnalyzer));
         private ISemanticModel model;
-
         private IEnumerable<SyntaxNode> statements;
-
-        internal StatementsDataFlowAnalyzer()
-        {
-            Interlocked.Increment(ref ANALYZER_COUNT);
-        }
-
-        ~StatementsDataFlowAnalyzer()
-        {
-            Interlocked.Decrement(ref ANALYZER_COUNT);
-        }
-
 
         public void SetDocument(IDocument document)
         {
@@ -142,42 +108,53 @@ namespace warnings.analyzer
 
         public void SetStatements(IEnumerable<SyntaxNode> statements)
         {
-            this.statements = statements.OrderBy(s => s.Span.Start);
+            this.statements = statements.OrderBy(s => s.Span.Start).ToList();
         }
+
+        private IRegionDataFlowAnalysis GetAnalysisResult()
+        {
+            if(statements.Count() == 1)
+            {
+                logger.Info(statements.First().GetText());
+                return model.AnalyzeStatementDataFlow(statements.First());
+            }
+            return model.AnalyzeStatementsDataFlow(statements.First(), statements.Last());
+        }
+        
 
         public IEnumerable<ISymbol> GetFlowInData()
         {
-            IRegionDataFlowAnalysis analysis = model.AnalyzeStatementsDataFlow(statements.First(), statements.Last());
+            IRegionDataFlowAnalysis analysis = GetAnalysisResult();
             return analysis.DataFlowsIn;
         }
 
         public IEnumerable<ISymbol> GetFlowOutData()
         {
-            IRegionDataFlowAnalysis analysis = model.AnalyzeStatementsDataFlow(statements.First(), statements.Last());
+            IRegionDataFlowAnalysis analysis = GetAnalysisResult();
             return analysis.DataFlowsOut;
         }
 
         public IEnumerable<ISymbol> GetWrittenData()
         {
-            IRegionDataFlowAnalysis analysis = model.AnalyzeStatementsDataFlow(statements.First(), statements.Last());
+            IRegionDataFlowAnalysis analysis = GetAnalysisResult();
             return analysis.WrittenInside;
         }
 
         public IEnumerable<ISymbol> GetReadData()
         {
-            IRegionDataFlowAnalysis analysis = model.AnalyzeStatementsDataFlow(statements.First(), statements.Last());
+            IRegionDataFlowAnalysis analysis = GetAnalysisResult();
             return analysis.ReadInside;
         }
 
         public IEnumerable<ISymbol> GetUsedData()
         {
-            IRegionDataFlowAnalysis analysis = model.AnalyzeStatementsDataFlow(statements.First(), statements.Last());
+            IRegionDataFlowAnalysis analysis = GetAnalysisResult();
             return analysis.ReadInside.Union(analysis.WrittenInside);
         }
 
         public IEnumerable<ISymbol> GetDeclaredData()
         {
-            IRegionDataFlowAnalysis analysis = model.AnalyzeStatementsDataFlow(statements.First(), statements.Last());
+            IRegionDataFlowAnalysis analysis = GetAnalysisResult();
             return analysis.VariablesDeclared;
         }
     }

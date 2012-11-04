@@ -83,7 +83,8 @@ namespace warnings.refactoring.detection
 
                 // Get the first invocation of the new method in the after-version of method.
                 var invocation = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, treeAfter).First();
-                var changedBlockPairs = RefactoringDetectionUtils.GetChangedBlocks(callerBefore.Body, callerAfter.Body);
+                var changedBlockPairs = RefactoringDetectionUtils.GetChangedBlocks(callerBefore.Body,
+                    callerAfter.Body);
                 LogChangedBlocks(changedBlockPairs);
                 
                 if (changedBlockPairs.Count() == 1)

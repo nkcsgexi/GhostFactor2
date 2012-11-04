@@ -90,7 +90,8 @@ namespace warnings.refactoring
                 ExtractedExpression = null;
             }
 
-            internal ManualExtractMethodRefactoring(SyntaxNode declaration, SyntaxNode invocation, SyntaxNode expression)
+            internal ManualExtractMethodRefactoring(SyntaxNode declaration, SyntaxNode invocation, 
+                SyntaxNode expression)
             {
                 ExtractedMethodDeclaration = declaration;
                 ExtractMethodInvocation = invocation;

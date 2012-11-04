@@ -21,7 +21,7 @@ namespace warnings.configuration
                 case RefactoringType.CHANGE_METHOD_SIGNATURE:
                     return false;
                 case RefactoringType.INLINE_METHOD:
-                    return true;
+                    return false;
                 default:
                     throw new Exception("Unknown Refactoring Type.");
             }
@@ -74,7 +74,7 @@ namespace warnings.configuration
         public static int GetHistoryRecordsMaximumLength()
         {
             return RefactoringTypeUtil.GetAllValidRefactoringTypes().
-                Select(GetSearchDepth).Max();
+                Select(GetSearchDepth).Max() + 10;
         }
 
         /// <summary>

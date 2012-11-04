@@ -18,7 +18,7 @@ namespace warnings.conditions
                 case RefactoringType.INLINE_METHOD:
                     return InlineMethodConditionCheckersList.GetInstance();
                 case RefactoringType.EXTRACT_METHOD:
-                    return ExtractMethodConditionsList.GetInstance();
+                    return ExtractMethodConditionsList.CreateInstance();
                 case RefactoringType.CHANGE_METHOD_SIGNATURE:
                     return ChangeMethodSignatureConditionsList.GetInstance();
                 default:

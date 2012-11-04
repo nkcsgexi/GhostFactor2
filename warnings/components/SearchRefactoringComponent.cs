@@ -67,9 +67,6 @@ namespace warnings.components
         /// </summary>
         private class SearchRefactoringWorkitem : TimableWorkItem
         {
-            private static readonly IEnumerable<IExternalRefactoringDetector>
-                allRefactoringDetectors = GetRefactoringDetectors();
-
             private readonly ICodeHistoryRecord latestRecord;
             private readonly DocumentId documentId;
             private readonly Logger logger;
@@ -84,56 +81,51 @@ namespace warnings.components
 
             public override void Perform()
             {
-                var currentDetectors = allRefactoringDetectors;
-                var sourceAfter = latestRecord.GetSource();
-
-                int lookBackCount = 1;
-                for (var currentRecord = latestRecord; currentRecord.HasPreviousRecord() &&
-                    currentDetectors.Any(); currentRecord = currentRecord.GetPreviousRecord(), 
-                        lookBackCount++)
+                try
                 {
-                    currentDetectors = GetActiveDetectors(currentDetectors, lookBackCount);
-                    var sourceBefore = currentRecord.GetPreviousRecord().GetSource();
+                    var sourceAfter = latestRecord.GetSource();
 
-                    SetDetectorsSource(currentDetectors, sourceBefore, sourceAfter);
-                    var detectedRefactorings = GetDetectRefactorings(currentDetectors);
-                    if(detectedRefactorings.Any())
+                    int lookBackCount = 1;
+                    for (var currentRecord = latestRecord;
+                         currentRecord.HasPreviousRecord();
+                         currentRecord = currentRecord.GetPreviousRecord(), lookBackCount++)
                     {
-                        var detectedRefactoring = detectedRefactorings.First();
-                        detectedRefactoring.Refactoring.MetaData.DocumentId = documentId;
-                        detectedRefactoring.Refactoring.MetaData.DocumentUniqueName =
-                            documentId.UniqueName;
-                        OnRefactoringDetected(detectedRefactoring.BeforeDocument,
-                            detectedRefactoring.AfterDocument, detectedRefactoring.Refactoring);
-                        return;
-                    }
-                }
-                OnNoRefactoringDetected(latestRecord);
-            }
+                        // Get the detectors that are currently applicable.
+                        var currentDetectors = GetActiveDetectors(lookBackCount);
+                        if (currentDetectors.Any())
+                        {
+                            // Get the source code of the previous record.
+                            var sourceBefore = currentRecord.GetPreviousRecord().GetSource();
 
-            /// <summary>
-            /// Get the refactoring detectors by the supported refactoring types in global
-            /// configuration.
-            /// </summary>
-            /// <returns></returns>
-            private static IEnumerable<IExternalRefactoringDetector> GetRefactoringDetectors()
-            {
-                return GlobalConfigurations.GetSupportedRefactoringTypes().Select
-                    (RefactoringDetectorFactory.GetRefactoringDetectorByType);
-            }
-            /// <summary>
-            /// Given a set of refactoring detectors, set the source before and after.
-            /// </summary>
-            /// <param name="detectors"></param>
-            /// <param name="before"></param>
-            /// <param name="after"></param>
-            private void SetDetectorsSource(IEnumerable<IExternalRefactoringDetector> detectors,
-                string before, string after)
-            {
-                foreach (var detector in detectors)
+                            // Set source before and after for the applicable detectors.
+                            foreach (var detector in currentDetectors)
+                            {
+                                detector.SetSourceBefore(sourceBefore);
+                                detector.SetSourceAfter(sourceAfter);
+                            }
+
+                            var detectedRefactorings = GetDetectRefactorings(currentDetectors);
+                            if (detectedRefactorings.Any())
+                            {
+                                var detectedRefactoring = detectedRefactorings.First();
+                                detectedRefactoring.Refactoring.MetaData.DocumentId = documentId;
+                                detectedRefactoring.Refactoring.MetaData.DocumentUniqueName =
+                                    documentId.UniqueName;
+                                OnRefactoringDetected(detectedRefactoring.BeforeDocument,
+                                                      detectedRefactoring.AfterDocument,
+                                                      detectedRefactoring.Refactoring);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    OnNoRefactoringDetected(latestRecord);
+                }catch(Exception e)
                 {
-                    detector.SetSourceBefore(before);
-                    detector.SetSourceAfter(after);
+                    logger.Fatal(e);
                 }
             }
 
@@ -145,13 +137,13 @@ namespace warnings.components
             /// <param name="detectors">Input detectors.</param>
             /// <param name="lookBack">The number of current look backs.</param>
             /// <returns></returns>
-            private IEnumerable<IExternalRefactoringDetector> GetActiveDetectors
-                (IEnumerable<IExternalRefactoringDetector> detectors, int lookBack)
+            private List<IExternalRefactoringDetector> GetActiveDetectors
+                (int lookBack)
             {
-                var activeDetectors = new List<IExternalRefactoringDetector>();
-                activeDetectors.AddRange(detectors.Where(d => GlobalConfigurations.GetSearchDepth
-                    (d.RefactoringType) > lookBack));
-                return activeDetectors;
+                var validTypes = GlobalConfigurations.GetSupportedRefactoringTypes().
+                    Where(t => GlobalConfigurations.GetSearchDepth(t) > lookBack).ToList();
+                return validTypes.Select(RefactoringDetectorFactory.
+                    GetRefactoringDetectorByType).ToList();
             }
 
             /// <summary>
@@ -160,7 +152,7 @@ namespace warnings.components
             /// </summary>
             /// <param name="detectors"></param>
             /// <returns></returns>
-            private IEnumerable<DetectedRefactoring> GetDetectRefactorings
+            private List<DetectedRefactoring> GetDetectRefactorings
                 (IEnumerable<IExternalRefactoringDetector> detectors)
             {
                 var detectedRefactorings = new List<DetectedRefactoring>();

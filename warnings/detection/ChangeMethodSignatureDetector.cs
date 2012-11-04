@@ -62,7 +62,8 @@ namespace warnings.refactoring.detection
                         if(methodbefore.Identifier.ValueText.Equals(methodAfter.Identifier.ValueText))
                         {
                             // Get an in-method detector.
-                            var detector = new InMethodChangeSignatureDetector(methodbefore, methodAfter);
+                            var detector = new InMethodChangeSignatureDetector(beforeDoc, afterDoc, 
+                                methodbefore, methodAfter);
                             if(detector.HasRefactoring())
                             {
                                 // Add the detected refactorings
@@ -148,7 +149,11 @@ namespace warnings.refactoring.detection
 
         private class InMethodChangeSignatureDetector : IRefactoringDetector
         {
-            private readonly Logger logger = NLoggerUtil.GetNLogger(typeof(InMethodChangeSignatureDetector));
+            private readonly Logger logger = NLoggerUtil.GetNLogger
+                (typeof(InMethodChangeSignatureDetector));
+
+            private readonly IDocument docBefore;
+            private readonly IDocument docAfter;
 
             private readonly SyntaxNode beforeMethod;
             private readonly SyntaxNode afterMethod;
@@ -157,9 +162,12 @@ namespace warnings.refactoring.detection
             private readonly IMethodDeclarationAnalyzer methodDeclarationAnalyzer;
 
             private ManualRefactoring refactoring;
-           
-            internal InMethodChangeSignatureDetector(SyntaxNode beforeMethod, SyntaxNode afterMethod)
+            
+            internal InMethodChangeSignatureDetector(IDocument docBefore, IDocument docAfter, 
+                SyntaxNode beforeMethod, SyntaxNode afterMethod)
             {
+                this.docBefore = docBefore;
+                this.docAfter = docAfter;
                 this.beforeMethod = beforeMethod;
                 this.afterMethod = afterMethod;
                 this.methodDeclarationAnalyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
@@ -168,15 +176,18 @@ namespace warnings.refactoring.detection
 
             public bool HasRefactoring()
             {
-                // Mapping parameters in before and after version, for example, f(int a, int b) and f(int b, int a)
+                // Mapping parameters in before and after version, for example, 
+                // f(int a, int b) and f(int b, int a)
                 // 's mapper shall be <0,1><1,0>>
                 var parametersMap = new List<Tuple<int, int>>();
 
-                // Combine the RefactoringType of parameters in before and after method declaration as a string.
+                // Combine the RefactoringType of parameters in before and after method 
+                // declaration as a string.
                 var typeStringBefore = GetParameterTypeCombined(beforeMethod);
                 var typeStringAfter = GetParameterTypeCombined(afterMethod);
 
-                // If the strings are not equal, compiler warnings are enough to detect unchanged method signatures.
+                // If the strings are not equal, compiler warnings are enough to detect 
+                // unchanged method signatures.
                 if(typeStringBefore.Equals(typeStringAfter))
                 {
                     // Get indexes for parameters in the before and after version.
@@ -214,7 +225,8 @@ namespace warnings.refactoring.detection
                             var orderedList = new List<Tuple<int,int>>();
                             orderedList.AddRange(parametersMap.OrderBy(t => t.Item1));
                             refactoring = ManualRefactoringFactory.
-                                CreateManualChangeMethodSignatureRefactoring(afterMethod, orderedList);
+                                CreateManualChangeMethodSignatureRefactoring(docBefore, docAfter,
+                                afterMethod, orderedList);
                             return true;
                         }
                     }
@@ -245,16 +257,19 @@ namespace warnings.refactoring.detection
                 // Combine usages, and sort them by the start position.
                 var combinedUsages = CombineNodesGroups(usages);
                 combinedUsages = combinedUsages.OrderBy(n => n.Span.Start);
-                // logger.Info("Combined usages:" + StringUtil.ConcatenateAll(",", combinedUsages.Select(n => n.Span.ToString())));
+                // logger.Info("Combined usages:" + StringUtil.ConcatenateAll(",", 
+                // combinedUsages.Select(n => n.Span.ToString())));
 
                 // for each parameter
                 foreach(var group in usages)
                 {
-                    // logger.Info("Group usages:" + StringUtil.ConcatenateAll(",", group.Select(n => n.Span.ToString())));
+                    // logger.Info("Group usages:" + StringUtil.ConcatenateAll(",", 
+                    // group.Select(n => n.Span.ToString())));
 
                     // Get the indexes of its usages in the combined pool, and sort them.
                     var indexes = GetNodesIndexes(group, combinedUsages).OrderBy(i => i);
-                    // logger.Info("Indexes are: " + StringUtil.ConcatenateAll(",", indexes.Select(i => i.ToString())));
+                    // logger.Info("Indexes are: " + StringUtil.ConcatenateAll(",", 
+                    // indexes.Select(i => i.ToString())));
                     list.Add(indexes);
                 }
                 return list.AsEnumerable();
@@ -262,8 +277,8 @@ namespace warnings.refactoring.detection
 
 
             /* 
-             * Combine the RefactoringType of parameters in a method declaration as a string, deleting all the white 
-             * space among the combined string.
+             * Combine the RefactoringType of parameters in a method declaration as a string,
+             * deleting all the white space among the combined string.
              */
             private string GetParameterTypeCombined(SyntaxNode method)
             {
@@ -291,16 +306,18 @@ namespace warnings.refactoring.detection
                 foreach (var group in groups)
                 {
                     list.AddRange(group);
-                    // logger.Info("Group: " + StringUtil.ConcatenateAll(",", group.Select(n => n.Span.ToString())));
+                    // logger.Info("Group: " + StringUtil.ConcatenateAll(",", 
+                    // group.Select(n => n.Span.ToString())));
                 }
                 return list.AsEnumerable();
             }
 
             /* 
-             * For a given list of nodes interested, and a pool of nodes, get the list of indexes of these interested
-             * nodes in the pool.
+             * For a given list of nodes interested, and a pool of nodes, get the list of 
+             * indexes of these interested nodes in the pool.
              */
-            private IEnumerable<int> GetNodesIndexes(IEnumerable<SyntaxNode> nodes, IEnumerable<SyntaxNode> allNodes)
+            private IEnumerable<int> GetNodesIndexes(IEnumerable<SyntaxNode> nodes, 
+                IEnumerable<SyntaxNode> allNodes)
             {
                 var list = new List<int>();
                 foreach (var node1 in nodes)

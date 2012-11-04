@@ -73,6 +73,8 @@ namespace WarningTest
                 var changedAfter = ModifyIdentifierInAfterSource(after, i, "newNameInjectedForTest");
                 detector.SetSourceAfter(changedAfter.GetText());
                 Assert.IsTrue(detector.HasRefactoring());
+                Assert.IsNotNull(detector.GetRefactorings().First().BeforeDocument);
+                Assert.IsNotNull(detector.GetRefactorings().First().AfterDocument);
             }
         }
         [TestMethod]

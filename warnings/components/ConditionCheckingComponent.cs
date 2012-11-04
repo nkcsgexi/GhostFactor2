@@ -14,7 +14,7 @@ using warnings.util;
 namespace warnings.components
 {
     public interface IConditionCheckingComponent{
-        void CheckRefactoringCondition(IDocument before, IDocument after, ManualRefactoring refactoring);
+        void CheckRefactoringCondition(ManualRefactoring refactoring);
     }
 
     /* The component to handle condition checkings for all the refactoring types. */
@@ -57,10 +57,10 @@ namespace warnings.components
                 workItemEventArgs.WorkItem.FailedException);
         }
 
-        public void CheckRefactoringCondition(IDocument before, IDocument after, ManualRefactoring 
+        public void CheckRefactoringCondition(ManualRefactoring 
             refactoring)
         {
-            queue.Add(new ConditionCheckWorkItem(before, after, refactoring));
+            queue.Add(new ConditionCheckWorkItem(refactoring));
         }
 
         /* The work item to be pushed to the condition checking component. */
@@ -69,18 +69,10 @@ namespace warnings.components
             // The refactoring instance from detector. 
             private readonly ManualRefactoring refactoring;
 
-            // A document instance whose code is identical the detector's before code.
-            private readonly IDocument after;
-
-            // A document instance whose code is identical to the detector's after code.
-            private readonly IDocument before;
-
             private readonly Logger logger;
 
-            public ConditionCheckWorkItem(IDocument before, IDocument after, ManualRefactoring refactoring)
+            public ConditionCheckWorkItem(ManualRefactoring refactoring)
             {
-                this.before = before;
-                this.after = after;
                 this.refactoring = refactoring;
                 logger = NLoggerUtil.GetNLogger(typeof(ConditionCheckWorkItem));
             }
@@ -93,7 +85,7 @@ namespace warnings.components
                 // of the conditions.
                 var list = ConditionCheckingFactory.GetConditionsListByRefactoringType
                     (refactoring.RefactoringType);
-                computers = list.CheckAllConditions(before, after, refactoring);
+                computers = list.CheckAllConditions(refactoring);
 
                 // Add issue computers to the issue component.
                 GhostFactorComponents.RefactoringCodeIssueComputerComponent.AddCodeIssueComputers

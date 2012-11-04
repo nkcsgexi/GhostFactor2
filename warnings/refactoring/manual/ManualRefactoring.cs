@@ -14,16 +14,19 @@ namespace warnings.refactoring
     {
         public DocumentId DocumentId { set; get; }
         public string DocumentUniqueName { get; set; }
-        public IDocument BeforeDocument { set; get; }
-        public IDocument afterDocument { set; get; }
     }
 
     /* Refactoring input that shall be feed in to the checker. */
     public abstract class ManualRefactoring : IHasRefactoringType
     {
-        protected ManualRefactoring()
+        public IDocument BeforeDocument { get; private set; }
+        public IDocument AfterDocument { get; private set; }
+
+        protected ManualRefactoring(IDocument BeforeDocument, IDocument AfterDocument)
         {
             MetaData = new RefactoringMetaData();
+            this.BeforeDocument = BeforeDocument;
+            this.AfterDocument = AfterDocument;
         }
 
         public RefactoringMetaData MetaData { set; get; }
@@ -40,6 +43,11 @@ namespace warnings.refactoring
     public abstract class IManualExtractMethodRefactoring : ManualRefactoring
     {
         /* Method declaration node of the extracted method. */
+        protected IManualExtractMethodRefactoring(IDocument BeforeDocument, 
+            IDocument AfterDocument) : base(BeforeDocument, AfterDocument)
+        {
+        }
+
         public SyntaxNode ExtractedMethodDeclaration { get; protected set; }
 
         /* Method invocation node where the extracted method is invoked. */
@@ -56,6 +64,11 @@ namespace warnings.refactoring
     /* Describing a simply detected extract method refactoring. */
     public abstract class ISimpleExtractMethodRefactoring : ManualRefactoring
     {
+        protected ISimpleExtractMethodRefactoring(IDocument BeforeDocument, 
+            IDocument AfterDocument) : base(BeforeDocument, AfterDocument)
+        {
+        }
+
         public SyntaxNode callerBefore { get; protected set; }
         public SyntaxNode callerAfter { get; protected set; }
         public SyntaxNode addedMethod { get; protected set; }
@@ -64,12 +77,20 @@ namespace warnings.refactoring
     /* public interface for communicating a manual rename refactoring. */
     public abstract class IManualRenameRefactoring : ManualRefactoring
     {
-
+        protected IManualRenameRefactoring(IDocument BeforeDocument, 
+            IDocument AfterDocument) : base(BeforeDocument, AfterDocument)
+        {
+        }
     }
 
     /* public interface for a manual change method signature refactoring. */
     public abstract class IChangeMethodSignatureRefactoring : ManualRefactoring
     {
+ 
+        protected IChangeMethodSignatureRefactoring(IDocument BeforeDocument, 
+            IDocument AfterDocument) : base(BeforeDocument, AfterDocument)
+        {
+        }
         /* New method declaration after the signature is updated. */
         public SyntaxNode ChangedMethodDeclaration { get; protected set; }
 
@@ -81,6 +102,11 @@ namespace warnings.refactoring
     /* Interface used to represent a manual inline method refactoring. */
     public abstract class IInlineMethodRefactoring : ManualRefactoring
     {
+        protected IInlineMethodRefactoring(IDocument BeforeDocument, 
+            IDocument AfterDocument) : base(BeforeDocument, AfterDocument)
+        {
+        }
+
         public SyntaxNode CallerMethodBefore { get; protected set; }
         public SyntaxNode CallerMethodAfter { get; protected set; }
         public SyntaxNode InlinedMethod { get; protected set; }
@@ -91,6 +117,11 @@ namespace warnings.refactoring
     /* Interface used for describing a simply detected inline method refactoring. */
     public abstract class ISimpleInlineMethodRefactoring : ManualRefactoring
     {
+        protected ISimpleInlineMethodRefactoring(IDocument BeforeDocument, 
+            IDocument AfterDocument) : base(BeforeDocument, AfterDocument)
+        {
+        }
+
         public SyntaxNode callerBefore { get; protected set; }
         public SyntaxNode callerAfter { get; protected set; }
         public SyntaxNode methodRemoved { get; protected set; }

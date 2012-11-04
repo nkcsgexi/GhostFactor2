@@ -91,8 +91,8 @@ namespace warnings.refactoring.detection
                 var detector = new InClassExtractMethodDetector(
                     (ClassDeclarationSyntax)pair.Key, (ClassDeclarationSyntax)pair.Value, 
                         inMethodDetector);
-                detector.SetSyntaxTreeBefore(treeBefore);
-                detector.SetSyntaxTreeAfter(treeAfter);
+                detector.SetDocumentBefore(beforeDoc);
+                detector.SetDocumentAfter(afterDoc);
                 
                 // Start detection.
                 if(detector.HasRefactoring())
@@ -110,24 +110,25 @@ namespace warnings.refactoring.detection
         }
 
         /* Extract method detector for same classes before and after. */
-        private class InClassExtractMethodDetector : IRefactoringDetector, IBeforeAndAfterSyntaxTreeKeeper
+        private class InClassExtractMethodDetector : IRefactoringDetector, 
+            IBeforeAndAfterDocumentKeeper
         {
             private readonly ClassDeclarationSyntax classBefore;
             private readonly ClassDeclarationSyntax classAfter;
             private readonly InMethodExtractMethodDetector inMethodDetector;
+            private IDocument docAfter;
+            private IDocument docBefore;
 
-            /* Entire trees of the files containing the class definitions above. */
-            private SyntaxTree treeBefore;
-            private SyntaxTree treeAfter;
 
             /* The detected refactorings. */
             private IEnumerable<ManualRefactoring> refactorings;
 
             private Logger logger;
-
+           
 
             public InClassExtractMethodDetector(ClassDeclarationSyntax classBefore,
-                ClassDeclarationSyntax classAfter, InMethodExtractMethodDetector inMethodDetector)
+                ClassDeclarationSyntax classAfter, InMethodExtractMethodDetector 
+                inMethodDetector)
             {
                 this.classBefore = classBefore;
                 this.classAfter = classAfter;
@@ -147,7 +148,8 @@ namespace warnings.refactoring.detection
                 var commonMethods = GetCommonMethod(classBefore, classAfter);
                 logger.Info("Common method count: " + commonMethods.Count());
 
-                // Find the suspicious pairs of callers and callees; callers are common; callees are added;  
+                // Find the suspicious pairs of callers and callees; callers are common; callees are
+                // added;  
                 foreach (var pair in commonMethods)
                 {
                     var methodBefore = (MethodDeclarationSyntax) pair.Key;
@@ -156,14 +158,15 @@ namespace warnings.refactoring.detection
                     {
                         logger.Info("Caller: " + methodAfter.Identifier.ValueText);
                         logger.Info("Callee: " + addedMethod.Identifier.ValueText);
-                        if (ASTUtil.IsInvoking(methodAfter, addedMethod, treeAfter))
+                        if (ASTUtil.IsInvoking(methodAfter, addedMethod, 
+                            (SyntaxTree) docAfter.GetSyntaxTree()))
                         {
                             // Configure the in method extract method detector.
                             inMethodDetector.SetCallerBefore(methodBefore);
                             inMethodDetector.SetCallerAfter(methodAfter);
                             inMethodDetector.SetCalleeAfter(addedMethod);
-                            inMethodDetector.SetSyntaxTreeBefore(treeBefore);
-                            inMethodDetector.SetSyntaxTreeAfter(treeAfter);
+                            inMethodDetector.SetDocumentBefore(docBefore);
+                            inMethodDetector.SetDocumentAfter(docAfter);
 
                             // Start to detect.
                             if (inMethodDetector.HasRefactoring())
@@ -186,8 +189,8 @@ namespace warnings.refactoring.detection
                 return methodsAfter.Except(methodsBefore, new MethodNameEqualityComparer());
             }
 
-            private IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetCommonMethod(ClassDeclarationSyntax before, 
-                ClassDeclarationSyntax after)
+            private IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetCommonMethod(
+                ClassDeclarationSyntax before, ClassDeclarationSyntax after)
             {
                 var methodsBefore = ASTUtil.GetMethodsDeclarations(before);
                 var methodsAfter = ASTUtil.GetMethodsDeclarations(after);
@@ -215,16 +218,15 @@ namespace warnings.refactoring.detection
                 return this.refactorings;
             }
 
-            public void SetSyntaxTreeBefore(SyntaxTree before)
+            public void SetDocumentBefore(IDocument docBefore)
             {
-                this.treeBefore = before;
+                this.docBefore = docBefore;
             }
 
-            public void SetSyntaxTreeAfter(SyntaxTree after)
+            public void SetDocumentAfter(IDocument docAfter)
             {
-                this.treeAfter = after;
+                this.docAfter = docAfter;
             }
-
         }
 
         public RefactoringType RefactoringType 

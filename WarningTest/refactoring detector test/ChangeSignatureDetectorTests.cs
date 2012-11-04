@@ -50,6 +50,8 @@ namespace WarningTest
             Assert.AreEqual(map.ElementAt(0).Item2, 1);
             Assert.AreEqual(map.ElementAt(1).Item1, 1);
             Assert.AreEqual(map.ElementAt(1).Item2, 0);
+            Assert.IsNotNull(refactoring.BeforeDocument);
+            Assert.IsNotNull(refactoring.AfterDocument);
         }
 
         [TestMethod]
@@ -70,6 +72,9 @@ namespace WarningTest
             Assert.AreEqual(map.ElementAt(1).Item2, 0);
             Assert.AreEqual(map.ElementAt(2).Item1, 2);
             Assert.AreEqual(map.ElementAt(2).Item2, 1);
+
+            Assert.IsNotNull(refactoring.BeforeDocument);
+            Assert.IsNotNull(refactoring.AfterDocument);
         }
     }
 }

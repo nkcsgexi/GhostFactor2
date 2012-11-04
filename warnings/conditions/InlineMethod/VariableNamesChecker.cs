@@ -11,7 +11,7 @@ namespace warnings.conditions
     {
         private class VariableNamesCollisionChecker : InlineMethodConditionsChecker
         {
-            public override ICodeIssueComputer CheckInlineMethodCondition(IDocument before, IDocument after,
+            public override ICodeIssueComputer CheckInlineMethodCondition(
                 IInlineMethodRefactoring refactoring)
             {
                 return new NullCodeIssueComputer();

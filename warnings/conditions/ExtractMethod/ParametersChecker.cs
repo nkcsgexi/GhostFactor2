@@ -26,9 +26,12 @@ namespace warnings.conditions
         {
             private Logger logger = NLoggerUtil.GetNLogger(typeof (ParametersChecker));
 
-            protected override ICodeIssueComputer CheckCondition(IDocument before, IDocument after,
+            protected override ICodeIssueComputer CheckCondition(
                 IManualExtractMethodRefactoring input)
             {
+                var before = input.BeforeDocument;
+                var after = input.AfterDocument;
+
                 var invocation = (InvocationExpressionSyntax) input.ExtractMethodInvocation;
 
                 // Calculate the needed typeNameTuples, depending on what to extract.

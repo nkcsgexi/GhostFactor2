@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NLog;
 using Roslyn.Compilers.CSharp;
+using Roslyn.Services;
 using warnings.analyzer;
 using warnings.analyzer.comparators;
 using warnings.util;
@@ -11,15 +12,15 @@ using warnings.util;
 namespace warnings.refactoring.detection
 {
     /* In method refactoring detector for inline method. */
-    internal interface IInMethodInlineDetector: IInternalRefactoringDetector
+    internal interface IInMethodInlineDetector: IInternalRefactoringDetector, IBeforeAndAfterDocumentKeeper
     {
         void SetRemovedMethod(SyntaxNode method);
         void SetRemovedInvocations(IEnumerable<SyntaxNode> invocations);
     }
 
     /* 
-     * Two types of in method detector can be created. One is fined grained detector, another is dummy detector. Dummy detector
-     * almost does nothing but fast.
+     * Two types of in method detector can be created. One is fined grained detector, another is dummy detector. 
+     * Dummy detector almost does nothing but fast.
      */
     internal class InMethodInlineDetectorFactory
     {
@@ -40,10 +41,12 @@ namespace warnings.refactoring.detection
             protected SyntaxNode methodAfter;
             protected SyntaxNode methodRemoved;
             protected IEnumerable<SyntaxNode> invocationsRemoved;
+            protected IDocument docBefore;
+            protected IDocument docAfter;
 
             public abstract bool HasRefactoring();
 
-            internal InMethodInlineDetector()
+            protected InMethodInlineDetector()
             {
                 refactorings = new List<ManualRefactoring>();
             }
@@ -71,6 +74,16 @@ namespace warnings.refactoring.detection
             public void SetRemovedInvocations(IEnumerable<SyntaxNode> invocationsRemoved)
             {
                 this.invocationsRemoved = invocationsRemoved;
+            }
+
+            public void SetDocumentBefore(IDocument docBefore)
+            {
+                this.docBefore = docBefore;
+            }
+
+            public void SetDocumentAfter(IDocument docAfter)
+            {
+                this.docAfter = docAfter;
             }
         }
 
@@ -100,14 +113,16 @@ namespace warnings.refactoring.detection
                     var removedMethodStatements = RefactoringDetectionUtils.GetMethodStatements(methodRemoved);
                     var changedBlockAfterStatements = ((BlockSyntax) changedBlocks.First().NodeAfter).Statements;
                     var inlinedStatements = RefactoringDetectionUtils.GetLongestCommonStatements(
-                        removedMethodStatements, changedBlockAfterStatements, new SyntaxNodeExactComparer()).Select(p => p.Value);        
+                        removedMethodStatements, changedBlockAfterStatements, new SyntaxNodeExactComparer()).
+                            Select(p => p.Value);        
                    
                     // If the inlined statements are above threshhold, an inline method refactoring is detected.
                     if (inlinedStatements.Count() > COUNT_THRESHHOLD)
                     {
                         var refactoring = ManualRefactoringFactory.CreateManualInlineMethodRefactoring
                             // Only considering the first invocation.
-                            (methodBefore, methodAfter, methodRemoved, invocationsRemoved.First(), inlinedStatements);
+                            (docBefore, docAfter, methodBefore, methodAfter, methodRemoved, 
+                                invocationsRemoved.First(), inlinedStatements);
                         refactorings.Add(refactoring);
                         return true;
                     }
@@ -127,8 +142,8 @@ namespace warnings.refactoring.detection
             public override bool HasRefactoring()
             {
                 refactorings.Clear();
-                var refactoring = ManualRefactoringFactory.CreateSimpleInlineMethodRefactoring(methodBefore, methodAfter, 
-                    methodRemoved);
+                var refactoring = ManualRefactoringFactory.CreateSimpleInlineMethodRefactoring(
+                    docBefore, docAfter, methodBefore, methodAfter, methodRemoved);
                 refactorings.Add(refactoring);
                 return true;
             }

@@ -53,7 +53,7 @@ namespace warnings.refactoring.detection
             // Get the class pairs with common class name
             var commonNodePairs = RefactoringDetectionUtils.GetCommonNodePairs(classesBefore, classesAfter,
                 RefactoringDetectionUtils.GetClassDeclarationNameComparer());
-            var inClassDetector = new InClassInlineMethodDetector(treeBefore, treeAfter, inMethodDetector);
+            var inClassDetector = new InClassInlineMethodDetector(beforeDoc, afterDoc, inMethodDetector);
 
             // For each pair of common class.
             foreach (var pair in commonNodePairs)
@@ -113,21 +113,21 @@ namespace warnings.refactoring.detection
         {
             private readonly Logger logger;
             private readonly List<ManualRefactoring> refactorings;
-            private readonly SyntaxTree treeBefore;
-            private readonly SyntaxTree treeAfter;
+            private readonly IDocument beforeDoc;
+            private readonly IDocument afterDoc;
             private readonly IInMethodInlineDetector inMethodDetector;
 
             private SyntaxNode beforeClass; 
             private SyntaxNode afterClass;
+         
 
-
-            internal InClassInlineMethodDetector(SyntaxTree treeBefore, SyntaxTree treeAfter,
+            internal InClassInlineMethodDetector(IDocument beforeDoc, IDocument afterDoc,
                 IInMethodInlineDetector inMethodDetector)
             {
                 logger = NLoggerUtil.GetNLogger(typeof (InClassInlineMethodDetector));
                 refactorings = new List<ManualRefactoring>();
-                this.treeBefore = treeBefore;
-                this.treeAfter = treeAfter;
+                this.beforeDoc = beforeDoc;
+                this.afterDoc = afterDoc;
                 this.inMethodDetector = inMethodDetector;
             }
 
@@ -140,8 +140,8 @@ namespace warnings.refactoring.detection
                 var methodsAfter = ASTUtil.GetMethodsDeclarations(afterClass);
 
                 // Get the common methods in before and after class. Common means same name.
-                var commonMethodsPairs = RefactoringDetectionUtils.GetCommonNodePairs(methodsBefore, methodsAfter,
-                    RefactoringDetectionUtils.GetMethodDeclarationNameComparer());
+                var commonMethodsPairs = RefactoringDetectionUtils.GetCommonNodePairs(methodsBefore, 
+                    methodsAfter, RefactoringDetectionUtils.GetMethodDeclarationNameComparer());
 
                 // Get the methods that are in the before version but are not in the after version.
                 var removedMethodsBefore = methodsBefore.Except(commonMethodsPairs.Select(p => p.Key));
@@ -153,7 +153,8 @@ namespace warnings.refactoring.detection
                     foreach (var pair in commonMethodsPairs)
                     {
                         // Get the invocations of the removed method. 
-                        var invocations = ASTUtil.GetAllInvocationsInMethod(pair.Key, removed, treeBefore);
+                        var invocations = ASTUtil.GetAllInvocationsInMethod(pair.Key, removed, 
+                            (SyntaxTree) beforeDoc.GetSyntaxTree());
 
                         // If such invocations exist
                         if(invocations.Any())
@@ -163,6 +164,8 @@ namespace warnings.refactoring.detection
                             inMethodDetector.SetSyntaxNodeAfter(pair.Value);
                             inMethodDetector.SetRemovedMethod(removed);
                             inMethodDetector.SetRemovedInvocations(invocations);
+                            inMethodDetector.SetDocumentBefore(beforeDoc);
+                            inMethodDetector.SetDocumentAfter(afterDoc);
 
                             // If a refactoring is detected, add it to the list.
                             if(inMethodDetector.HasRefactoring())

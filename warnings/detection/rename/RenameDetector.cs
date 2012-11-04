@@ -97,7 +97,8 @@ namespace warnings.refactoring.detection
                 // If only one name is changed, a rename refactoring is detected. 
                 if(changedID.Count() == 1)
                 {
-                    refactoring = ManualRefactoringFactory.CreateManualRenameRefactoring(changedID.First(), newName);
+                    refactoring = ManualRefactoringFactory.CreateManualRenameRefactoring(documentBefore, documentAfter,
+                        changedID.First(), newName);
                     return true;
                 }
             }

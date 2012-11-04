@@ -25,23 +25,21 @@ namespace warnings.refactoring.detection
         string GetSourceAfter();
     }
 
-    public interface IBeforeAndAfterSyntaxTreeKeeper
-    {
-        void SetSyntaxTreeBefore(SyntaxTree before);
-        void SetSyntaxTreeAfter(SyntaxTree after);
-    }
-
     public interface IBeforeAndAfterSyntaxNodeKeeper
     {
         void SetSyntaxNodeBefore(SyntaxNode before);
         void SetSyntaxNodeAfter(SyntaxNode after);
     }
 
+    public interface IBeforeAndAfterDocumentKeeper
+    {
+        void SetDocumentBefore(IDocument docBefore);
+        void SetDocumentAfter(IDocument docAfter);
+    }
+
     public interface IExternalRefactoringDetector : IRefactoringDetector, 
         IBeforeAndAfterSourceKeeper, IHasRefactoringType
     {
-        IDocument GetBeforeDocument();
-        IDocument GetAfterDocument();
     }
 
     internal interface IInternalRefactoringDetector : IRefactoringDetector, 

@@ -10,22 +10,28 @@ namespace warnings.refactoring
     /* Continue the class of manual refactoring factory, this part create simply detected refactorings. */
     public partial class ManualRefactoringFactory
     {
-        public static ISimpleExtractMethodRefactoring CreateSimpleExtractMethodRefactoring(SyntaxNode callerBefore,
+        public static ISimpleExtractMethodRefactoring CreateSimpleExtractMethodRefactoring(
+            IDocument before, IDocument after,
+            SyntaxNode callerBefore,
             SyntaxNode callerAfter, SyntaxNode methodAdded)
         {
-            return new SimpleExtractMethodRefactoring(callerBefore, callerAfter, methodAdded);
+            return new SimpleExtractMethodRefactoring(before, after, callerBefore, 
+                callerAfter, methodAdded);
         }
 
-        public static ISimpleInlineMethodRefactoring CreateSimpleInlineMethodRefactoring(SyntaxNode callerBefore,
+        public static ISimpleInlineMethodRefactoring CreateSimpleInlineMethodRefactoring(
+            IDocument before, IDocument after, SyntaxNode callerBefore,
             SyntaxNode callerAfter, SyntaxNode methodRemoved)
         {
-            return new SimpleInlineMethodRefactoring(callerBefore, callerAfter, methodRemoved);
+            return new SimpleInlineMethodRefactoring(before, after, callerBefore, 
+                callerAfter, methodRemoved);
         }
 
         private class SimpleExtractMethodRefactoring : ISimpleExtractMethodRefactoring
         {
-            internal SimpleExtractMethodRefactoring(SyntaxNode callerBefore, SyntaxNode callerAfter,
-                    SyntaxNode addedMethod)
+            internal SimpleExtractMethodRefactoring(IDocument before, IDocument after,
+                SyntaxNode callerBefore, SyntaxNode callerAfter,
+                SyntaxNode addedMethod) : base(before, after)
             {
                 this.callerBefore = callerBefore;
                 this.callerAfter = callerAfter;
@@ -56,8 +62,9 @@ namespace warnings.refactoring
 
         private class SimpleInlineMethodRefactoring : ISimpleInlineMethodRefactoring
         {
-            internal SimpleInlineMethodRefactoring(SyntaxNode callerBefore, SyntaxNode callerAfter, 
-                SyntaxNode methodRemoved)
+            internal SimpleInlineMethodRefactoring(IDocument before, IDocument after, 
+                SyntaxNode callerBefore, SyntaxNode callerAfter, 
+                SyntaxNode methodRemoved) :base(before, after)
             {
                 this.callerBefore = callerBefore;
                 this.callerAfter = callerAfter;

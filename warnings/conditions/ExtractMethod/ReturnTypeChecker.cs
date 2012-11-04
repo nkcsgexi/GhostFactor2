@@ -26,9 +26,12 @@ namespace warnings.conditions
         {
             private Logger logger = NLoggerUtil.GetNLogger(typeof (ReturnTypeChecker));
 
-            protected override ICodeIssueComputer CheckCondition(IDocument before, IDocument after,
-                                                                 IManualExtractMethodRefactoring input)
+            protected override ICodeIssueComputer CheckCondition(
+                IManualExtractMethodRefactoring input)
             {
+                var before = input.BeforeDocument;
+                var after = input.AfterDocument;
+
                 // Calculate the outflow data
                 IEnumerable<ISymbol> flowOuts;
                 if (input.ExtractedStatements != null)

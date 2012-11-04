@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Windows.Documents;
 using Roslyn.Compilers.CSharp;
+using Roslyn.Services;
 using warnings.analyzer;
+using warnings.refactoring.detection;
 using warnings.util;
 
 namespace warnings.refactoring
@@ -13,7 +15,7 @@ namespace warnings.refactoring
      * Analyzer for manual extract method refactoring, generating ManualRefactoring intance by refactoring affected
      * nodes.
      */
-    public interface IManualExtractMethodAnalyzer
+    public interface IManualExtractMethodAnalyzer : IBeforeAndAfterDocumentKeeper
     {
         /* Set the method declaration of the original method before extracting some part.*/
         void SetMethodDeclarationBeforeExtracting(SyntaxNode declaration);
@@ -37,10 +39,11 @@ namespace warnings.refactoring
     internal class ManualExtractMethodAnalyzer : IManualExtractMethodAnalyzer
     {
         private SyntaxNode parentMethodDeclarationBefore;
-
         private SyntaxNode extractedMethodDeclaration;
-
         private SyntaxNode invocation;
+       
+        private IDocument docAfter;
+        private IDocument docBefore;
 
         private IManualExtractMethodRefactoring refactoring;
 
@@ -118,7 +121,8 @@ namespace warnings.refactoring
                 // Get the longest group of statements that are neighbors.
                 var extractedStatements = analyzer.GetLongestNeighborredNodesGroup();
                 refactoring = ManualRefactoringFactory.CreateManualExtractMethodRefactoring
-                    (extractedMethodDeclaration, invocation, extractedStatements);
+                    (docBefore, docAfter, extractedMethodDeclaration, invocation, 
+                        extractedStatements);
                 return true;
             }
 
@@ -131,7 +135,8 @@ namespace warnings.refactoring
                 // several expressions at the same time. 
                 var extractedExpression = analyzer.GetLongestNode();
                 refactoring = ManualRefactoringFactory.CreateManualExtractMethodRefactoring
-                    (extractedMethodDeclaration, invocation, extractedExpression);
+                    (docBefore, docAfter, extractedMethodDeclaration, invocation, 
+                        extractedExpression);
                 return true;
             }
             return false;
@@ -152,6 +157,16 @@ namespace warnings.refactoring
             // returns true.
             var distance = StringUtil.GetScaledDistance(codeOne, codeTwo);
             return distance <= 0.2;
+        }
+
+        public void SetDocumentBefore(IDocument docBefore)
+        {
+            this.docBefore = docBefore;
+        }
+
+        public void SetDocumentAfter(IDocument docAfter)
+        {
+            this.docAfter = docAfter;
         }
     }
 }

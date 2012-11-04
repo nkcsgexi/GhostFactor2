@@ -94,7 +94,7 @@ namespace WarningTest
             var invocation = GetInvokingExtractedMethod("method" + methodIndex, "extracted" + methodIndex).First();
             var statements = GetStatementsBeforeExtract("method" + methodIndex, start, end);
             return ManualRefactoringFactory.
-                CreateManualExtractMethodRefactoring(declaration, invocation, statements);
+                CreateManualExtractMethodRefactoring(before, after, declaration, invocation, statements);
         }
             
             
@@ -111,7 +111,7 @@ namespace WarningTest
         public void TestMethod2()
         {
             var refactoring = GetTestInput(1, 0, 2);
-            var results = conditionsList.CheckAllConditions(before, after, refactoring);
+            var results = conditionsList.CheckAllConditions(refactoring);
            
         }
 
@@ -119,7 +119,7 @@ namespace WarningTest
         public void TestMethod3()
         {
             var refactoring = GetTestInput(2, 2, 2);
-            var results = conditionsList.CheckAllConditions(before, after, refactoring);
+            var results = conditionsList.CheckAllConditions(refactoring);
             
         }
 
@@ -127,14 +127,14 @@ namespace WarningTest
         public void TestMethod4()
         {
             var refactoring = GetTestInput(3, 1, 1);
-            var results = conditionsList.CheckAllConditions(before, after, refactoring);
+            var results = conditionsList.CheckAllConditions(refactoring);
         }
 
         [TestMethod]
         public void TestMethod5()
         {
             var refactoring = GetTestInput(4, 2, 2);
-            var results = conditionsList.CheckAllConditions(before, after, refactoring);
+            var results = conditionsList.CheckAllConditions(refactoring);
         }
 
      

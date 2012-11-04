@@ -40,8 +40,10 @@ namespace WarningTest
             {
                 logger.Info(refactoring.ToString());
             }
-            conditionsList.CheckAllConditions(detector.GetBeforeDocument(), detector.GetAfterDocument(),
+            conditionsList.CheckAllConditions(
                 detector.GetRefactorings().First());
+            Assert.IsNotNull(detector.GetRefactorings().First().BeforeDocument);
+            Assert.IsNotNull(detector.GetRefactorings().First().AfterDocument);
         }
 
         [TestMethod]
@@ -58,7 +60,9 @@ namespace WarningTest
             {
                 logger.Info(refactoring.ToString());
             }
-            conditionsList.CheckAllConditions(detector.GetBeforeDocument(), detector.GetAfterDocument(),
+            Assert.IsNotNull(detector.GetRefactorings().First().BeforeDocument);
+            Assert.IsNotNull(detector.GetRefactorings().First().AfterDocument);
+            conditionsList.CheckAllConditions(
                 detector.GetRefactorings().First());
         }
 
@@ -78,8 +82,10 @@ namespace WarningTest
             var refactoring = detector.GetRefactorings().First();
             var condition = ConditionCheckingFactory.GetConditionsListByRefactoringType
                 (RefactoringType.EXTRACT_METHOD);
-            condition.CheckAllConditions(detector.GetBeforeDocument(), detector.GetAfterDocument()
-                    , refactoring);
+            Assert.IsNotNull(detector.GetRefactorings().First().BeforeDocument);
+            Assert.IsNotNull(detector.GetRefactorings().First().AfterDocument);
+
+            condition.CheckAllConditions( refactoring);
         }
 
     }

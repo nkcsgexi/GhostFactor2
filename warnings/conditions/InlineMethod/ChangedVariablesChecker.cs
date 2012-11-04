@@ -22,9 +22,12 @@ namespace warnings.conditions
         {
             private readonly Logger logger = NLoggerUtil.GetNLogger(typeof(ChangedVariableValuesChecker));
 
-            public override ICodeIssueComputer CheckInlineMethodCondition(IDocument before, IDocument after, 
+            public override ICodeIssueComputer CheckInlineMethodCondition(
                 IInlineMethodRefactoring refactoring)
             {
+                var before = refactoring.BeforeDocument;
+                var after = refactoring.AfterDocument;
+
                 // Get the out going symbols before the method is inlined.
                 var writtenSymbolsBeforeInline = ConditionCheckersUtils.GetFlowOutData(ConditionCheckersUtils.GetStatementEnclosingNode
                     (refactoring.InlinedMethodInvocation), before);

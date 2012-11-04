@@ -14,6 +14,7 @@ C:\programming\VS Workspace\ghostfactor\Threading\bin\Debug\BlackHen.Threading.p
 C:\programming\VS Workspace\ghostfactor\Threading\obj\Debug\ResolveAssemblyReference.cache
 C:\programming\VS Workspace\ghostfactor\Threading\obj\Debug\BlackHen.Threading.dll
 C:\programming\VS Workspace\ghostfactor\Threading\obj\Debug\BlackHen.Threading.pdb
+C:\programming\VSWorkspace\ghostfactor\Threading\bin\Debug\BlackHen.Threading.xml
 C:\programming\VSWorkspace\ghostfactor\Threading\bin\Debug\BlackHen.Threading.dll
 C:\programming\VSWorkspace\ghostfactor\Threading\bin\Debug\BlackHen.Threading.pdb
 C:\programming\VSWorkspace\ghostfactor\Threading\obj\Debug\ResolveAssemblyReference.cache

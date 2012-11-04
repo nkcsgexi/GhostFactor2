@@ -51,7 +51,8 @@ namespace warnings.detection
             var beforeClasses = ASTUtil.GetClassDeclarations(rootBefore);
             var afterClasses = ASTUtil.GetClassDeclarations(rootAfter);
 
-            var inClassDetector = new InClassExtractMethodDetector(treeBefore, treeAfter);
+            var inClassDetector = new InClassExtractMethodDetector(documentBefore, 
+                documentAfter);
 
             foreach (ClassDeclarationSyntax beforeClass in beforeClasses)
             {
@@ -113,19 +114,20 @@ namespace warnings.detection
         private class InClassExtractMethodDetector : IRefactoringDetector, IBeforeAndAfterSyntaxNodeKeeper
         {
             private readonly Logger logger;
-            private readonly SyntaxTree treeBefore;
-            private readonly SyntaxTree treeAfter;
-            private readonly List<ManualRefactoring> refactorings; 
-            
+            private readonly List<ManualRefactoring> refactorings;
+
+            private readonly IDocument docAfter;
+            private readonly IDocument docBefore;
+
             private SyntaxNode classAfter;
             private SyntaxNode classBefore;
-           
 
-            internal InClassExtractMethodDetector(SyntaxTree treeBefore, SyntaxTree treeAfter)
+
+            internal InClassExtractMethodDetector(IDocument docBefore, IDocument docAfter)
             {
                 this.logger = NLoggerUtil.GetNLogger(typeof (InClassExtractMethodDetector));
-                this.treeBefore = treeBefore;
-                this.treeAfter = treeAfter;
+                this.docBefore = docBefore;
+                this.docAfter = docAfter;
                 this.refactorings = new List<ManualRefactoring>();
             }
 
@@ -149,14 +151,15 @@ namespace warnings.detection
                         if (!IsMethodPublic(addedMethod))
                         {
                             // Get the invocations of the added method in the body of the common method.
-                            var invocations = ASTUtil.GetAllInvocationsInMethod(pair[1], addedMethod, treeAfter);
+                            var invocations = ASTUtil.GetAllInvocationsInMethod(pair[1], addedMethod, 
+                                (SyntaxTree) docAfter.GetSyntaxTree());
 
                             // If invocations are not empty
                             if (invocations.Any())
                             {
                                 // Create a refactoring instance and added it to the refactoring list.
                                 var refactoring = ManualRefactoringFactory.CreateSimpleExtractMethodRefactoring
-                                    (pair[0], pair[1], addedMethod);
+                                    (docBefore, docAfter, pair[0], pair[1], addedMethod);
                                 refactorings.Add(refactoring);
                             }
                         }

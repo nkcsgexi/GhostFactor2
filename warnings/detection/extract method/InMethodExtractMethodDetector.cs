@@ -5,20 +5,24 @@ using System.Linq;
 using System.Text;
 using NLog;
 using Roslyn.Compilers.CSharp;
+using Roslyn.Services;
 using warnings.analyzer;
 using warnings.analyzer.comparators;
 using warnings.util;
 
 namespace warnings.refactoring.detection
 {
-    internal abstract class InMethodExtractMethodDetector :  IRefactoringDetector, IBeforeAndAfterSyntaxTreeKeeper
+    internal abstract class InMethodExtractMethodDetector :  IRefactoringDetector,
+        IBeforeAndAfterDocumentKeeper
     {
         protected MethodDeclarationSyntax callerAfter;
         protected MethodDeclarationSyntax callerBefore;
         protected MethodDeclarationSyntax calleeAfter;
+
+        protected IDocument documentBefore;
+        protected IDocument documentAfter;
+
         protected ManualRefactoring refactoring;
-        protected SyntaxTree treeAfter;
-        protected SyntaxTree treeBefore;
 
         public void SetCallerBefore(MethodDeclarationSyntax callerBefore)
         {
@@ -39,15 +43,15 @@ namespace warnings.refactoring.detection
         {
             yield return refactoring;
         }
-       
-        public void SetSyntaxTreeBefore(SyntaxTree treeBefore)
+
+        public void SetDocumentBefore(IDocument documentBefore)
         {
-            this.treeBefore = treeBefore;
+            this.documentBefore = documentBefore;
         }
 
-        public void SetSyntaxTreeAfter(SyntaxTree treeAfter)
+        public void SetDocumentAfter(IDocument documentAfter)
         {
-            this.treeAfter = treeAfter;
+            this.documentAfter = documentAfter;
         }
 
         public abstract bool HasRefactoring();
@@ -74,7 +78,8 @@ namespace warnings.refactoring.detection
 
             internal InMethodExtractMethodDetectorByCommonStatements()
             {
-                logger = NLoggerUtil.GetNLogger(typeof (InMethodExtractMethodDetectorByCommonStatements));
+                logger = NLoggerUtil.GetNLogger(typeof 
+                    (InMethodExtractMethodDetectorByCommonStatements));
             }
 
             public override bool HasRefactoring()
@@ -82,7 +87,8 @@ namespace warnings.refactoring.detection
                 refactoring = null;
 
                 // Get the first invocation of the new method in the after-version of method.
-                var invocation = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, treeAfter).First();
+                var invocation = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, 
+                    (SyntaxTree) documentAfter.GetSyntaxTree()).First();
                 var changedBlockPairs = RefactoringDetectionUtils.GetChangedBlocks(callerBefore.Body,
                     callerAfter.Body);
                 LogChangedBlocks(changedBlockPairs);
@@ -94,16 +100,18 @@ namespace warnings.refactoring.detection
                     var statements2 = calleeAfter.Body.Statements;
 
                     // Get their longest common statements.
-                    var commons = RefactoringDetectionUtils.GetLongestCommonStatements(statements1, statements2,
-                        new SyntaxNodeExactComparer());
+                    var commons = RefactoringDetectionUtils.GetLongestCommonStatements(statements1,
+                        statements2, new SyntaxNodeExactComparer());
 
                     logger.Info("Common statements count: " + commons.Count());
                     
-                    // If the number of common statements is larger than the threshhold, a refactoring is detected.
+                    // If the number of common statements is larger than the threshhold, a refactoring 
+                    // is detected.
                     if (commons.Count() > MAX_COMMON_STATEMENTS)
                     {
-                        refactoring = ManualRefactoringFactory.CreateManualExtractMethodRefactoring(calleeAfter,
-                            invocation, commons.Select(p => p.Key));
+                        refactoring = ManualRefactoringFactory.CreateManualExtractMethodRefactoring
+                            (documentBefore, documentAfter, calleeAfter, invocation, 
+                            commons.Select(p => p.Key));
                         return true;
                     }
                 }
@@ -128,37 +136,48 @@ namespace warnings.refactoring.detection
 
             public InMethodExtractMethodDectectorByStringDistances()
             {
-                logger = NLoggerUtil.GetNLogger(typeof (InMethodExtractMethodDectectorByStringDistances));
+                logger = NLoggerUtil.GetNLogger(typeof 
+                    (InMethodExtractMethodDectectorByStringDistances));
             }
 
             public override bool HasRefactoring()
             {
                 // Get the first invocation of callee in the caller method body.
-                var invocation = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, treeAfter).First();
+                var invocation = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, 
+                    (SyntaxTree) documentAfter.GetSyntaxTree()).First();
 
-                /* Flatten the caller after by replacing callee invocation with the code in the calle method body. */
-                String callerAfterFlattenned = ASTUtil.FlattenMethodInvocation(callerAfter, calleeAfter, invocation);
+                /* 
+                 * Flatten the caller after by replacing callee invocation with the code in the calle 
+                 * method body. 
+                 */
+                String callerAfterFlattenned = ASTUtil.FlattenMethodInvocation(callerAfter, 
+                    calleeAfter, invocation);
 
                 var beforeWithoutSpace = callerBefore.GetFullText().Replace(" ", "");
 
                 // The distance between flattened caller after and the caller before.
-                int dis1 = StringUtil.GetStringDistance(callerAfterFlattenned.Replace(" ", ""), beforeWithoutSpace);
+                int dis1 = StringUtil.GetStringDistance(callerAfterFlattenned.Replace(" ", ""), 
+                    beforeWithoutSpace);
 
                 // The distance between caller after and the caller before.
-                int dis2 = StringUtil.GetStringDistance(callerAfter.GetFullText().Replace(" ", ""), beforeWithoutSpace);
+                int dis2 = StringUtil.GetStringDistance(callerAfter.GetFullText().Replace(" ", ""), 
+                    beforeWithoutSpace);
                 logger.Info("Distance Gain by Flattening:" + (dis2 - dis1));
 
                 // Check whether the distance is shortened by flatten. 
                 if (dis2 > dis1)
                 {
-                    // If similar enough, a manual refactoring instance is likely to be detected and created.
+                    // If similar enough, a manual refactoring instance is likely to be detected 
+                    // and created.
                     var analyzer = RefactoringAnalyzerFactory.CreateManualExtractMethodAnalyzer();
+                    analyzer.SetDocumentBefore(documentBefore);
+                    analyzer.SetDocumentAfter(documentAfter);
                     analyzer.SetMethodDeclarationBeforeExtracting(callerBefore);
                     analyzer.SetExtractedMethodDeclaration(calleeAfter);
                     analyzer.SetInvocationExpression(invocation);
 
-                    // If the analyzer can get a refactoring from the given information, get the refactoring 
-                    // and return true.
+                    // If the analyzer can get a refactoring from the given information, 
+                    // get the refactoring and return true.
                     if (analyzer.CanGetRefactoring())
                     {
                         refactoring = analyzer.GetRefactoring();

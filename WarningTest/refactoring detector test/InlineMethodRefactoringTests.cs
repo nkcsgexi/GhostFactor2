@@ -65,9 +65,10 @@ namespace WarningTest.refactoring_detector_test
         {
             Assert.IsTrue(detector.HasRefactoring());
             var refactoring = detector.GetRefactorings().ElementAt(0);
+            Assert.IsNotNull(refactoring.BeforeDocument);
+            Assert.IsNotNull(refactoring.AfterDocument);
             refactoring.MapToDocuments(documentBefore, documentAfter);
-            var computers = checkersList.CheckAllConditions(documentBefore, 
-                documentAfter, refactoring);
+            var computers = checkersList.CheckAllConditions(refactoring);
             Assert.IsTrue(computers.Count() == checkersList.GetCheckerCount());
             Assert.IsTrue(computers.All(c => c is NullCodeIssueComputer));
         }
@@ -77,9 +78,10 @@ namespace WarningTest.refactoring_detector_test
         {
             Assert.IsTrue(detector.HasRefactoring());
             var refactoring = (IInlineMethodRefactoring)detector.GetRefactorings().ElementAt(1);
+            Assert.IsNotNull(refactoring.BeforeDocument);
+            Assert.IsNotNull(refactoring.AfterDocument);
             refactoring.MapToDocuments(documentBefore, documentAfter);
-            var computers = checkersList.CheckAllConditions(documentBefore, 
-                documentAfter, refactoring);
+            var computers = checkersList.CheckAllConditions(refactoring);
             Assert.IsTrue(computers.Count() == checkersList.GetCheckerCount());
             var validComputers = computers.Where(c => c is ValidCodeIssueComputer);
             Assert.IsTrue(validComputers.Any());
@@ -103,9 +105,11 @@ namespace WarningTest.refactoring_detector_test
         {
             Assert.IsTrue(detector.HasRefactoring());
             var refactoring = (IInlineMethodRefactoring) detector.GetRefactorings().ElementAt(2);
+            Assert.IsNotNull(refactoring.BeforeDocument);
+            Assert.IsNotNull(refactoring.AfterDocument);
             Assert.IsNotNull(refactoring);
             refactoring.MapToDocuments(documentBefore, documentAfter);
-            var computers = checkersList.CheckAllConditions(documentBefore, documentAfter, refactoring).
+            var computers = checkersList.CheckAllConditions(refactoring).
                 Where(c => c is ValidCodeIssueComputer);
             Assert.IsTrue(computers.Any());
             Assert.IsTrue(computers.Count() == 1);
@@ -126,6 +130,8 @@ namespace WarningTest.refactoring_detector_test
         {
             Assert.IsTrue(dummyDetector.HasRefactoring());
             var refactoring = (ISimpleInlineMethodRefactoring)dummyDetector.GetRefactorings().ElementAt(0);
+            Assert.IsNotNull(refactoring.BeforeDocument);
+            Assert.IsNotNull(refactoring.AfterDocument);
             Assert.IsNotNull(refactoring);
         }
 
@@ -134,13 +140,19 @@ namespace WarningTest.refactoring_detector_test
         {
             Assert.IsTrue(dummyDetector.HasRefactoring());
             var refactoring = (ISimpleInlineMethodRefactoring)dummyDetector.GetRefactorings().ElementAt(1);
+            Assert.IsNotNull(refactoring.BeforeDocument);
+            Assert.IsNotNull(refactoring.AfterDocument);
             Assert.IsNotNull(refactoring);
         }
+
+
         [TestMethod]
         public void TestMethod6()
         {
             Assert.IsTrue(dummyDetector.HasRefactoring());
             var refactoring = (ISimpleInlineMethodRefactoring)dummyDetector.GetRefactorings().ElementAt(2);
+            Assert.IsNotNull(refactoring.BeforeDocument);
+            Assert.IsNotNull(refactoring.AfterDocument);
             Assert.IsNotNull(refactoring);
         }
 

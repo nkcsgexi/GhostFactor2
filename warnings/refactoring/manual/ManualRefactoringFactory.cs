@@ -12,43 +12,50 @@ namespace warnings.refactoring
     public partial class ManualRefactoringFactory
     {
         /* Create a manual extract method refactoring that extracts statements. */
-        public static IManualExtractMethodRefactoring CreateManualExtractMethodRefactoring(SyntaxNode declaration,
+        public static IManualExtractMethodRefactoring CreateManualExtractMethodRefactoring(
+            IDocument before, IDocument after, SyntaxNode declaration,
             SyntaxNode invocation, IEnumerable<SyntaxNode> statements)
         {
-            return new ManualExtractMethodRefactoring(declaration, invocation, statements);
+            return new ManualExtractMethodRefactoring(before, after, declaration, invocation, 
+                statements);
         }
 
         /* Create a manual extract method refacoting that extracts a expression. */
-        public static IManualExtractMethodRefactoring CreateManualExtractMethodRefactoring(SyntaxNode declaration,
+        public static IManualExtractMethodRefactoring CreateManualExtractMethodRefactoring(
+            IDocument before, IDocument after, SyntaxNode declaration,
             SyntaxNode invocation, SyntaxNode expression)
         {
-            return new ManualExtractMethodRefactoring(declaration, invocation, expression);
+            return new ManualExtractMethodRefactoring(before, after, declaration, invocation, 
+                expression);
         }
 
-
         /* 
-         * Create a manual rename refactoring, the token (of RefactoringType identifier token) is where the rename is performed on,
-         * the new name is the name given to the identifier. Token is in the before version. 
+         * Create a manual rename refactoring, the token (of RefactoringType identifier token) 
+         * is where the rename is performed on, the new name is the name given to the identifier. 
+         * Token is in the before version. 
          */
-        public static IManualRenameRefactoring CreateManualRenameRefactoring(SyntaxNode node, string newName)
+        public static IManualRenameRefactoring CreateManualRenameRefactoring(
+            IDocument before, IDocument after, SyntaxNode node, string newName)
         {
-            return new ManualRenameRefactoring(node, newName);
+            return new ManualRenameRefactoring(before, after, node, newName);
         }
 
         /* Create a manual change method signature refactoring. */
         public static IChangeMethodSignatureRefactoring CreateManualChangeMethodSignatureRefactoring
-            (SyntaxNode afterMethod, List<Tuple<int, int>> parametersMap)
+            (IDocument before, IDocument after, SyntaxNode afterMethod, 
+            List<Tuple<int, int>> parametersMap)
         {
-            return new ChangeMethodSignatureRefactoring(afterMethod, parametersMap);
+            return new ChangeMethodSignatureRefactoring(before, after, afterMethod, parametersMap);
         }
 
         /* Create an instance of manual inline method refactoring. */
-        public static IInlineMethodRefactoring CreateManualInlineMethodRefactoring(SyntaxNode methodBefore,
+        public static IInlineMethodRefactoring CreateManualInlineMethodRefactoring(
+            IDocument before, IDocument after, SyntaxNode methodBefore,
             SyntaxNode methodAfter,SyntaxNode methodInlined,SyntaxNode inlinedMethodInvocation,
                 IEnumerable<SyntaxNode> inlinedStatements)
         {
-            return new InlineMethodRefactoring(methodBefore, methodAfter, methodInlined, inlinedMethodInvocation,
-                inlinedStatements);
+            return new InlineMethodRefactoring(before, after, methodBefore, methodAfter, 
+                methodInlined, inlinedMethodInvocation, inlinedStatements);
         }
 
         private class ManualRenameRefactoring : IManualRenameRefactoring
@@ -56,7 +63,8 @@ namespace warnings.refactoring
             private readonly string newName;
             private readonly SyntaxNode node;
 
-            public ManualRenameRefactoring(SyntaxNode node, string newName)
+            public ManualRenameRefactoring(IDocument before, IDocument after, 
+                SyntaxNode node, string newName) : base(before, after)
             {
                 this.node = node;
                 this.newName = newName;
@@ -81,8 +89,9 @@ namespace warnings.refactoring
                 get { return RefactoringType.EXTRACT_METHOD; }
             }
 
-            internal ManualExtractMethodRefactoring(SyntaxNode declaration, SyntaxNode invocation,
-                IEnumerable<SyntaxNode> statements)
+            internal ManualExtractMethodRefactoring(IDocument before, IDocument after, 
+                SyntaxNode declaration, SyntaxNode invocation,
+                IEnumerable<SyntaxNode> statements) :base(before, after)
             {
                 ExtractedMethodDeclaration = declaration;
                 ExtractMethodInvocation = invocation;
@@ -90,8 +99,9 @@ namespace warnings.refactoring
                 ExtractedExpression = null;
             }
 
-            internal ManualExtractMethodRefactoring(SyntaxNode declaration, SyntaxNode invocation, 
-                SyntaxNode expression)
+            internal ManualExtractMethodRefactoring(IDocument before, IDocument after, 
+                SyntaxNode declaration, SyntaxNode invocation, 
+                SyntaxNode expression):base(before, after)
             {
                 ExtractedMethodDeclaration = declaration;
                 ExtractMethodInvocation = invocation;
@@ -99,7 +109,8 @@ namespace warnings.refactoring
                 ExtractedStatements = null;
             }
 
-            /* Output the information of a detected extract method refactoring for testing and log purposes.*/
+            /* Output the information of a detected extract method refactoring for testing and log 
+             * purposes.*/
             public override string ToString()
             {
                 var sb = new StringBuilder();
@@ -109,7 +120,8 @@ namespace warnings.refactoring
                     sb.AppendLine("Extracted Expression:\n" + ExtractedExpression);
                 else
                     sb.AppendLine("Extracted Statements:\n" +
-                                  StringUtil.ConcatenateAll("\n", ExtractedStatements.Select(s => s.GetText())));
+                                  StringUtil.ConcatenateAll("\n", ExtractedStatements.
+                                  Select(s => s.GetText())));
                 return sb.ToString();
             }
 
@@ -145,8 +157,9 @@ namespace warnings.refactoring
         /* Describing a change method signature refactoring. */
         private class ChangeMethodSignatureRefactoring : IChangeMethodSignatureRefactoring
         {
-            public ChangeMethodSignatureRefactoring(SyntaxNode ChangedMethodDeclaration,
-                List<Tuple<int, int>> ParametersMap)
+            public ChangeMethodSignatureRefactoring(IDocument before, IDocument after, 
+                SyntaxNode ChangedMethodDeclaration,
+                List<Tuple<int, int>> ParametersMap):base(before, after)
             {
                 this.ChangedMethodDeclaration = ChangedMethodDeclaration;
                 this.ParametersMap = ParametersMap;
@@ -168,9 +181,10 @@ namespace warnings.refactoring
         /* Describing a inline method refactoring. */
         private class InlineMethodRefactoring : IInlineMethodRefactoring
         {
-            internal InlineMethodRefactoring(SyntaxNode CallerMethodBefore, SyntaxNode CallerMethodAfter,
+            internal InlineMethodRefactoring(IDocument before, IDocument after,
+                SyntaxNode CallerMethodBefore, SyntaxNode CallerMethodAfter,
                 SyntaxNode InlinedMethod, SyntaxNode InlinedMethodInvocation,
-                    IEnumerable<SyntaxNode> InlinedStatementsInMethodAfter)
+                    IEnumerable<SyntaxNode> InlinedStatementsInMethodAfter) :base(before, after)
             {
                 this.CallerMethodAfter = CallerMethodAfter;
                 this.CallerMethodBefore = CallerMethodBefore;

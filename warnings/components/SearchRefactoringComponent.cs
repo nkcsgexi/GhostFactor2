@@ -108,12 +108,10 @@ namespace warnings.components
                             if (detectedRefactorings.Any())
                             {
                                 var detectedRefactoring = detectedRefactorings.First();
-                                detectedRefactoring.Refactoring.MetaData.DocumentId = documentId;
-                                detectedRefactoring.Refactoring.MetaData.DocumentUniqueName =
+                                detectedRefactoring.MetaData.DocumentId = documentId;
+                                detectedRefactoring.MetaData.DocumentUniqueName =
                                     documentId.UniqueName;
-                                OnRefactoringDetected(detectedRefactoring.BeforeDocument,
-                                                      detectedRefactoring.AfterDocument,
-                                                      detectedRefactoring.Refactoring);
+                                OnRefactoringDetected(detectedRefactoring);
                                 return;
                             }
                         }
@@ -148,51 +146,24 @@ namespace warnings.components
 
             /// <summary>
             /// Given a set of detectors whose source before and after are set, return the 
-            /// detected refactorings by applying them.
+            /// detected refactorings after applying them.
             /// </summary>
             /// <param name="detectors"></param>
             /// <returns></returns>
-            private List<DetectedRefactoring> GetDetectRefactorings
+            private List<ManualRefactoring> GetDetectRefactorings
                 (IEnumerable<IExternalRefactoringDetector> detectors)
             {
-                var detectedRefactorings = new List<DetectedRefactoring>();
-                foreach (var detector in detectors)
-                {
-                    if(detector.HasRefactoring())
-                    {
-                        var beforeDoc = detector.GetBeforeDocument();
-                        var afterDoc = detector.GetAfterDocument();
-                        var refactoring = detector.GetRefactorings().First();
-                        detectedRefactorings.Add(new DetectedRefactoring(beforeDoc, 
-                            afterDoc, refactoring));
-                    }
-                }
-                return detectedRefactorings;
-            }
-
-            private class DetectedRefactoring
-            {
-                public IDocument BeforeDocument { private set; get; }
-                public IDocument AfterDocument { private set; get; }
-                public ManualRefactoring Refactoring { private set; get; }
-
-                internal DetectedRefactoring(IDocument BeforeDocument, IDocument AfterDocument,
-                    ManualRefactoring Refactoring)
-                {
-                    this.BeforeDocument = BeforeDocument;
-                    this.AfterDocument = AfterDocument;
-                    this.Refactoring = Refactoring;
-                }
+                return detectors.Where(d => d.HasRefactoring()).Select(
+                    d => d.GetRefactorings().First()).ToList();
             }
 
 
-            private void OnRefactoringDetected(IDocument beforeDocument, IDocument afterDocument,
-              ManualRefactoring refactoring)
+            private void OnRefactoringDetected(ManualRefactoring refactoring)
             {
                 logger.Info("Refactoring detected:");
                 logger.Info(refactoring.ToString);
                 GhostFactorComponents.conditionCheckingComponent.CheckRefactoringCondition
-                    (beforeDocument, afterDocument, refactoring);
+                    (refactoring);
             }
 
             private void OnNoRefactoringDetected(ICodeHistoryRecord after)

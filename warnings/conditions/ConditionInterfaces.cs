@@ -20,13 +20,13 @@ namespace warnings.conditions
     /* All refactoring conditions should be derived from this interface. */
     public interface IRefactoringConditionChecker : IHasRefactoringType
     {
-        ICodeIssueComputer CheckCondition(IDocument before, IDocument after, ManualRefactoring input);  
+        ICodeIssueComputer CheckCondition(ManualRefactoring input);  
     }
 
     /* interface that containing checkings for all the conditions of a refactoring RefactoringType. */
     public interface IRefactoringConditionsList : IHasRefactoringType
     {
-        IEnumerable<ICodeIssueComputer> CheckAllConditions(IDocument before, IDocument after, ManualRefactoring input);
+        IEnumerable<ICodeIssueComputer> CheckAllConditions(ManualRefactoring input);
         int GetCheckerCount();
     }
 
@@ -34,12 +34,13 @@ namespace warnings.conditions
     public abstract class RefactoringConditionsList : IRefactoringConditionsList
     {
         /* suppose to return all the condition checkers for this specific refactoring. */
-        public IEnumerable<ICodeIssueComputer> CheckAllConditions(IDocument before, IDocument after, ManualRefactoring input)
+        public IEnumerable<ICodeIssueComputer> CheckAllConditions(ManualRefactoring input)
         {
             var results = new List<ICodeIssueComputer>();
             
             // Check all conditions, and push the results into the list.
-            results.AddRange(GetAllConditionCheckers().Select(checker => checker.CheckCondition(before, after, input)));
+            results.AddRange(GetAllConditionCheckers().Select(
+                checker => checker.CheckCondition(input)));
             return results.AsEnumerable();
         }
 

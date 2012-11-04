@@ -40,7 +40,7 @@ namespace warnings.conditions
                 get { return RefactoringType.CHANGE_METHOD_SIGNATURE; }
             }
 
-            public ICodeIssueComputer CheckCondition(IDocument before, IDocument after, ManualRefactoring input)
+            public ICodeIssueComputer CheckCondition(ManualRefactoring input)
             {
                 var signatureRefactoring = (IChangeMethodSignatureRefactoring) input;
                 return new UnchangedMethodInvocationComputer(((IChangeMethodSignatureRefactoring) input).ChangedMethodDeclaration

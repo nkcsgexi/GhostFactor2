@@ -42,13 +42,12 @@ namespace warnings.conditions
                 get { return RefactoringType.EXTRACT_METHOD; }
             }
 
-            public ICodeIssueComputer CheckCondition(IDocument before, IDocument after, ManualRefactoring input)
+            public ICodeIssueComputer CheckCondition(ManualRefactoring input)
             {
-                return CheckCondition(before, after, (IManualExtractMethodRefactoring)input);
+                return CheckCondition((IManualExtractMethodRefactoring)input);
             }
 
-    
-            protected abstract ICodeIssueComputer CheckCondition(IDocument before, IDocument after, 
+            protected abstract ICodeIssueComputer CheckCondition(
                 IManualExtractMethodRefactoring input);
         }
     }

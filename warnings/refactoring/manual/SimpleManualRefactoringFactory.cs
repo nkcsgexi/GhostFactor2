@@ -44,8 +44,6 @@ namespace warnings.refactoring
                 get { return RefactoringType.EXTRACT_METHOD; }
             }
 
-            public override void MapToDocuments(IDocument before, IDocument after) { }
-
             public override string ToString()
             {
                 var sb = new StringBuilder();
@@ -74,11 +72,6 @@ namespace warnings.refactoring
             public override RefactoringType RefactoringType
             {
                 get { return RefactoringType.INLINE_METHOD; }
-            }
-
-            public override void MapToDocuments(IDocument before, IDocument after)
-            {
-                throw new NotImplementedException();
             }
 
             public string ToString()

@@ -74,11 +74,6 @@ namespace warnings.refactoring
             {
                 get { return RefactoringType.RENAME; }
             }
-
-            public override void MapToDocuments(IDocument before, IDocument after)
-            {
-                throw new NotImplementedException();
-            }
         }
 
         /* Containing all the information about the extract method information. */
@@ -124,34 +119,6 @@ namespace warnings.refactoring
                                   Select(s => s.GetText())));
                 return sb.ToString();
             }
-
-            public override void MapToDocuments(IDocument before, IDocument after)
-            {
-                var nodeAnalyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
-
-                // Map extracted method declaration to the after document.
-                nodeAnalyzer.SetSyntaxNode(ExtractedMethodDeclaration);
-                ExtractedMethodDeclaration = nodeAnalyzer.MapToAnotherDocument(after);
-
-                // Map the invocation of extracted method to the after document.
-                nodeAnalyzer.SetSyntaxNode(ExtractMethodInvocation);
-                ExtractMethodInvocation = nodeAnalyzer.MapToAnotherDocument(after);
-
-                // Map the extracted expression to the before document.
-                if (ExtractedExpression != null)
-                {
-                    nodeAnalyzer.SetSyntaxNode(ExtractedExpression);
-                    ExtractedExpression = nodeAnalyzer.MapToAnotherDocument(before);
-                }
-
-                // Map the extracted statements to the before document.
-                if (ExtractedStatements != null)
-                {
-                    var nodesAnalyzer = AnalyzerFactory.GetSyntaxNodesAnalyzer();
-                    nodesAnalyzer.SetSyntaxNodes(ExtractedStatements);
-                    ExtractedStatements = nodesAnalyzer.MapToAnotherDocument(before);
-                }
-            }
         }
 
         /* Describing a change method signature refactoring. */
@@ -168,13 +135,6 @@ namespace warnings.refactoring
             public override RefactoringType RefactoringType
             {
                 get { return RefactoringType.CHANGE_METHOD_SIGNATURE; }
-            }
-
-            public override void MapToDocuments(IDocument before, IDocument after)
-            {
-                var analyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
-                analyzer.SetSyntaxNode(ChangedMethodDeclaration);
-                ChangedMethodDeclaration = analyzer.MapToAnotherDocument(after);
             }
         }
 
@@ -196,28 +156,6 @@ namespace warnings.refactoring
             public override RefactoringType RefactoringType
             {
                 get { return RefactoringType.INLINE_METHOD; }
-            }
-
-            public override void MapToDocuments(IDocument before, IDocument after)
-            {
-                var analyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
-
-                // Map syntax node to the before document.
-                analyzer.SetSyntaxNode(CallerMethodBefore);
-                CallerMethodBefore = analyzer.MapToAnotherDocument(before);
-                analyzer.SetSyntaxNode(InlinedMethod);
-                InlinedMethod = analyzer.MapToAnotherDocument(before);
-                analyzer.SetSyntaxNode(InlinedMethodInvocation);
-                InlinedMethodInvocation = analyzer.MapToAnotherDocument(before);
-
-                // Map syntax node to the after document.
-                analyzer.SetSyntaxNode(CallerMethodAfter);
-                CallerMethodAfter = analyzer.MapToAnotherDocument(after);
-
-                // Map inlined statements
-                var nodesAnalyzer = AnalyzerFactory.GetSyntaxNodesAnalyzer();
-                nodesAnalyzer.SetSyntaxNodes(InlinedStatementsInMethodAfter);
-                InlinedStatementsInMethodAfter = nodesAnalyzer.MapToAnotherDocument(after);
             }
 
             public override string ToString()

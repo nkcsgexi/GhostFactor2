@@ -47,6 +47,11 @@ namespace warnings.conditions
                     , signatureRefactoring.ParametersMap.AsEnumerable(), input.MetaData);
             }
 
+            public Predicate<SyntaxNode> GetIssuedNodeFilter()
+            {
+                return n => n.Kind == SyntaxKind.InvocationExpression;
+            }
+
 
             /* The computer for calculating the unchanged method invocations. */
             private class UnchangedMethodInvocationComputer : SingleDocumentValidCodeIssueComputer

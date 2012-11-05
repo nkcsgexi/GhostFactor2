@@ -112,9 +112,9 @@ namespace warnings.util
         {
             var analyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
             analyzer.SetMethodDeclaration(method1);
-            var name1 = analyzer.GetMethodName();
+            var name1 = analyzer.GetMethodName().GetText();
             analyzer.SetMethodDeclaration(method2);
-            var name2 = analyzer.GetMethodName();
+            var name2 = analyzer.GetMethodName().GetText();
             return name1.Equals(name2);
         }
 

@@ -45,6 +45,11 @@ namespace WarningTest
             return @"C:\programming\VSWorkspace\ghostfactor\WarningTest\fakesource\";
         }
 
+        public static string GetStudyFakeSourceFolder()
+        {
+            return GetFakeSourceFolder() + @"studycases\";
+        }
+
         public static string GetSolutionPath()
         {
             return @"C:\programming\VSWorkspace\ghostfactor\warnings.sln";

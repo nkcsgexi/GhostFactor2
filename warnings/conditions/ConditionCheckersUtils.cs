@@ -21,13 +21,12 @@ namespace warnings.conditions
             var result = new List<ISymbol>();
             foreach (ISymbol o in original)
             {
-                var name = o.Name;
-                if (!except.Any(e => e.Name.Equals(name)))
+                if (!except.Any(e => e.Name.Equals(o.Name)))
                 {
                     result.Add(o);
                 }
             }
-            return result.AsEnumerable();
+            return result;
         }
 
         /* Remove 'this' symbol in a list of symbols. */
@@ -114,11 +113,11 @@ namespace warnings.conditions
 
 
         /* Compare if two lists of symbols contain exactly same symbols, same means names are same. */
-        public static bool CompareSymbolListByName(IEnumerable<ISymbol> list1, IEnumerable<ISymbol> list2)
+        public static bool AreSymbolListsEqual(IEnumerable<ISymbol> list1, IEnumerable<ISymbol> list2)
         {
-            if(GetSymbolListExceptByName(list1, list2).Any())
+            if(!GetSymbolListExceptByName(list1, list2).Any())
             {
-                if(GetSymbolListExceptByName(list2, list1).Any())
+                if(!GetSymbolListExceptByName(list2, list1).Any())
                 {
                     return true;
                 }

@@ -20,13 +20,15 @@ namespace warnings.conditions
     /* All refactoring conditions should be derived from this interface. */
     public interface IRefactoringConditionChecker : IHasRefactoringType
     {
-        ICodeIssueComputer CheckCondition(ManualRefactoring input);  
+        ICodeIssueComputer CheckCondition(ManualRefactoring input);
+        Predicate<SyntaxNode> GetIssuedNodeFilter();
     }
 
     /* interface that containing checkings for all the conditions of a refactoring RefactoringType. */
     public interface IRefactoringConditionsList : IHasRefactoringType
     {
         IEnumerable<ICodeIssueComputer> CheckAllConditions(ManualRefactoring input);
+        IEnumerable<Predicate<SyntaxNode>> GetIssuedNodeFilters();
         int GetCheckerCount();
     }
 
@@ -44,6 +46,11 @@ namespace warnings.conditions
             return results.AsEnumerable();
         }
 
+        public IEnumerable<Predicate<SyntaxNode>> GetIssuedNodeFilters()
+        {
+           return GetAllConditionCheckers().Select(c => c.GetIssuedNodeFilter()).ToList();
+        }
+
         public int GetCheckerCount()
         {
             return GetAllConditionCheckers().Count();
@@ -53,7 +60,10 @@ namespace warnings.conditions
         public abstract RefactoringType RefactoringType { get; }
     }
 
-    /* This interface is used returning values for condition checkers. It is a convenient way of computing code issues. */
+    /// <summary>
+    /// This interface is used returning values for condition checkers. It is a convenient way of computing 
+    /// code issues.
+    /// </summary>
     public interface ICodeIssueComputer : IEquatable<ICodeIssueComputer>, IHasRefactoringType
     {
         bool IsDocumentCorrect(IDocument document);

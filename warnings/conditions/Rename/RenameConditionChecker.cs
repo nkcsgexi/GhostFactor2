@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Roslyn.Compilers.CSharp;
 using Roslyn.Services;
 using warnings.refactoring;
 
@@ -16,6 +17,7 @@ namespace warnings.conditions
         }
 
         public abstract ICodeIssueComputer CheckCondition(ManualRefactoring input);
+        public abstract Predicate<SyntaxNode> GetIssuedNodeFilter();
     }
 
     /* This class includes all the conditions to check for rename refactoring. */

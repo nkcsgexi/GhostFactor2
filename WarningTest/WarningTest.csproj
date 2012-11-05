@@ -111,6 +111,8 @@
     <Compile Include="component test\WorkqueueTests.cs" />
     <Content Include="fakesource\SimpleExtractMethodAfter.txt" />
     <Content Include="fakesource\SimpleExtractMethodBefore.txt" />
+    <Content Include="fakesource\studycases\ConsoleLibInlineafter.txt" />
+    <Content Include="fakesource\studycases\ConsoleLibInlinebefore.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Threading\Threading.csproj">
@@ -122,6 +124,7 @@
       <Name>warnings</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

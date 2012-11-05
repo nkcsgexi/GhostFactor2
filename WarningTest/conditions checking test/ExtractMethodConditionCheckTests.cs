@@ -27,7 +27,8 @@ namespace WarningTest
         private IEnumerable<SyntaxNode> afterMethods;
 
         private IRefactoringConditionsList conditionsList = 
-            ConditionCheckingFactory.GetConditionsListByRefactoringType(RefactoringType.EXTRACT_METHOD);
+            ConditionCheckingFactory.GetConditionsListByRefactoringType(RefactoringType.
+                EXTRACT_METHOD);
 
         public ExtractMethodConditionCheckTests()
         {
@@ -36,8 +37,10 @@ namespace WarningTest
             var converter = new String2IDocumentConverter();
 
             // Get before and after document.
-            before = (IDocument) converter.Convert(FileUtil.ReadAllText(fileBefore), typeof(IDocument), null, null);
-            after = (IDocument)converter.Convert(FileUtil.ReadAllText(fileAfter), typeof(IDocument), null, null);
+            before = (IDocument) converter.Convert(FileUtil.ReadAllText(fileBefore), 
+                typeof(IDocument), null, null);
+            after = (IDocument)converter.Convert(FileUtil.ReadAllText(fileAfter), 
+                typeof(IDocument), null, null);
 
             // Get all the methods in before and after.
             beforeMethods = GetAllMethod(before);
@@ -58,14 +61,21 @@ namespace WarningTest
         /* Get the method declaration of the given name in the after document. */
         private SyntaxNode GetExtractedMethodDeclaration(string methodName)
         {
-            return afterMethods.First(n => ((MethodDeclarationSyntax)n).Identifier.Value.Equals(methodName));
+            return afterMethods.First(n => ((MethodDeclarationSyntax)n).Identifier.Value.Equals
+                (methodName));
         }
 
-        /* Get invocations of the method (calleeName) in the method (callername) of the after document. */
-        private IEnumerable<SyntaxNode> GetInvokingExtractedMethod(string callerName, string calleeName)
+        /* 
+         * Get invocations of the method (calleeName) in the method (callername) of the 
+         * after document. 
+         */
+        private IEnumerable<SyntaxNode> GetInvokingExtractedMethod(string callerName, string 
+            calleeName)
         {
-            var invokingMethood = afterMethods.First(n => ((MethodDeclarationSyntax)n).Identifier.Value.Equals(callerName));
-            var invs = invokingMethood.DescendantNodes().Where(n => n.Kind == SyntaxKind.InvocationExpression);
+            var invokingMethood = afterMethods.First(n => ((MethodDeclarationSyntax)n).Identifier.
+                Value.Equals(callerName));     
+            var invs = invokingMethood.DescendantNodes().Where(n => n.Kind == SyntaxKind.
+                InvocationExpression);
             var invocationAnalyzer = AnalyzerFactory.GetMethodInvocationAnalyzer();
             var invocations = new List<SyntaxNode>();
             foreach (var inv in invs)
@@ -77,24 +87,34 @@ namespace WarningTest
             return invocations.AsEnumerable();
         }
 
-        /* Get statements in the method (methodName) of the before document, given the start and end index. */
-        private IEnumerable<SyntaxNode> GetStatementsBeforeExtract(string methodName, int start, int end)
+        /* 
+         * Get statements in the method (methodName) of the before document, given the 
+         * start and end index. 
+         */
+        private IEnumerable<SyntaxNode> GetStatementsBeforeExtract(string methodName, int start, 
+            int end)
         {
-            var originalMethod = beforeMethods.First(n => ((MethodDeclarationSyntax)n).Identifier.Value.Equals(methodName));
+            var originalMethod = beforeMethods.First(n => ((MethodDeclarationSyntax)n).Identifier.
+                Value.Equals(methodName));
             var methodAnalyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
             methodAnalyzer.SetMethodDeclaration(originalMethod);
             return methodAnalyzer.GetStatementsByIndexRange(start, end);
         }
 
 
-        /* Get the manual refactoring extracts statements indexed 'start' to 'end' in 'methodN' (before) to 'extractedN' (after)*/
+        /* 
+         * Get the manual refactoring extracts statements indexed 'start' to 'end' in 'methodN' 
+         * (before) to 'extractedN' (after)
+         */
         private IManualExtractMethodRefactoring GetTestInput(int methodIndex, int start, int end)
         {
             var declaration = GetExtractedMethodDeclaration("extracted" + methodIndex);
-            var invocation = GetInvokingExtractedMethod("method" + methodIndex, "extracted" + methodIndex).First();
+            var invocation = GetInvokingExtractedMethod("method" + methodIndex, "extracted" + 
+                methodIndex).First();
             var statements = GetStatementsBeforeExtract("method" + methodIndex, start, end);
             return ManualRefactoringFactory.
-                CreateManualExtractMethodRefactoring(before, after, declaration, invocation, statements);
+                CreateManualExtractMethodRefactoring(before, after, declaration, invocation, 
+                statements);
         }
             
             

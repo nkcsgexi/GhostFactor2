@@ -59,8 +59,7 @@ namespace warnings.refactoring.detection
                 case RefactoringType.RENAME:
                     return new RenameDetector();
                 case RefactoringType.INLINE_METHOD:
-                    return new InlineMethodDetector(InMethodInlineDetectorFactory.
-                        GetFineGrainedDetector());
+                    return new InlineMethodDetector(InMethodInlineDetectorFactory.GetInlineDetectorByStatement());
                 case RefactoringType.EXTRACT_METHOD:
                     return new ExtractMethodDetector(InMethodExtractMethodDetectorFactory.
                         GetInMethodExtractMethodDetectorByCommonStatements());

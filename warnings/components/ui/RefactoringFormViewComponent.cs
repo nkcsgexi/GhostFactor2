@@ -57,6 +57,10 @@ namespace warnings.components.ui
                 OnRemoveGlobalWarnings;
             GhostFactorComponents.RefactoringCodeIssueComputerComponent.
                 ProblematicRefactoringCountChanged += OnProblematicRefactoringsCountChanged;
+
+            // Create an work item for showing dialog and add this work item
+            // to the work longRunningQueue.
+            longRunningQueue.Add(new ShowingFormWorkItem(form));
         }
 
         private void OnProblematicRefactoringsCountChanged(int newCount)
@@ -72,13 +76,6 @@ namespace warnings.components.ui
         private void OnAddGlobalWarnings(IEnumerable<IRefactoringWarningMessage> messages)
         {
             shortTaskQueue.Add(new AddWarningsWorkItem(form, messages));
-        }
-
-        private void Start()
-        {
-            // Create an work item for showing dialog and add this work item
-            // to the work longRunningQueue.
-            longRunningQueue.Add(new ShowingFormWorkItem(form));
         }
 
         /* Work item for adding refactoring errors in the form. */

@@ -24,7 +24,7 @@ namespace warnings.refactoring.detection
      */
     internal class InMethodInlineDetectorFactory
     {
-        public static IInMethodInlineDetector GetFineGrainedDetector()
+        public static IInMethodInlineDetector GetInlineDetectorByStatement()
         {
             return new InMethodInlineRefactoringDetector();
         }
@@ -91,7 +91,7 @@ namespace warnings.refactoring.detection
         /* Inline method refactoring detector in the method level. */
         private class InMethodInlineRefactoringDetector : InMethodInlineDetector
         {
-            private readonly static int COUNT_THRESHHOLD = 1;
+            private readonly static int COUNT_THRESHHOLD = 0;
             private readonly Logger logger;
 
             internal InMethodInlineRefactoringDetector()

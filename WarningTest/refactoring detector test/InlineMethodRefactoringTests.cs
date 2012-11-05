@@ -154,6 +154,31 @@ namespace WarningTest.refactoring_detector_test
         }
 
 
+        [TestMethod]
+        public void TestMethod7()
+        {
+            var before = FileUtil.ReadAllText(TestUtil.GetStudyFakeSourceFolder() + "ConsoleLibInlineBefore.txt");
+            var after = FileUtil.ReadAllText(TestUtil.GetStudyFakeSourceFolder() + "ConsoleLibInlineAfter.txt");
+            Assert.IsNotNull(before);
+            Assert.IsNotNull(after);
+            dummyDetector.SetSourceBefore(before);
+            dummyDetector.SetSourceAfter(after);
+            Assert.IsTrue(dummyDetector.HasRefactoring());
+            detector.SetSourceBefore(before);
+            detector.SetSourceAfter(after);
+            Assert.IsTrue(detector.HasRefactoring());
+            var refactoring = detector.GetRefactorings().First();
+            var computers = checkersList.CheckAllConditions(refactoring).
+                Where(c => c is ValidCodeIssueComputer);
+            Assert.IsTrue(computers.Any());
+            var issues = ComputerAllCodeIssues(computers.First(), refactoring.AfterDocument);
+            Assert.IsTrue(issues.Any());
+            Assert.IsTrue(issues.Count() == 1);
+            var computer = computers.First();
+            Assert.IsTrue(computer.Equals(computer));
+        }
+
+
         private IEnumerable<CodeIssue> ComputerAllCodeIssues(ICodeIssueComputer computer, IDocument document)
         {
             var root = (SyntaxNode)document.GetSyntaxRoot();

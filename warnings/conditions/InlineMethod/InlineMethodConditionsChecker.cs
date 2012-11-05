@@ -53,6 +53,8 @@ namespace warnings.conditions
                 return CheckInlineMethodCondition((IInlineMethodRefactoring)input);
             }
 
+            public abstract Predicate<SyntaxNode> GetIssuedNodeFilter();
+
             public abstract ICodeIssueComputer CheckInlineMethodCondition(
                 IInlineMethodRefactoring refactoring);
 

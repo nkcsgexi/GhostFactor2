@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Roslyn.Compilers.CSharp;
 using Roslyn.Compilers.Common;
 using Roslyn.Services;
 using warnings.analyzer;
@@ -46,6 +47,8 @@ namespace warnings.conditions
             {
                 return CheckCondition((IManualExtractMethodRefactoring)input);
             }
+
+            public abstract Predicate<SyntaxNode> GetIssuedNodeFilter();
 
             protected abstract ICodeIssueComputer CheckCondition(
                 IManualExtractMethodRefactoring input);

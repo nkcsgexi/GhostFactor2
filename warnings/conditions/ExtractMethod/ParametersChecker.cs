@@ -26,6 +26,11 @@ namespace warnings.conditions
         {
             private Logger logger = NLoggerUtil.GetNLogger(typeof (ParametersChecker));
 
+            public override Predicate<SyntaxNode> GetIssuedNodeFilter()
+            {
+                return n => n.Kind == SyntaxKind.MethodDeclaration;
+            }
+
             protected override ICodeIssueComputer CheckCondition(
                 IManualExtractMethodRefactoring input)
             {

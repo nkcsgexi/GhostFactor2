@@ -85,17 +85,9 @@ namespace warnings.components
             queue.FailedWorkItem += OnItemFailed;
             logger = NLoggerUtil.GetNLogger(typeof (RefactoringCodeIssueComputersComponent));
             blackList = new CodeIssueComputersBlackList(5);
-            nodeFilter = InitializeNodeFilters();
+            nodeFilter = GlobalConfigurations.GetIssuedNodeFilters();
             codeIssueComputersAddedEvent += OnCodeIssueComputersAdded;
         }
-
-        private IEnumerable<Predicate<SyntaxNode>> InitializeNodeFilters()
-        {
-            var filters = new List<Predicate<SyntaxNode>>();
-            filters.Add(n => n.Kind == SyntaxKind.MethodDeclaration);
-            return filters;
-        }
-
 
         /* When code issue computers are added, this method will be called. */
         private void OnCodeIssueComputersAdded(IEnumerable<ICodeIssueComputer> computers)
@@ -157,7 +149,7 @@ namespace warnings.components
             {
                 if (blackList.Count() == maxCount)
                 {
-                    blackList.RemoveAt(maxCount - 1);
+                    blackList.RemoveAt(0);
                 }
                 blackList.Add(computer);
             }

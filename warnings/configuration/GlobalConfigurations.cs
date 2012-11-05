@@ -2,14 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Roslyn.Compilers.CSharp;
+using warnings.conditions;
 using warnings.refactoring;
 
 namespace warnings.configuration
 {
-    /* Global configurations for GhostFactor.*/
+    /// <summary>
+    /// Global configurations for GhostFactor.
+    /// </summary>
     public class GlobalConfigurations
     {
-        /* Whether a given refactoring RefactoringType is supported by GhostFactor. */
+        /// <summary>
+        /// Whether a given refactoring RefactoringType is supported by GhostFactor.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsSupported(RefactoringType type)
         {
             switch (type)
@@ -17,26 +25,30 @@ namespace warnings.configuration
                 case RefactoringType.RENAME:
                     return false;
                 case RefactoringType.EXTRACT_METHOD:
-                    return true;
+                    return false;
                 case RefactoringType.CHANGE_METHOD_SIGNATURE:
                     return false;
                 case RefactoringType.INLINE_METHOD:
-                    return false;
+                    return true;
                 default:
                     throw new Exception("Unknown Refactoring Type.");
             }
         }
 
-        /* Get the time interval between two snapshots, in millisencond. */
+        /// <summary>
+        /// Get the time interval between two snapshots, in millisencond.
+        /// </summary>
+        /// <returns></returns>
         public static int GetSnapshotTakingInterval()
         {
             return 5000;
         }
 
-        /* 
-         * Get the time interval between two queries of all the refactoring warnings in 
-         * the solution, used by the refactoring form. 
-         */
+        /// <summary>
+        /// Get the time interval between two queries of all the refactoring warnings in the solution, 
+        /// used by the refactoring form. 
+        /// </summary>
+        /// <returns></returns>
         public static int GetRefactoringWarningListUpdateInterval()
         {
             return 6000;
@@ -49,7 +61,11 @@ namespace warnings.configuration
         }
 
 
-        /* Get the search depth for different refactoring types, how many snapshots to look back. */
+        /// <summary>
+        /// Get the search depth for different refactoring types, how many snapshots to look back.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static int GetSearchDepth(RefactoringType type)
         {
             switch (type)
@@ -86,5 +102,15 @@ namespace warnings.configuration
             return RefactoringTypeUtil.GetAllValidRefactoringTypes().Where(IsSupported);
         }
 
+        /// <summary>
+        /// Get the global filters to the input syntax node. It is likely to issue a problem to the node 
+        /// iff the node met with at least one of the filters.
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<Predicate<SyntaxNode>> GetIssuedNodeFilters()
+        {
+            return GetSupportedRefactoringTypes().SelectMany(t => ConditionCheckingFactory.
+                GetConditionsListByRefactoringType(t).GetIssuedNodeFilters());
+        }
     }
 }

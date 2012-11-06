@@ -174,8 +174,12 @@ namespace WarningTest.refactoring_detector_test
             var issues = ComputerAllCodeIssues(computers.First(), refactoring.AfterDocument);
             Assert.IsTrue(issues.Any());
             Assert.IsTrue(issues.Count() == 1);
-            var computer = computers.First();
-            Assert.IsTrue(computer.Equals(computer));
+            var issue = issues.First();
+            Assert.IsTrue(issue.Actions.Count() == 1);
+            var edit = issue.Actions.First().GetEdit();
+            var updatedDoc = edit.UpdatedSolution.GetDocument(refactoring.AfterDocument.Id);
+            Assert.IsNotNull(updatedDoc);
+            logger.Info(updatedDoc.GetText());
         }
 
 

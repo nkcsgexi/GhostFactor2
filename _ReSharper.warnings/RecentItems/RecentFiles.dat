@@ -1,8 +1,5 @@
 ﻿<RecentFiles>
   <RecentFiles>
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:util/d:ASTUtil/f:ASTUtil.cs" caret="5139" fromTop="30" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/d:comparators/f:Comparators.cs" caret="0" fromTop="0" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/f:RefactoringDetectionUtils.cs" caret="6622" fromTop="154" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:EMDetectorTests.cs" caret="2286" fromTop="33" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:conditions checking test/f:ExtractMethodConditionCheckTests.cs" caret="1719" fromTop="16" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:ChangeSignatureDetectorTests.cs" caret="417" fromTop="7" />
@@ -13,7 +10,6 @@
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:fakesource/d:studycases/f:ConsoleLibInlineafter.txt" caret="4674" fromTop="63" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/d:ui/f:RefactoringFormViewComponent.cs" caret="2952" fromTop="0" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/d:ui/f:RefactoringWarningMessage.cs" caret="0" fromTop="0" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ParametersChecker.cs" caret="757" fromTop="24" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ReturnTypeChecker.cs" caret="1009" fromTop="18" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionCheckingFactory.cs" caret="196" fromTop="8" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:VariableNamesChecker.cs" caret="504" fromTop="16" />
@@ -25,13 +21,17 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:RefactoringIssueComponent.cs" caret="7885" fromTop="34" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:SearchRefactoringComponent.cs" caret="7040" fromTop="142" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:configuration/f:GlobalConfigurations.cs" caret="3531" fromTop="73" />
-    <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:InlineMethodRefactoringTests.cs" caret="7797" fromTop="17" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:SyntaxNodeAnalyzer.cs" caret="0" fromTop="0" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionCheckersUtils.cs" caret="5157" fromTop="31" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:ChangedVariablesChecker.cs" caret="3412" fromTop="22" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionInterfaces.cs" caret="3702" fromTop="68" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ParametersChecker.cs" caret="757" fromTop="0" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:SyntaxNodesAnalyzer.cs" caret="5556" fromTop="36" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionInterfaces.cs" caret="0" fromTop="0" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/f:RefactoringDetectionUtils.cs" caret="285" fromTop="11" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:util/d:ASTUtil/f:ASTUtil.cs" caret="4506" fromTop="26" />
+    <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:InlineMethodRefactoringTests.cs" caret="8133" fromTop="17" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:ChangedVariablesChecker.cs" caret="15238" fromTop="30" />
   </RecentFiles>
   <RecentEdits>
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:inline/f:InlineMethodDetector.cs" caret="2173" fromTop="25" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:ChangeSignatureDetectorTests.cs" caret="3194" fromTop="19" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:RenameDetectorTests.cs" caret="3007" fromTop="13" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:SearchRefactoringComponent.cs" caret="6919" fromTop="14" />
@@ -57,9 +57,10 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ReturnTypeChecker.cs" caret="994" fromTop="26" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:configuration/f:GlobalConfigurations.cs" caret="3531" fromTop="40" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:RefactoringIssueComponent.cs" caret="6410" fromTop="16" />
-    <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:InlineMethodRefactoringTests.cs" caret="8191" fromTop="33" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:ChangedVariablesChecker.cs" caret="5146" fromTop="37" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionCheckersUtils.cs" caret="4924" fromTop="26" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionInterfaces.cs" caret="5934" fromTop="25" />
+    <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:InlineMethodRefactoringTests.cs" caret="8428" fromTop="43" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:SyntaxNodesAnalyzer.cs" caret="5943" fromTop="25" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:ChangedVariablesChecker.cs" caret="15673" fromTop="18" />
   </RecentEdits>
 </RecentFiles>

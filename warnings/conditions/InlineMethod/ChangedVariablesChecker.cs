@@ -11,6 +11,7 @@ using Roslyn.Services;
 using Roslyn.Services.Editor;
 using warnings.analyzer;
 using warnings.refactoring;
+using warnings.refactoring.detection;
 using warnings.resources;
 using warnings.util;
 
@@ -296,15 +297,31 @@ namespace warnings.conditions
 
                         // Update root and document, return the code edition. 
                         var root = (SyntaxNode) document.GetSyntaxRoot();
-                        var updatedRoot = root.ReplaceNodes(new[] {methodAfter}, (node1, node2) => 
+                        var currentMethod = FindCurrentMethod(root, methodAfter);
+                        var updatedRoot = root.ReplaceNodes(new[] {currentMethod}, (node1, node2) => 
                             updatedMethod);
                         var updatedDocument = document.UpdateSyntaxRoot(updatedRoot);
                         var updatedSolution = document.Project.Solution.UpdateDocument
                             (updatedDocument);
+
+        
                         return new CodeActionEdit(null, updatedSolution, ConditionCheckersUtils.
                             GetRemoveCodeIssueComputerOperation(computer));
                     }
 
+                    /// <summary>
+                    /// The method may be changed after the detected version, so this method finds the current
+                    /// version of the method.
+                    /// </summary>
+                    /// <param name="root"></param>
+                    /// <param name="method"></param>
+                    /// <returns></returns>
+                    private SyntaxNode FindCurrentMethod(SyntaxNode root, SyntaxNode method)
+                    {
+                        var methods = ASTUtil.GetMethodsDeclarations(root);
+                        var comparer = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+                        return methods.First(m => comparer.Compare(m, method) == 0);
+                    }
 
                     private IEnumerable<SyntaxNode> AddMissingSymbolsFixStatements
                         (IEnumerable<SyntaxNode> statements)
@@ -466,7 +483,7 @@ namespace warnings.conditions
 
                     public string Description
                     {
-                        get { return "Fix the changed data by inlining methodAfter."; }
+                        get { return "Fix the changed data by inlining method."; }
                     }
                 }
             }

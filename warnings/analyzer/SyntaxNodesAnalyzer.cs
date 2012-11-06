@@ -168,7 +168,11 @@ namespace warnings.analyzer
             return end;
         }
 
-        /* Given a list of syntax node, remove all the nodes that are contained by other node in the same list. */
+        /// <summary>
+        /// Given a list of syntax node, remove all the nodes that are contained by other node in the same 
+        /// list. 
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<SyntaxNode> RemoveSubNodes()
         {
             // Create a list of contained nodes.
@@ -177,15 +181,11 @@ namespace warnings.analyzer
             // All the node in the list is likely to be parent.
             foreach (var parentNode in nodes)
             {
-                logger.Debug("Parent Node: " + parentNode);       
                 var containedByParentNode = nodes.Where(n => parentNode.DescendantNodes().Contains(n));
          
                 // Add all the nodes that are contained in the range and not the same node with the parent.
                 nodesContainedByOtherNode.AddRange(containedByParentNode);
             }
-
-            logger.Debug("Sub nodes count: " + nodesContainedByOtherNode.Count);
-
             // Remove the contained nodes from the original list and return it.
             return nodes.Except(nodesContainedByOtherNode).AsEnumerable();
         }

@@ -17,8 +17,11 @@ using warnings.util;
 
 namespace warnings.components
 {
+    public delegate void WorkOnDocumentChanged(IDocument document);
+
     public interface IHistorySavingComponent
     {
+        event WorkOnDocumentChanged OnWorkDocumentChanged;
         void UpdateDocument(IDocument document);
     }
 
@@ -45,14 +48,15 @@ namespace warnings.components
             this.queue.ConcurrentLimit = 1;
             this.queue.FailedWorkItem += onFailedWorkItem;
             this.queue.CompletedWorkItem += onCompleteWorkItem;
-
             logger = NLoggerUtil.GetNLogger(typeof (HistorySavingComponent));            
         }
 
-   
+
+        public event WorkOnDocumentChanged OnWorkDocumentChanged;
+
         public void UpdateDocument(IDocument newDoc)
         {
-            queue.Add(new HistorySavingWorkItem(newDoc));
+            queue.Add(new HistorySavingWorkItem(newDoc, OnWorkDocumentChanged));
         }
 
         
@@ -73,12 +77,15 @@ namespace warnings.components
             private static readonly SavedDocumentRecords records = new SavedDocumentRecords();
             private static readonly Logger logger = NLoggerUtil.GetNLogger
                 (typeof (HistorySavingWorkItem));
+
             private readonly IDocument document;
+            private readonly WorkOnDocumentChanged onWorkOnDocumentChanged;
 
             /* Retrieve all the properties needed to save this new record. */
-            internal HistorySavingWorkItem(IDocument document)
+            internal HistorySavingWorkItem(IDocument document, WorkOnDocumentChanged onWorkOnDocumentChanged)
             {
                 this.document = document;
+                this.onWorkOnDocumentChanged = onWorkOnDocumentChanged;
             }
 
             public override void Perform()
@@ -93,6 +100,7 @@ namespace warnings.components
                     CodeHistory.GetInstance().AddRecord(id.UniqueName, code);
                     
                     records.AddSavedDocument(document);
+                    onWorkOnDocumentChanged(document);
                     StartRefactoringSearch(id);
                 }
             }
@@ -113,8 +121,9 @@ namespace warnings.components
             private class SavedDocumentRecords
             {
                 /* Dictionary saves document id and its version number of its latest saved code.*/
-                private Dictionary<string, VersionStamp> dictionary = 
+                private readonly Dictionary<string, VersionStamp> dictionary = 
                     new Dictionary<string, VersionStamp>();
+
 
                 /* Whether we have saved a document before. */
                 private bool HasSaved(IDocument document)

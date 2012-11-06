@@ -9,6 +9,7 @@ using BlackHen.Threading;
 using NLog;
 using Roslyn.Services;
 using Roslyn.Services.Editor;
+using warnings.refactoring;
 using warnings.ui;
 using warnings.util;
 
@@ -56,10 +57,24 @@ namespace warnings.components.ui
                 OnRemoveGlobalWarnings;
             GhostFactorComponents.RefactoringCodeIssueComputerComponent.
                 ProblematicRefactoringCountChanged += OnProblematicRefactoringsCountChanged;
+            GhostFactorComponents.historyComponent.OnWorkDocumentChanged += OnWorkDocumentChanged;
+            GhostFactorComponents.configurationComponent.supportedRefactoringTypesChangedEvent += 
+                RefactoringTypesChangedEvent;
+
 
             // Create an work item for showing dialog and add this work item
             // to the work longRunningQueue.
             longRunningQueue.Add(new ShowingFormWorkItem(form));
+        }
+
+        private void RefactoringTypesChangedEvent(IEnumerable<RefactoringType> currentTypes)
+        {
+            shortTaskQueue.Add(new UpdatedSupportedRefactoringTypesWorkItem(form, currentTypes));
+        }
+
+        private void OnWorkDocumentChanged(IDocument document)
+        {
+            shortTaskQueue.Add(new UpdateWorkDocumentWorkItem(form, document));
         }
 
         private void OnProblematicRefactoringsCountChanged(int newCount)
@@ -152,9 +167,61 @@ namespace warnings.components.ui
                 form.SetProblematicRefactoringsCount(newCount);
             }
         }
+        /// <summary>
+        /// Work iten for updating the active document indicator.
+        /// </summary>
+        private class UpdateWorkDocumentWorkItem : WorkItem
+        {
+            private readonly IDocument document;
+            private readonly RefactoringWariningsForm form;
+
+            public UpdateWorkDocumentWorkItem(RefactoringWariningsForm form, IDocument document)
+            {
+                this.form = form;
+                this.document = document;
+            }
+
+            public override void Perform()
+            {
+                form.Invoke(new UIUpdate(ResetWorkOnDocument));
+            }
+
+            private void ResetWorkOnDocument()
+            {
+                form.SetActiveDocumentText(document.Name);
+            }
+        }
+
+        /// <summary>
+        /// Work item that updates the ui's showing of current supported refactoring type.
+        /// </summary>
+        private class UpdatedSupportedRefactoringTypesWorkItem : WorkItem
+        {
+            private readonly RefactoringWariningsForm form;
+            private readonly IEnumerable<RefactoringType> currentTypes;
+
+            public UpdatedSupportedRefactoringTypesWorkItem(RefactoringWariningsForm form, 
+                IEnumerable<RefactoringType> currentTypes)
+            {
+                this.form = form;
+                this.currentTypes = currentTypes;
+            }
+
+            public override void Perform()
+            {
+                form.Invoke(new UIUpdate(UpdateSupportedTypes));
+            }
+
+            private void UpdateSupportedTypes()
+            {
+                form.SetSupportedRefactoringTypes(currentTypes);
+            }
+        }
 
 
-        /* Work item for showing the form, unlike other workitem, this work item does not stop. */
+       /// <summary>
+        /// Work item for showing the form, unlike other workitem, this work item does not stop.
+       /// </summary>
         private class ShowingFormWorkItem : WorkItem
         {
             private readonly Form form;
@@ -170,4 +237,6 @@ namespace warnings.components.ui
             }
         }
     }
+
+  
 }

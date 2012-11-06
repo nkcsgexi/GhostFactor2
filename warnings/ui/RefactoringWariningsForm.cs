@@ -28,7 +28,11 @@ namespace warnings.ui
             messagesInListView = new List<IRefactoringWarningMessage>();
         }
      
-        /* This is the control part of the control-view-model pattern. */
+        /// <summary>
+        /// This is the control part of the control-view-model pattern.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnRemoveWarningButtonClick(object sender, EventArgs e)
         {
             var toRemoveCodeIssueComputers = new List<ICodeIssueComputer>();
@@ -180,11 +184,41 @@ namespace warnings.ui
             refactoringCountLabel.Text = count.ToString();
         }
 
+        /// <summary>
+        /// Set the current active document name.
+        /// </summary>
+        /// <param name="info"></param>
+        public void SetActiveDocumentText(string info)
+        {
+            ActiveSourceFile.Text = info;
+        }
+
+        /// <summary>
+        /// Set the shown supported refactoring types.
+        /// </summary>
+        /// <param name="types"></param>
+        public void SetSupportedRefactoringTypes(IEnumerable<RefactoringType> types)
+        {
+            var converter = new RefactoringType2StringConverter(); 
+            SupportedRefactoringsListBox.Items.Clear();
+            SupportedRefactoringsListBox.Items.AddRange(types.Select(t => converter.Convert
+                (t, null, null, null)).ToArray());
+        }
+
+
+
+
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
 
         }
 
+       /// <summary>
+       /// Set the current supported refactoring types. These following three methods are the control part 
+       /// of the MVC pattnern.
+       /// </summary>
+       /// <param name="sender"></param>
+       /// <param name="e"></param>
         private void ExtractMethod_CheckedChanged(object sender, EventArgs e)
         {
             SetOnlySupportedRefactoringTypeIfRadioButtonChecked(sender, RefactoringType.EXTRACT_METHOD);
@@ -213,6 +247,22 @@ namespace warnings.ui
                 GhostFactorComponents.configurationComponent.AddSupportedRefactoringTypes
                     (new[] {type});
             }
+        }
+
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void RefactoringWariningsForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

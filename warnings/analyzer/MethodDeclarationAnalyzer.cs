@@ -184,10 +184,10 @@ namespace warnings.analyzer
             // ATTENTION: foreach will throw null exception if it has nothing in it.
             foreach (ParameterSyntax para in parameters)
             {
-                // Need a new subList to copy out nodes, IEnumerable is a read only interface that will not copy out as new
-                // elements. To copy out as new elements, a list is needed.
-                // ATTENTION: cannot list.add(block.DecendantNodes()...), because if have multiple paras the previous added IEnumerable 
-                // will be rewrite.
+                // Need a new subList to copy out nodes, IEnumerable is a read only interface 
+                // that will not copy out as new elements. To copy out as new elements, a list is needed.
+                // ATTENTION: cannot list.add(block.DecendantNodes()...), because if have multiple paras the 
+                // previous added IEnumerable will be rewrite.
                 var sublist = new List<SyntaxNode>();
 
                 // Only able to retrieve the parameter usages if the method block exists.
@@ -281,7 +281,11 @@ namespace warnings.analyzer
             return analyzer.DumpTree();
         }
 
-        /* Update every return statements in the method declaration (if any), to return the specified symbol.*/
+        /// <summary>
+        /// Update every return statements in the method declaration (if any), to return the specified symbol.
+        /// </summary>
+        /// <param name="symbolName"></param>
+        /// <returns></returns>
         public SyntaxNode ChangeReturnValue(string symbolName)
         {
             // Create a return statement with the given symbol name.
@@ -320,11 +324,17 @@ namespace warnings.analyzer
 
             // Replace the existing return RefactoringType with a new one by the given RefactoringType name.
             return method.ReplaceNodes(new[] { method.ReturnType}, 
-                (n1, n2) => Syntax.ParseTypeName(typeName).WithTrailingTrivia(trailing).WithLeadingTrivia(leading));
+                (n1, n2) => Syntax.ParseTypeName(typeName).WithTrailingTrivia(trailing).WithLeadingTrivia
+                    (leading));
         }
 
 
-        /* Add parameters to the method declaration acccroding to the given RefactoringType-name tuples. <int, a>. */
+        /// <summary>
+        /// Add parameters to the method declaration acccroding to the given RefactoringType-name tuples. 
+        /// (int, a).
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         public SyntaxNode AddParameters(IEnumerable<Tuple<string, string>> parameters)
         {
             foreach (var tuple in parameters)

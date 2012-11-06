@@ -11,6 +11,8 @@ using warnings.refactoring;
 
 namespace warnings.components
 {
+    public delegate void SupportedRefactoringTypesChanged(IEnumerable<RefactoringType> currentTypes);
+
     /// <summary>
     /// Global configurations for GhostFactor.
     /// </summary>
@@ -26,7 +28,8 @@ namespace warnings.components
         {
             supportedTypes = new List<RefactoringType>();
         }
-    
+
+        public SupportedRefactoringTypesChanged supportedRefactoringTypesChangedEvent;
         private readonly List<RefactoringType> supportedTypes;
         private ISolution solution;
 
@@ -45,6 +48,7 @@ namespace warnings.components
                         supportedTypes.Add(type);
                     }
                 }
+                supportedRefactoringTypesChangedEvent(supportedTypes);
             }
         }
         
@@ -62,7 +66,8 @@ namespace warnings.components
                     {
                         supportedTypes.Remove(type);
                     }
-                } 
+                }
+                supportedRefactoringTypesChangedEvent(supportedTypes);
             }
         }
 

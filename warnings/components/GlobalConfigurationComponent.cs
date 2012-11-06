@@ -1,45 +1,92 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using BlackHen.Threading;
 using Roslyn.Compilers.CSharp;
+using Roslyn.Services;
 using warnings.conditions;
 using warnings.refactoring;
 
-namespace warnings.configuration
+namespace warnings.components
 {
     /// <summary>
     /// Global configurations for GhostFactor.
     /// </summary>
-    public class GlobalConfigurations
+    public class GlobalConfigurationComponent
     {
+        private static GlobalConfigurationComponent instance;
+        public static GlobalConfigurationComponent GetInstance()
+        {
+            return instance ?? (instance = new GlobalConfigurationComponent());
+        }
+
+        private GlobalConfigurationComponent()
+        {
+            supportedTypes = new List<RefactoringType>();
+        }
+    
+        private readonly List<RefactoringType> supportedTypes;
+        private ISolution solution;
+
+        /// <summary>
+        /// Add a supported refactoring type.
+        /// </summary>
+        /// <param name="type"></param>
+        public void AddSupportedRefactoringTypes(IEnumerable<RefactoringType> types)
+        {
+            lock (supportedTypes)
+            {
+                foreach (var type in types)
+                {
+                    if (!supportedTypes.Contains(type))
+                    {
+                        supportedTypes.Add(type);
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Remove a supported refactoring type.
+        /// </summary>
+        /// <param name="type"></param>
+        public void RemoveSupportedRefactoringTypes(IEnumerable<RefactoringType> types)
+        {
+            lock (supportedTypes)
+            {
+                foreach (var type in types)
+                {
+                    if (supportedTypes.Contains(type))
+                    {
+                        supportedTypes.Remove(type);
+                    }
+                } 
+            }
+        }
+
         /// <summary>
         /// Whether a given refactoring RefactoringType is supported by GhostFactor.
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static bool IsSupported(RefactoringType type)
+        public bool IsSupported(RefactoringType type)
         {
-            switch (type)
+            lock (supportedTypes)
             {
-                case RefactoringType.RENAME:
-                    return false;
-                case RefactoringType.EXTRACT_METHOD:
-                    return false;
-                case RefactoringType.CHANGE_METHOD_SIGNATURE:
-                    return false;
-                case RefactoringType.INLINE_METHOD:
-                    return true;
-                default:
-                    throw new Exception("Unknown Refactoring Type.");
+                return supportedTypes.Contains(type);
             }
         }
+
+       
+
 
         /// <summary>
         /// Get the time interval between two snapshots, in millisencond.
         /// </summary>
         /// <returns></returns>
-        public static int GetSnapshotTakingInterval()
+        public int GetSnapshotTakingInterval()
         {
             return 5000;
         }
@@ -49,13 +96,13 @@ namespace warnings.configuration
         /// used by the refactoring form. 
         /// </summary>
         /// <returns></returns>
-        public static int GetRefactoringWarningListUpdateInterval()
+        public int GetRefactoringWarningListUpdateInterval()
         {
             return 6000;
         }
 
 
-        public static bool ShutDown()
+        public bool ShutDown()
         {
             return false;
         }
@@ -66,7 +113,7 @@ namespace warnings.configuration
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        public static int GetSearchDepth(RefactoringType type)
+        public int GetSearchDepth(RefactoringType type)
         {
             switch (type)
             {
@@ -87,7 +134,7 @@ namespace warnings.configuration
         /// Get the number of maximum meaningful versions of a same source file.
         /// </summary>
         /// <returns></returns>
-        public static int GetHistoryRecordsMaximumLength()
+        public int GetHistoryRecordsMaximumLength()
         {
             return RefactoringTypeUtil.GetAllValidRefactoringTypes().
                 Select(GetSearchDepth).Max() + 10;
@@ -97,7 +144,7 @@ namespace warnings.configuration
         /// Get all refatoring types that are currently supported.
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<RefactoringType> GetSupportedRefactoringTypes()
+        public IEnumerable<RefactoringType> GetSupportedRefactoringTypes()
         {
             return RefactoringTypeUtil.GetAllValidRefactoringTypes().Where(IsSupported);
         }
@@ -107,10 +154,20 @@ namespace warnings.configuration
         /// iff the node met with at least one of the filters.
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<Predicate<SyntaxNode>> GetIssuedNodeFilters()
+        public IEnumerable<Predicate<SyntaxNode>> GetIssuedNodeFilters()
         {
             return GetSupportedRefactoringTypes().SelectMany(t => ConditionCheckingFactory.
                 GetConditionsListByRefactoringType(t).GetIssuedNodeFilters());
+        }
+
+        public void SetSolution(ISolution solution)
+        {
+            this.solution = solution;
+        }
+
+        public ISolution GetSolution()
+        {
+            return solution;
         }
     }
 }

@@ -10,7 +10,6 @@ using Roslyn.Compilers.CSharp;
 using Roslyn.Compilers.Common;
 using Roslyn.Services;
 using warnings.analyzer;
-using warnings.configuration;
 using warnings.refactoring;
 using warnings.source;
 using warnings.source.history;

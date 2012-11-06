@@ -11,7 +11,6 @@ using Roslyn.Services.Editor;
 using warnings.analyzer;
 using warnings.components.ui;
 using warnings.conditions;
-using warnings.configuration;
 using warnings.quickfix;
 using warnings.util;
 
@@ -85,15 +84,15 @@ namespace warnings.components
             queue.FailedWorkItem += OnItemFailed;
             logger = NLoggerUtil.GetNLogger(typeof (RefactoringCodeIssueComputersComponent));
             blackList = new CodeIssueComputersBlackList(5);
-            nodeFilter = GlobalConfigurations.GetIssuedNodeFilters();
+            nodeFilter = GhostFactorComponents.configurationComponent.GetIssuedNodeFilters();
             codeIssueComputersAddedEvent += OnCodeIssueComputersAdded;
         }
 
         /* When code issue computers are added, this method will be called. */
         private void OnCodeIssueComputersAdded(IEnumerable<ICodeIssueComputer> computers)
         {
-            var item = new GetSolutionRefactoringWarningsWorkItem(GlobalData.Solution, 
-                computers, AddGlobalWarnings);
+            var item = new GetSolutionRefactoringWarningsWorkItem(GhostFactorComponents.configurationComponent
+                .GetSolution(), computers, AddGlobalWarnings);
             queue.Add(item);
         }
 

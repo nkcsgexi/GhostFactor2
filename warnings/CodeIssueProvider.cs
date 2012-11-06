@@ -13,7 +13,6 @@ using Roslyn.Services.Editor;
 using Roslyn.Services.Host;
 using warnings.analyzer;
 using warnings.components;
-using warnings.configuration;
 using warnings.quickfix;
 using warnings.util;
 
@@ -25,7 +24,7 @@ namespace warnings
         public IEnumerable<CodeIssue> GetIssues(IDocument document, CommonSyntaxNode node, 
             CancellationToken cancellationToken)
         {
-            if (!GlobalConfigurations.ShutDown())
+            if (!GhostFactorComponents.configurationComponent.ShutDown())
             {
                 SetGlobalData(document);
 
@@ -39,7 +38,7 @@ namespace warnings
 
         private void SetGlobalData(IDocument document)
         {
-            GlobalData.Solution = document.Project.Solution;
+            GhostFactorComponents.configurationComponent.SetSolution(document.Project.Solution);
         }
 
 

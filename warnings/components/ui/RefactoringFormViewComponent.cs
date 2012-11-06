@@ -9,7 +9,6 @@ using BlackHen.Threading;
 using NLog;
 using Roslyn.Services;
 using Roslyn.Services.Editor;
-using warnings.configuration;
 using warnings.ui;
 using warnings.util;
 

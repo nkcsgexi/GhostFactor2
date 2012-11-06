@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using Roslyn.Compilers.CSharp;
 using Roslyn.Services;
-using warnings.configuration;
+using warnings.components;
 using warnings.util;
 
 namespace warnings.source.history
@@ -79,7 +79,8 @@ namespace warnings.source.history
                 dataSource.WriteData(sourcePath, source);
                 var record =  new CompilationUnitRecord(uniqueName, sourePath, time,
                     dataSource, this);
-                PruneStaleRecords(record, GlobalConfigurations.GetHistoryRecordsMaximumLength());
+                PruneStaleRecords(record, GhostFactorComponents.configurationComponent.
+                    GetHistoryRecordsMaximumLength());
                 return record;
             }
 

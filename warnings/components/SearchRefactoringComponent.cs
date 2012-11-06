@@ -6,7 +6,6 @@ using System.Text;
 using BlackHen.Threading;
 using NLog;
 using Roslyn.Services;
-using warnings.configuration;
 using warnings.refactoring;
 using warnings.refactoring.detection;
 using warnings.source;
@@ -138,8 +137,9 @@ namespace warnings.components
             private List<IExternalRefactoringDetector> GetActiveDetectors
                 (int lookBack)
             {
-                var validTypes = GlobalConfigurations.GetSupportedRefactoringTypes().
-                    Where(t => GlobalConfigurations.GetSearchDepth(t) > lookBack).ToList();
+                var validTypes = GhostFactorComponents.configurationComponent.GetSupportedRefactoringTypes().
+                    Where(t => GhostFactorComponents.configurationComponent.GetSearchDepth(t) 
+                        > lookBack).ToList();
                 return validTypes.Select(RefactoringDetectorFactory.
                     GetRefactoringDetectorByType).ToList();
             }

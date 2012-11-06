@@ -10,6 +10,7 @@ using NLog;
 using warnings.components;
 using warnings.components.ui;
 using warnings.conditions;
+using warnings.refactoring;
 using warnings.util;
 
 namespace warnings.ui
@@ -179,5 +180,39 @@ namespace warnings.ui
             refactoringCountLabel.Text = count.ToString();
         }
 
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void ExtractMethod_CheckedChanged(object sender, EventArgs e)
+        {
+            SetOnlySupportedRefactoringTypeIfRadioButtonChecked(sender, RefactoringType.EXTRACT_METHOD);
+        }
+
+        private void InlineMethod_CheckedChanged(object sender, EventArgs e)
+        {
+
+            SetOnlySupportedRefactoringTypeIfRadioButtonChecked(sender, RefactoringType.INLINE_METHOD);
+        }
+
+        private void ChangeSignature_CheckedChanged(object sender, EventArgs e)
+        {
+            SetOnlySupportedRefactoringTypeIfRadioButtonChecked(sender, RefactoringType.
+                CHANGE_METHOD_SIGNATURE);
+        }
+
+
+        private void SetOnlySupportedRefactoringTypeIfRadioButtonChecked(object sender, RefactoringType type)
+        {
+            var rb = sender as RadioButton;
+            if (rb != null && rb.Checked)
+            {
+                GhostFactorComponents.configurationComponent.RemoveSupportedRefactoringTypes
+                    (RefactoringTypeUtil.GetAllValidRefactoringTypes());
+                GhostFactorComponents.configurationComponent.AddSupportedRefactoringTypes
+                    (new[] {type});
+            }
+        }
     }
 }

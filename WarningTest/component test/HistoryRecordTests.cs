@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NLog;
-using warnings.configuration;
+using warnings.components;
 using warnings.source;
 using warnings.source.history;
 using warnings.util;
@@ -111,7 +111,7 @@ namespace WarningTest
         [TestMethod]
         public void TestMethod1()
         {
-            Assert.IsTrue(GlobalConfigurations.
+            Assert.IsTrue(GhostFactorComponents.configurationComponent.
                 GetHistoryRecordsMaximumLength() == 20);
         }
     }

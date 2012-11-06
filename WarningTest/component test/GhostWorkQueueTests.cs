@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using BlackHen.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using warnings.components;
 
 namespace WarningTest.component_test
 {
@@ -40,6 +41,12 @@ namespace WarningTest.component_test
         {
             var executor = new WorkItemSynchronizedExecutor(item, queue);
             executor.Execute();
+        }
+
+        [TestMethod]
+        public void TestMethod3()
+        {
+            Assert.IsFalse(GhostFactorComponents.configurationComponent.ShutDown());
         }
     }
 }

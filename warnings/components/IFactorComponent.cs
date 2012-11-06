@@ -9,8 +9,15 @@ using warnings.components.ui;
 
 namespace warnings.components
 {
-    public class GhostFactorComponents
+    public static class GhostFactorComponents
     {
+
+        /// <summary>
+        /// Component for handle configurations.
+        /// </summary>
+        public static readonly GlobalConfigurationComponent configurationComponent =
+            GlobalConfigurationComponent.GetInstance();
+
         /// <summary>
         /// Component for saving different version of source files.
         /// </summary>
@@ -39,7 +46,8 @@ namespace warnings.components
         /// <summary>
         /// Component for handling user interface related issues.
         /// </summary>
-        public static IUIComponent refactoringFormComponent = 
-            RefactoringFormViewComponent.GetInstance(); 
+        public static readonly IUIComponent refactoringFormComponent = 
+            RefactoringFormViewComponent.GetInstance();
+    
     }
 }

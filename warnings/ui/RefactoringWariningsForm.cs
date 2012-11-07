@@ -178,7 +178,10 @@ namespace warnings.ui
             refactoringWarningsListView.Invalidate();
         }
 
-        /* Set the text label indicates how many problematic refactorings are there. */
+        /// <summary>
+        /// Set the text label indicates how many problematic refactorings are there.
+        /// </summary>
+        /// <param name="count"></param>
         public void SetProblematicRefactoringsCount(int count)
         {
             refactoringCountLabel.Text = count.ToString();

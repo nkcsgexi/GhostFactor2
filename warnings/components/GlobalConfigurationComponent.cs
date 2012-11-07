@@ -125,7 +125,7 @@ namespace warnings.components
                 case RefactoringType.RENAME:
                     return 10;
                 case RefactoringType.EXTRACT_METHOD:
-                    return 10;
+                    return 30;
                 case RefactoringType.CHANGE_METHOD_SIGNATURE:
                     return 10;
                 case RefactoringType.INLINE_METHOD:

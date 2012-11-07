@@ -58,6 +58,7 @@ namespace warnings.components
 
         public void StartRefactoringSearch(ICodeHistoryRecord record, DocumentId documentId)
         {
+            queue.Clear();
             queue.Add(new SearchRefactoringWorkitem(record, documentId));
         }
 
@@ -106,6 +107,7 @@ namespace warnings.components
                             var detectedRefactorings = GetDetectRefactorings(currentDetectors);
                             if (detectedRefactorings.Any())
                             {
+                                logger.Info("Refactoring detected when looking back: " + lookBackCount);
                                 var detectedRefactoring = detectedRefactorings.First();
                                 detectedRefactoring.MetaData.DocumentId = documentId;
                                 detectedRefactoring.MetaData.DocumentUniqueName =

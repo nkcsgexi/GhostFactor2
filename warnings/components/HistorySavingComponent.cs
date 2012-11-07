@@ -25,10 +25,11 @@ namespace warnings.components
         void UpdateDocument(IDocument document);
     }
 
-    /* Component for recording new version of a source code file.*/
+    /// <summary>
+    /// Component for recording new version of a source code file.
+    /// </summary>
     public class HistorySavingComponent : IHistorySavingComponent
     {
-        /* Singleton the instance. */
         private static HistorySavingComponent instance = new HistorySavingComponent();
 
         public static IHistorySavingComponent GetInstance()
@@ -36,10 +37,14 @@ namespace warnings.components
             return instance;
         }
 
-        /* Internal work queue for handling all the tasks. */
+        /// <summary>
+        /// Internal work queue for handling all the tasks.
+        /// </summary>
         private readonly WorkQueue queue;
 
-        /* logger for the history saving component. */
+        /// <summary>
+        /// logger for the history saving component.
+        /// </summary>
         private readonly Logger logger;
 
         private HistorySavingComponent()
@@ -71,7 +76,9 @@ namespace warnings.components
 
         }
 
-        /* The work item supposed to added to HistorySavingComponent. */
+        /// <summary>
+        /// The work item supposed to added to HistorySavingComponent. 
+        /// </summary>
         private class HistorySavingWorkItem : TimableWorkItem
         {
             private static readonly SavedDocumentRecords records = new SavedDocumentRecords();
@@ -81,7 +88,11 @@ namespace warnings.components
             private readonly IDocument document;
             private readonly WorkOnDocumentChanged onWorkOnDocumentChanged;
 
-            /* Retrieve all the properties needed to save this new record. */
+            /// <summary>
+            /// Retrieve all the properties needed to save this new record.
+            /// </summary>
+            /// <param name="document"></param>
+            /// <param name="onWorkOnDocumentChanged"></param>
             internal HistorySavingWorkItem(IDocument document, WorkOnDocumentChanged onWorkOnDocumentChanged)
             {
                 this.document = document;
@@ -114,10 +125,11 @@ namespace warnings.components
                     StartRefactoringSearch(record, documentId);
             }
             
-            /* 
-             * This class records whether a newly coming document is an update from its previous version, 
-             * reducing the redundancy of saving multiple versions of same code.
-             */
+             
+             /// <summary>
+             /// This class records whether a newly coming document is an update from its previous version,  
+             /// reducing the redundancy of saving multiple versions of same code.
+             /// </summary>      
             private class SavedDocumentRecords
             {
                 /* Dictionary saves document id and its version number of its latest saved code.*/

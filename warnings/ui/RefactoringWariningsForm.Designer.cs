@@ -56,6 +56,7 @@ namespace warnings.ui
             this.ActiveSourceFile = new System.Windows.Forms.TextBox();
             this.SupportedRefactoringsListBox = new System.Windows.Forms.ListBox();
             this.Control = new System.Windows.Forms.GroupBox();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.panel1.SuspendLayout();
             this.Control.SuspendLayout();
             this.SuspendLayout();
@@ -76,7 +77,7 @@ namespace warnings.ui
             this.refactoringWarningsListView.TabIndex = 0;
             this.refactoringWarningsListView.UseCompatibleStateImageBehavior = false;
             this.refactoringWarningsListView.View = System.Windows.Forms.View.Details;
-            this.refactoringWarningsListView.SelectedIndexChanged += new System.EventHandler(this.RefactoringWarninglistViewSelectedIndexChanged);
+            
             this.refactoringWarningsListView.DoubleClick += new System.EventHandler(this.listView1_DoubleClicked);
             // 
             // File
@@ -143,7 +144,7 @@ namespace warnings.ui
             // 
             this.ExtractMethod.AutoSize = true;
             this.ExtractMethod.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ExtractMethod.Location = new System.Drawing.Point(22, 12);
+            this.ExtractMethod.Location = new System.Drawing.Point(22, 16);
             this.ExtractMethod.Name = "ExtractMethod";
             this.ExtractMethod.Size = new System.Drawing.Size(114, 20);
             this.ExtractMethod.TabIndex = 4;
@@ -156,7 +157,7 @@ namespace warnings.ui
             // 
             this.InlineMethod.AutoSize = true;
             this.InlineMethod.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.InlineMethod.Location = new System.Drawing.Point(23, 47);
+            this.InlineMethod.Location = new System.Drawing.Point(23, 42);
             this.InlineMethod.Name = "InlineMethod";
             this.InlineMethod.Size = new System.Drawing.Size(105, 20);
             this.InlineMethod.TabIndex = 5;
@@ -169,7 +170,7 @@ namespace warnings.ui
             // 
             this.ChangeSignature.AutoSize = true;
             this.ChangeSignature.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ChangeSignature.Location = new System.Drawing.Point(23, 82);
+            this.ChangeSignature.Location = new System.Drawing.Point(23, 65);
             this.ChangeSignature.Name = "ChangeSignature";
             this.ChangeSignature.Size = new System.Drawing.Size(133, 20);
             this.ChangeSignature.TabIndex = 6;
@@ -180,6 +181,7 @@ namespace warnings.ui
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.radioButton1);
             this.panel1.Controls.Add(this.InlineMethod);
             this.panel1.Controls.Add(this.ChangeSignature);
             this.panel1.Controls.Add(this.ExtractMethod);
@@ -249,6 +251,19 @@ namespace warnings.ui
             this.Control.TabStop = false;
             this.Control.Text = "Control";
             // 
+            // radioButton1
+            // 
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.radioButton1.Location = new System.Drawing.Point(24, 89);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(59, 20);
+            this.radioButton1.TabIndex = 7;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Text = "None";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            this.radioButton1.CheckedChanged += new System.EventHandler(this.onNoneRadioButtonCheckedChanged);
+            // 
             // RefactoringWariningsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -293,6 +308,7 @@ namespace warnings.ui
         private TextBox ActiveSourceFile;
         private ListBox SupportedRefactoringsListBox;
         private GroupBox Control;
+        private RadioButton radioButton1;
     }
 
 

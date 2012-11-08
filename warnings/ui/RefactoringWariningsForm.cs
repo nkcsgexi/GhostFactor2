@@ -63,10 +63,7 @@ namespace warnings.ui
             }
         }
 
-        private void RefactoringWarninglistViewSelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
+ 
        
         private ListViewItem CreateListViewItem(IEnumerable<string> messages, int imageIndex)
         {
@@ -239,6 +236,16 @@ namespace warnings.ui
                 CHANGE_METHOD_SIGNATURE);
         }
 
+        private void onNoneRadioButtonCheckedChanged(object sender, EventArgs e)
+        {
+            var rb = sender as RadioButton;
+            if (rb != null && rb.Checked)
+            {
+                GhostFactorComponents.configurationComponent.RemoveSupportedRefactoringTypes(
+                   RefactoringTypeUtil.GetAllValidRefactoringTypes());
+            }
+        }
+
 
         private void SetOnlySupportedRefactoringTypeIfRadioButtonChecked(object sender, RefactoringType type)
         {
@@ -267,5 +274,7 @@ namespace warnings.ui
         {
 
         }
+
+      
     }
 }

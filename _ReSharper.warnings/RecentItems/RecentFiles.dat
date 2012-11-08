@@ -1,7 +1,5 @@
 ﻿<RecentFiles>
   <RecentFiles>
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringQuickFix.cs" caret="0" fromTop="0" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:ChangedVariablesChecker.cs" caret="24563" fromTop="29" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:component test/f:GhostWorkQueueTests.cs" caret="1135" fromTop="42" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:history/f:CompilationUnitRecord.cs" caret="190" fromTop="7" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/f:CodeIssueProvider.cs" caret="1241" fromTop="23" />
@@ -13,10 +11,7 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:util/f:Converters.cs" caret="2453" fromTop="10" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:IFactorComponent.cs" caret="1346" fromTop="14" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:ConditionCheckingComponent.cs" caret="0" fromTop="0" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:HistorySavingComponent.cs" caret="3056" fromTop="13" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="2766" fromTop="85" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:RefactoringIssueComponent.cs" caret="0" fromTop="0" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringWariningsForm.cs" caret="3839" fromTop="24" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:extract method/f:InMethodExtractMethodDetector.cs" caret="0" fromTop="0" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:extract method/f:ExtractMethodDetector.cs" caret="0" fromTop="0" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:extract method/f:SimpleExtractMethodDetector.cs" caret="0" fromTop="0" />
@@ -29,7 +24,12 @@
     <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:WorkItemState.cs" caret="0" fromTop="0" />
     <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:WorkQueue.cs" caret="25404" fromTop="0" />
     <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:WorkThreadPool.cs" caret="11278" fromTop="0" />
-    <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:SynchronizedWorkItem.cs" caret="0" fromTop="0" />
+    <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:SynchronizedWorkItem.cs" caret="439" fromTop="15" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ChangeMethodSignature/f:UnupdatedMethodSignatureChecker.cs" caret="13627" fromTop="275" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:HistorySavingComponent.cs" caret="392" fromTop="14" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:RefactoringIssueComponent.cs" caret="0" fromTop="0" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringWariningsForm.cs" caret="2438" fromTop="29" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringWariningsForm.Designer.cs" caret="4193" fromTop="55" />
   </RecentFiles>
   <RecentEdits>
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:fakesource/d:studycases/f:ConsoleLibInlinebefore.txt" caret="3663" fromTop="30" />
@@ -37,7 +37,6 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:inline/f:InMethodInlineDetector.cs" caret="3084" fromTop="6" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/f:IRefactoringDetector.cs" caret="1815" fromTop="25" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:Rename/f:RenameConditionChecker.cs" caret="610" fromTop="19" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ChangeMethodSignature/f:UnupdatedMethodSignatureChecker.cs" caret="3223" fromTop="33" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ExtractMethodConditionChecker.cs" caret="1223" fromTop="27" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:InlineMethodConditionsChecker.cs" caret="1449" fromTop="27" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:VariableNamesChecker.cs" caret="504" fromTop="16" />
@@ -49,7 +48,6 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:SyntaxNodesAnalyzer.cs" caret="5943" fromTop="25" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:ChangedVariablesChecker.cs" caret="15673" fromTop="18" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringQuickFix.cs" caret="0" fromTop="0" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringWariningsForm.Designer.cs" caret="14915" fromTop="28" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:component test/f:GhostWorkQueueTests.cs" caret="1144" fromTop="48" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:history/f:CompilationUnitRecord.cs" caret="190" fromTop="7" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/f:CodeIssueProvider.cs" caret="1406" fromTop="27" />
@@ -57,10 +55,12 @@
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:component test/f:HistoryRecordTests.cs" caret="182" fromTop="6" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:MethodDeclarationAnalyzer.cs" caret="10810" fromTop="14" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/d:ui/f:RefactoringFormViewComponent.cs" caret="7821" fromTop="32" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringWariningsForm.cs" caret="7107" fromTop="40" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:IFactorComponent.cs" caret="1903" fromTop="13" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:HistorySavingComponent.cs" caret="2850" fromTop="9" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="3953" fromTop="28" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:SearchRefactoringComponent.cs" caret="2052" fromTop="27" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ChangeMethodSignature/f:UnupdatedMethodSignatureChecker.cs" caret="12919" fromTop="32" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:HistorySavingComponent.cs" caret="9446" fromTop="14" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringWariningsForm.cs" caret="2438" fromTop="29" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringWariningsForm.Designer.cs" caret="4193" fromTop="26" />
   </RecentEdits>
 </RecentFiles>

@@ -49,8 +49,7 @@ namespace warnings.components
 
         private HistorySavingComponent()
         {
-            this.queue = new WorkQueue();
-            this.queue.ConcurrentLimit = 1;
+            this.queue = new WorkQueue {ConcurrentLimit = 1};
             this.queue.FailedWorkItem += onFailedWorkItem;
             this.queue.CompletedWorkItem += onCompleteWorkItem;
             logger = NLoggerUtil.GetNLogger(typeof (HistorySavingComponent));            

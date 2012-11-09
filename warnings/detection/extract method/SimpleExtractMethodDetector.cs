@@ -12,11 +12,11 @@ using warnings.util;
 
 namespace warnings.detection
 {
-    /* 
-     * This is extract method detector whose purpose is to maximize efficiency. Algorithm adopted is simple: when a new method is
-     * added the the class, and an exsisting method is calling this new method. This new added method is likely an extraction from the
-     * original method.
-     */
+    /// <summary>
+    ///  This is extract method detector whose purpose is to maximize efficiency. Algorithm adopted is 
+    /// simple: when a new method is added the the class, and an exsisting method is calling this new method. 
+    /// This new added method is likely an extraction from the original method.
+    /// </summary>
     internal class SimpleExtractMethodDetector : IExternalRefactoringDetector
     {
         private readonly List<ManualRefactoring> refactorings;
@@ -204,15 +204,19 @@ namespace warnings.detection
                 return addedMethods;
             }
 
-            /*
-             * Get common methods in the method lists before and after, result in a list of SyntaxNode[]. Each SyntaxNode[] has
-             * two element, element at 0 is in the methodsBefore and element at 1 is in the methodsAfter.
-             */
+            /// <summary>
+            /// Get common methods in the method lists before and after, result in a list of SyntaxNode[]. 
+            /// Each SyntaxNode[] has two element, element at 0 is in the methodsBefore and element at 1 is 
+            /// in the methodsAfter.
+            /// </summary>
+            /// <param name="methodsBefore"></param>
+            /// <param name="methodsAfter"></param>
+            /// <returns></returns>
             private IEnumerable<SyntaxNode[]> GetCommonMethodPairs(IEnumerable<SyntaxNode> methodsBefore, 
                 IEnumerable<SyntaxNode> methodsAfter)
             {
-                return methodsBefore.Join(methodsAfter, GetMethodName, GetMethodName, (beforeMethod, afterMethod) => 
-                    new []{beforeMethod, afterMethod});
+                return methodsBefore.Join(methodsAfter, GetMethodName, GetMethodName, (beforeMethod, 
+                    afterMethod) => new []{beforeMethod, afterMethod});
             }
 
             private string GetMethodName(SyntaxNode method)

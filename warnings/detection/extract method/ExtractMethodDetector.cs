@@ -11,10 +11,10 @@ using warnings.util;
 
 namespace warnings.refactoring.detection
 {
-    /* 
-     * This is a detector for extract method refactoring. After setting the code before and after some time      
-     * interval, the detector should be able to tell whether there is a reafactoring performed. 
-     */
+    /// <summary>
+    /// This is a detector for extract method refactoring. After setting the code before and after some time      
+    /// interval, the detector should be able to tell whether there is a reafactoring performed. 
+    /// </summary>
     internal class ExtractMethodDetector : IExternalRefactoringDetector
     {
         private String before;
@@ -109,7 +109,9 @@ namespace warnings.refactoring.detection
             return refactorings;
         }
 
-        /* Extract method detector for same classes before and after. */
+        /// <summary>
+        /// Extract method detector for same classes before and after.
+        /// </summary>
         private class InClassExtractMethodDetector : IRefactoringDetector, 
             IBeforeAndAfterDocumentKeeper
         {

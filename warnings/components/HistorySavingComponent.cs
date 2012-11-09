@@ -52,7 +52,7 @@ namespace warnings.components
             this.queue = new WorkQueue {ConcurrentLimit = 1};
             this.queue.FailedWorkItem += onFailedWorkItem;
             this.queue.CompletedWorkItem += onCompleteWorkItem;
-            logger = NLoggerUtil.GetNLogger(typeof (HistorySavingComponent));            
+            logger = NLoggerUtil.GetNLogger(typeof (HistorySavingComponent));         
         }
 
 
@@ -60,6 +60,7 @@ namespace warnings.components
 
         public void UpdateDocument(IDocument newDoc)
         {
+            queue.Clear();
             queue.Add(new HistorySavingWorkItem(newDoc, OnWorkDocumentChanged));
         }
 

@@ -145,11 +145,9 @@ namespace warnings.refactoring.detection
                 // Get the first invocation of callee in the caller method body.
                 var invocation = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, 
                     (SyntaxTree) documentAfter.GetSyntaxTree()).First();
-
-                /* 
-                 * Flatten the caller after by replacing callee invocation with the code in the calle 
-                 * method body. 
-                 */
+ 
+                 //Flatten the caller after by replacing callee invocation with the code in the calle 
+                 //method body.                 
                 String callerAfterFlattenned = ASTUtil.FlattenMethodInvocation(callerAfter, 
                     calleeAfter, invocation);
 

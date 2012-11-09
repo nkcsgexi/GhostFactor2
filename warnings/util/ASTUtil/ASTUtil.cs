@@ -19,19 +19,6 @@ namespace warnings.util
             return SyntaxTree.ParseCompilationUnit(source);
         }
 
-        public static List<MethodDeclarationSyntax> GetAllMethodDeclarations(SyntaxTree tree)
-        {
-            SyntaxNode root = tree.GetRoot();
-            var methods = new List<MethodDeclarationSyntax>();
-            IEnumerable<SyntaxNode> ite = root.DescendantNodes();
-            foreach (SyntaxNode node in ite)
-            {
-                if (node.Kind == SyntaxKind.MethodDeclaration)
-                    methods.Add((MethodDeclarationSyntax)node);
-            }
-            return methods;
-        }
-
         public static SyntaxNode GetBlockOfMethod(SyntaxNode method)
         {
             return method.DescendantNodes().FirstOrDefault(n => n.Kind == SyntaxKind.Block);
@@ -76,14 +63,16 @@ namespace warnings.util
         }
 
         /* Flatten the caller by replacing a invocation of the callee with the code in the callee. */
-        public static String FlattenMethodInvocation(SyntaxNode caller, SyntaxNode callee, SyntaxNode invocation)
+        public static String FlattenMethodInvocation(SyntaxNode caller, SyntaxNode callee, SyntaxNode 
+            invocation)
         {
             // Get the statements in the callee method body except the return statement;
             var statements = GetStatementsInNode(GetBlockOfMethod(callee))
                 .Where(s => !(s is ReturnStatementSyntax));
 
             // Combine the statements into one string;
-            String replacer = StringUtil.ConcatenateAll("", statements.Select(s => s.GetFullText()).ToArray());
+            String replacer = StringUtil.ConcatenateAll("", statements.Select(s => s.GetFullText()).
+                ToArray());
             
             String callerString = caller.GetFullText();
             

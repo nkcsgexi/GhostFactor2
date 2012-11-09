@@ -33,7 +33,8 @@ namespace warnings.util
         {
             this.source = source;
             this.tree = ASTUtil.GetSyntaxTreeFromSource(source);
-            methods = ASTUtil.GetAllMethodDeclarations(tree);
+            methods = ASTUtil.GetMethodsDeclarations(tree.GetRoot()).Select(n => (MethodDeclarationSyntax)n).
+                ToList();
             blocks = new List<string>();
             methodNames = new List<string>();
             foreach (MethodDeclarationSyntax method in methods)
@@ -77,7 +78,5 @@ namespace warnings.util
         {
             return getMethodBodiesCount() > 0;
         }
-
-
     }
 }

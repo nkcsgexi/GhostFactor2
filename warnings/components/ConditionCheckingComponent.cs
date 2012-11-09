@@ -17,7 +17,9 @@ namespace warnings.components
         void CheckRefactoringCondition(ManualRefactoring refactoring);
     }
 
-    /* The component to handle condition checkings for all the refactoring types. */
+    /// <summary>
+    ///  The component to handle condition checkings for all the refactoring types.
+    /// </summary>
     internal class ConditionCheckingComponent : IConditionCheckingComponent
     {
         private static IConditionCheckingComponent instance = new ConditionCheckingComponent();
@@ -63,7 +65,9 @@ namespace warnings.components
             queue.Add(new ConditionCheckWorkItem(refactoring));
         }
 
-        /* The work item to be pushed to the condition checking component. */
+        /// <summary>
+        /// The work item to be pushed to the condition checking component.
+        /// </summary>
         private class ConditionCheckWorkItem : TimableWorkItem
         {
             // The refactoring instance from detector. 
@@ -93,8 +97,6 @@ namespace warnings.components
             }
         }
     }
-
-    
 }
 
 

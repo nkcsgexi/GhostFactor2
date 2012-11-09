@@ -13,7 +13,9 @@ using warnings.util;
 
 namespace warnings.analyzer
 {
-    /* Analyzer for a method declaration. */
+    /// <summary>
+    /// Analyzer for a method declaration.
+    /// </summary>
     public interface IMethodDeclarationAnalyzer
     {
         void SetMethodDeclaration(SyntaxNode method);
@@ -47,25 +49,8 @@ namespace warnings.analyzer
 
     internal class MethodDeclarationAnalyzer : IMethodDeclarationAnalyzer
     {
-        private static int ANALYZER_COUNT = 0;
-
-        public static int GetCount()
-        {
-            return ANALYZER_COUNT;
-        }
-
         private MethodDeclarationSyntax method;
         private Logger logger = NLoggerUtil.GetNLogger(typeof(MethodDeclarationAnalyzer));
-
-        internal MethodDeclarationAnalyzer()
-        {
-            Interlocked.Increment(ref ANALYZER_COUNT);
-        }
-
-        ~MethodDeclarationAnalyzer()
-        {
-            Interlocked.Decrement(ref ANALYZER_COUNT);
-        }
 
         public void SetMethodDeclaration(SyntaxNode method)
         {
@@ -77,7 +62,10 @@ namespace warnings.analyzer
             return method.Identifier;
         }
 
-        /* Get fully qualified name of this method. */
+        /// <summary>
+        /// Get fully qualified name of this method. 
+        /// </summary>
+        /// <returns></returns>
         public string GetQualifiedName()
         {
             // Get the qualified name of the RefactoringType containing this method.
@@ -100,7 +88,12 @@ namespace warnings.analyzer
             return statements.OrderBy(n => n.Span.Start).AsEnumerable();
          }
 
-        /* Get a subset of all the containing statements, start and end index are inclusive. */
+        /// <summary>
+        /// Get a subset of all the containing statements, start and end index are inclusive. 
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
         public IEnumerable<SyntaxNode> GetStatementsByIndexRange(int start, int end)
         {
             var statements = GetStatements();
@@ -340,8 +333,8 @@ namespace warnings.analyzer
             foreach (var tuple in parameters)
             {
                 // Create parameters according to the corrent tuple.
-                var parameter = Syntax.Parameter(Syntax.List<AttributeDeclarationSyntax>(), Syntax.TokenList(), 
-                    Syntax.ParseTypeName(tuple.Item1).WithTrailingTrivia(Syntax.Whitespace(" ")), 
+                var parameter = Syntax.Parameter(Syntax.List<AttributeDeclarationSyntax>(), Syntax.
+                    TokenList(), Syntax.ParseTypeName(tuple.Item1).WithTrailingTrivia(Syntax.Whitespace(" ")), 
                         Syntax.ParseToken(tuple.Item2), null);
                 
                 // Add the parameters to the method declaration.

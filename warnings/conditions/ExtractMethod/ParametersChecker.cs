@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Media;
 using NLog;
+using Roslyn.Compilers;
 using Roslyn.Compilers.CSharp;
 using Roslyn.Compilers.Common;
 using Roslyn.Services;
@@ -21,7 +22,10 @@ namespace warnings.conditions
 {
     internal partial class ExtractMethodConditionsList
     {
-        /* This checker is checking whether the extracted method has taken enough or more than enough parameters than actual need. */
+        /// <summary>
+        /// This checker is checking whether the extracted method has taken enough or more than enough 
+        /// parameters than actual need.
+        /// </summary>
         private class ParametersChecker : ExtractMethodConditionChecker
         {
             private Logger logger = NLoggerUtil.GetNLogger(typeof (ParametersChecker));
@@ -42,12 +46,14 @@ namespace warnings.conditions
                 // Calculate the needed typeNameTuples, depending on what to extract.
                 IEnumerable<ISymbol> needed;
                 if (input.ExtractedStatements != null)
-                    needed = ConditionCheckersUtils.GetUsedButNotDeclaredData(input.ExtractedStatements, before);
+                    needed = ConditionCheckersUtils.GetUsedButNotDeclaredData(input.ExtractedStatements, 
+                        before);
                 else
                     needed = ConditionCheckersUtils.GetFlowInData(input.ExtractedExpression, before);
 
                 // Logging the needed typeNameTuples.
-                logger.Info("Needed typeNameTuples: " + StringUtil.ConcatenateAll(",", needed.Select(s => s.Name)));
+                logger.Info("Needed typeNameTuples: " + StringUtil.ConcatenateAll(",", needed.Select(s => 
+                    s.Name)));
 
                 // Calculate the used symbols in the method declaration.
                 var expressionDataFlowAnalyzer = AnalyzerFactory.GetExpressionDataFlowAnalyzer();
@@ -56,9 +62,11 @@ namespace warnings.conditions
                 var used = expressionDataFlowAnalyzer.GetFlowInData();
 
                 // Logging the used typeNameTuples.
-                logger.Info("Used typeNameTuples: " + StringUtil.ConcatenateAll(",", used.Select(s => s.Name)));
+                logger.Info("Used typeNameTuples: " + StringUtil.ConcatenateAll(",", used.Select(s => 
+                    s.Name)));
 
-                // Calculate the missing symbols and the extra symbols, also, trivial to show 'this' so remove.
+                // Calculate the missing symbols and the extra symbols, also, trivial to show 'this' so 
+                // remove.
                 var missing = ConditionCheckersUtils.RemoveThisSymbol(
                     ConditionCheckersUtils.GetSymbolListExceptByName(needed, used));
 
@@ -76,7 +84,9 @@ namespace warnings.conditions
                 }
             }
 
-            /* Code issue computer for parameter checking results. */
+            /// <summary>
+            /// Code issue computer for parameter checking results.
+            /// </summary>
             private class ParameterCheckingCodeIssueComputer : SingleDocumentValidCodeIssueComputer
             {
                 /* Declaration of the extracted method. */
@@ -110,47 +120,74 @@ namespace warnings.conditions
                         // If the given node is the declaration, return a new issue.
                         if (methodNameComparer.Compare(node, declaration) == 0)
                         {
-                            yield return new CodeIssue(CodeIssue.Severity.Error, node.Span,
-                                "Missing parameters: " + StringUtil.ConcatenateAll(",", typeNameTuples.Select(n => n.Item2)),
-                                    new ICodeAction[] { new AddParamterCodeAction(document, declaration, typeNameTuples, this) });
+                            // For each type name tuple, generate one issue with it.
+                            return typeNameTuples.Select(t => GetMissingParameterIssue(document, node, t));
                         }
                     }
+                    return Enumerable.Empty<CodeIssue>();
                 }
+
+                private CodeIssue GetMissingParameterIssue(IDocument document, SyntaxNode node, 
+                    Tuple<string, string> typeNameTuple)
+                {
+                    return new CodeIssue(CodeIssue.Severity.Error, node.Span, "Missing parameter: " +
+                      typeNameTuple.Item2, new ICodeAction[] {new AddParamterCodeAction(document, node,
+                          typeNameTuple, this)});
+                }
+
 
                 public override bool Equals(ICodeIssueComputer o)
                 {
                     if (IsIssuedToSameDocument(o))
                     {
+                        var another = o as ParameterCheckingCodeIssueComputer;
+
                         // If the other is not in the same RefactoringType, return false
-                        if (o is ParameterCheckingCodeIssueComputer)
+                        if (another != null)
                         {
                             var other = (ParameterCheckingCodeIssueComputer) o;
-                            var methodsComparator = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+                            var methodsComparator = RefactoringDetectionUtils.
+                                GetMethodDeclarationNameComparer();
 
-                            // If the method declarations are equal to each other.
-                            return methodsComparator.Compare(declaration, other.declaration) == 0;
+                            // If the method declarations are equal to each other, compare the missing 
+                            // parameters.
+                            if(methodsComparator.Compare(declaration, other.declaration) == 0)
+                            {
+                                // First get the equality comparer of two string tuples.
+                                var tupleComparer = RefactoringDetectionUtils.
+                                    GetStringTuplesEqualityComparer();
+
+                                // Next get the equality comparer of two sets.
+                                var setsComparer = new SetsEqualityCompare<Tuple<string, string>>
+                                    (tupleComparer);
+                                return setsComparer.Equals(typeNameTuples, another.typeNameTuples);
+                            }
                         }
                     }
                     return false;
                 }
 
+                /// <summary>
+                /// Code action for adding a single one parameter.
+                /// </summary>
                 private class AddParamterCodeAction : ICodeAction
                 {
-                    private readonly IEnumerable<Tuple<string, string>> typeNameTuples;
+                    private readonly Tuple<string, string> typeNameTuple;
                     private readonly SyntaxNode declaration;
                     private readonly IDocument document;
                     private readonly ICodeIssueComputer computer;
 
                     internal AddParamterCodeAction(IDocument document, SyntaxNode declaration, 
-                        IEnumerable<Tuple<string, string>> typeNameTuples, ICodeIssueComputer computer)
+                        Tuple<string, string> typeNameTuple, ICodeIssueComputer computer)
                     {
                         this.document = document;
-                        this.typeNameTuples = typeNameTuples;
+                        this.typeNameTuple = typeNameTuple;
                         this.declaration = declaration;
                         this.computer = computer;
                     }
 
-                    public CodeActionEdit GetEdit(CancellationToken cancellationToken = new CancellationToken())
+                    public CodeActionEdit GetEdit(CancellationToken cancellationToken = new 
+                        CancellationToken())
                     {
                         var updatedDocument = updateMethodDeclaration(document);
                         updatedDocument = updateMethodInvocations(updatedDocument);
@@ -167,7 +204,7 @@ namespace warnings.conditions
 
                     public string Description
                     {
-                        get { return "Add paramters " + StringUtil.ConcatenateAll(",", typeNameTuples.Select(t => t.Item2)); }
+                        get { return "Add paramters " + typeNameTuple.Item2; }
                     }
 
                     private IDocument updateMethodDeclaration(IDocument document)
@@ -195,27 +232,32 @@ namespace warnings.conditions
                             // Get the updated method declaration.
                             var methodAnalyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
                             methodAnalyzer.SetMethodDeclaration(method);
-                            var updatedMethod = methodAnalyzer.AddParameters(typeNameTuples);
+                            var updatedMethod = methodAnalyzer.AddParameters(new[] {typeNameTuple});
 
                             // Update the root, document and finally return the code action.
-                            var updatedRoot = new MethodDeclarationRewriter(method, updatedMethod).Visit(root);
+                            var updatedRoot = new MethodDeclarationRewriter(method, updatedMethod).
+                                Visit(root);
                             return document.UpdateSyntaxRoot(updatedRoot);
                         }
                         return document;
                     }
 
-                    /* Sytnax writer to change a method to an updated one. */
+                    /// <summary>
+                    /// Sytnax writer to change a method to an updated one.
+                    /// </summary>
                     private class MethodDeclarationRewriter : SyntaxRewriter
                     {
                         private readonly SyntaxNode originalMethod;
                         private readonly SyntaxNode updatedMethod;
                         private readonly IComparer<SyntaxNode> methodNameComparer; 
 
-                        internal MethodDeclarationRewriter(SyntaxNode originalMethod, SyntaxNode updatedMethod)
+                        internal MethodDeclarationRewriter(SyntaxNode originalMethod, SyntaxNode 
+                            updatedMethod)
                         {
                             this.originalMethod = originalMethod;
                             this.updatedMethod = updatedMethod;
-                            this.methodNameComparer = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+                            this.methodNameComparer = RefactoringDetectionUtils.
+                                GetMethodDeclarationNameComparer();
                         }
 
                         public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
@@ -229,7 +271,11 @@ namespace warnings.conditions
                         }
                     }
 
-                    /* Update all the method invocations in the solution. */
+                    /// <summary>
+                    /// Update all the method invocations in the solution. 
+                    /// </summary>
+                    /// <param name="document"></param>
+                    /// <returns></returns>
                     private IDocument updateMethodInvocations(IDocument document)
                     {
                         // Get the retriever for method invocations.
@@ -246,8 +292,8 @@ namespace warnings.conditions
                         {
                             // Update root
                             var root = (SyntaxNode) document.GetSyntaxRoot();
-                            var updatedRoot = new InvocationsAddArgumentsRewriter(invocations, typeNameTuples.Select(t => t.Item2)).
-                                Visit(root);
+                            var updatedRoot = new InvocationsAddArgumentsRewriter(invocations, 
+                                typeNameTuple.Item2).Visit(root);
 
                             // Update solution by update the document.
                             document = document.UpdateSyntaxRoot(updatedRoot);
@@ -255,18 +301,20 @@ namespace warnings.conditions
                         return document;
                     }
 
-                    // Syntax rewriter for adding arguments to given method invocations.
+                    /// <summary>
+                    /// Syntax rewriter for adding arguments to given method invocations.
+                    /// </summary>
                     private class InvocationsAddArgumentsRewriter : SyntaxRewriter
                     {
-                        private readonly IEnumerable<string> addedArguments;
+                        private readonly string addedArgument;
                         private readonly IEnumerable<SyntaxNode> invocations;
                         private readonly IMethodInvocationAnalyzer analyzer;
 
                         internal InvocationsAddArgumentsRewriter(IEnumerable<SyntaxNode> invocations,
-                                                                 IEnumerable<string> addedArguments)
+                            string addedArgument)
                         {
                             this.invocations = invocations;
-                            this.addedArguments = addedArguments;
+                            this.addedArgument = addedArgument;
                             this.analyzer = AnalyzerFactory.GetMethodInvocationAnalyzer();
                         }
 
@@ -275,7 +323,7 @@ namespace warnings.conditions
                             if (invocations.Any(i => ASTUtil.AreSyntaxNodesSame(i, node)))
                             {
                                 analyzer.SetMethodInvocation(node);
-                                return analyzer.AddArguments(addedArguments);
+                                return analyzer.AddArguments(new[] {addedArgument});
                             }
                             return node;
                         }

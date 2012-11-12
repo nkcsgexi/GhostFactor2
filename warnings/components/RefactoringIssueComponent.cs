@@ -161,7 +161,9 @@ namespace warnings.components
 
 
 
-        /* Work item to add new issue computers to the repository. */
+        /// <summary>
+        /// Work item to add new issue computers to the repository.
+        /// </summary>
         private class AddCodeIssueComputersWorkItem : WorkItem
         {
             private readonly IList<ICodeIssueComputer> currentComputers;
@@ -208,7 +210,9 @@ namespace warnings.components
             }
         }
 
-        /* Work item to remove computers from the given computer list. */
+        /// <summary>
+        /// Work item to remove computers from the given computer list.
+        /// </summary>
         private class RemoveCodeIssueComputersWorkItem: WorkItem
         {
             private readonly IList<ICodeIssueComputer> currentComputers;
@@ -235,10 +239,7 @@ namespace warnings.components
             {
                 foreach (ICodeIssueComputer computer in toRemoveComputers)
                 {
-                    if(!currentComputers.Remove(computer))
-                    {
-                        logger.Fatal("Cannot remove a code issue computer.");
-                    }
+                    currentComputers.Remove(computer);
 
                     // Add the removed computer to the black list.
                     blackList.Add(computer);
@@ -251,7 +252,9 @@ namespace warnings.components
             }
         }
 
-        /* Work item for getting code issues in a given syntax node. */
+        /// <summary>
+        /// Work item for getting code issues in a given syntax node. 
+        /// </summary>
         private class GetDocumentNodeCodeIssueWorkItem : WorkItem
         {
             private readonly IDocument document;
@@ -285,10 +288,10 @@ namespace warnings.components
             }
         }
 
-        /* 
-         * Work item for getting all the refactoring addWarningsEvent in a given solution 
-         * and a set of computers to add element to the refactoring warning window.
-         */
+        /// <summary>
+        /// Work item for getting all the refactoring addWarningsEvent in a given solution 
+        /// and a set of computers to add element to the refactoring warning window.
+        /// </summary>
         private class GetSolutionRefactoringWarningsWorkItem : WorkItem
         {
             private readonly IEnumerable<ICodeIssueComputer> computers;

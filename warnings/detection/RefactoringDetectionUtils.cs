@@ -65,6 +65,22 @@ namespace warnings.refactoring.detection
              }
          }
 
+        /// <summary>
+        /// Equality comparer for tuples of two strings.
+        /// </summary>
+        private class StringTupleEqualityComparer : IEqualityComparer<Tuple<string,string>>
+        {
+            public bool Equals(Tuple<string, string> x, Tuple<string, string> y)
+            {
+                return x.Item1.Equals(y.Item1) && x.Item2.Equals(y.Item2);
+            }
+
+            public int GetHashCode(Tuple<string, string> obj)
+            {
+                return 1;
+            }
+        }
+
         public static IComparer<SyntaxNode> GetClassDeclarationNameComparer()
         {
             return new ClassNameComparer();
@@ -80,7 +96,19 @@ namespace warnings.refactoring.detection
             return new NodeOutsideTypeComparer();
         }
 
-        /* Get the common node pairs in before and after set of nodes. */
+        public static IEqualityComparer<Tuple<string, string>> GetStringTuplesEqualityComparer()
+        {
+            return new StringTupleEqualityComparer();
+        }
+
+
+        /// <summary>
+        /// Get the common node pairs in before and after set of nodes.
+        /// </summary>
+        /// <param name="beforeNodes"></param>
+        /// <param name="afterNodes"></param>
+        /// <param name="comparer"></param>
+        /// <returns></returns>
         public static IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetCommonNodePairs
                 (IEnumerable<SyntaxNode> beforeNodes, IEnumerable<SyntaxNode> afterNodes, 
                     IComparer<SyntaxNode> comparer)

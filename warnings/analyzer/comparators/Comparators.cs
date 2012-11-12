@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -58,6 +59,34 @@ namespace warnings.analyzer.comparators
             if(s1.Equals(s2))
                 return 0;
             return 1;
+        }
+    }
+
+    /// <summary>
+    /// Given two sets of elements, compare the elements in both sets by using the specified
+    /// equality comparer.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class SetsEqualityCompare<T> : IEqualityComparer<IEnumerable<T>>
+    {
+        private readonly IEqualityComparer<T> elementEqualityComparer;
+
+        public SetsEqualityCompare(IEqualityComparer<T> elementEqualityComparer)
+        {
+            this.elementEqualityComparer = elementEqualityComparer;
+        }
+
+
+        public bool Equals(IEnumerable<T> x, IEnumerable<T> y)
+        {
+            var added = x.Except(y, elementEqualityComparer);
+            var missing = y.Except(x, elementEqualityComparer);
+            return !added.Any() && !missing.Any();
+        }
+
+        public int GetHashCode(IEnumerable<T> obj)
+        {
+            return 0;
         }
     }
 }

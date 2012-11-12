@@ -103,7 +103,8 @@ namespace warnings.conditions
 
 
         /* Given a set of statements, get the symbols that are flowed out. */
-        public static IEnumerable<ISymbol> GetFlowOutData(IEnumerable<SyntaxNode> statements, IDocument document)
+        public static IEnumerable<ISymbol> GetFlowOutData(IEnumerable<SyntaxNode> statements, IDocument 
+            document)
         {
             var analyzer = AnalyzerFactory.GetStatementsDataFlowAnalyzer();
             analyzer.SetStatements(statements);
@@ -125,7 +126,11 @@ namespace warnings.conditions
             return false;
         }
 
-        /* Get the statement that is enclosing the given node. */
+        /// <summary>
+        /// Get the statement that is enclosing the given node.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         public static SyntaxNode GetStatementEnclosingNode(SyntaxNode node)
         {
             var analyzer = AnalyzerFactory.GetSyntaxNodeAnalyzer();
@@ -147,9 +152,11 @@ namespace warnings.conditions
                 this.computer = computer;
             }
 
-            public void Apply(IWorkspace workspace, CancellationToken cancellationToken = new CancellationToken())
+            public void Apply(IWorkspace workspace, CancellationToken cancellationToken = new 
+                CancellationToken())
             {
-                GhostFactorComponents.RefactoringCodeIssueComputerComponent.RemoveCodeIssueComputers(new[] {computer});
+                GhostFactorComponents.RefactoringCodeIssueComputerComponent.RemoveCodeIssueComputers(new[] 
+                {computer});
             }
 
             public object GetPreview(CancellationToken cancellationToken = new CancellationToken())

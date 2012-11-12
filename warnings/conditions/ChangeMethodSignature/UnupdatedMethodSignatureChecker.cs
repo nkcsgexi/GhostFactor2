@@ -12,6 +12,7 @@ using warnings.analyzer;
 using warnings.analyzer.comparators;
 using warnings.quickfix;
 using warnings.refactoring;
+using warnings.refactoring.detection;
 using warnings.resources;
 using warnings.retriever;
 using warnings.util;
@@ -40,7 +41,7 @@ namespace warnings.conditions
                 get { return RefactoringType.CHANGE_METHOD_SIGNATURE; }
             }
 
-            public ICodeIssueComputer CheckCondition(ManualRefactoring input)
+            public IConditionCheckingResult CheckCondition(ManualRefactoring input)
             {
                 var signatureRefactoring = (IChangeMethodSignatureRefactoring) input;
                 return new UnchangedMethodInvocationComputer(((IChangeMethodSignatureRefactoring) input).
@@ -69,7 +70,12 @@ namespace warnings.conditions
                     this.mappings = mappings;
                 }
 
-            
+
+                public override bool IsIssueResolved(ICorrectRefactoringResult correctRefactoringResult)
+                {
+                    throw new NotImplementedException();
+                }
+
                 public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
                 {
                     return ((SyntaxNode)document.GetSyntaxRoot()).DescendantNodes().
@@ -87,7 +93,7 @@ namespace warnings.conditions
                         {
                             yield return new CodeIssue(CodeIssue.Severity.Error, node.Span, 
                                 "Method invocation needs update.",
-                                // With the code action of change this signature with correct arguments order
+                                // With the code action of change this signature with singleDocumentCorrect arguments order
                                 new ICodeAction[]{ new CorrectAllSignaturesInSolution(document, declaration, 
                                     mappings, this)
                                 });
@@ -124,7 +130,7 @@ namespace warnings.conditions
                         var other = o as UnchangedMethodInvocationComputer;
                         if (other != null)
                         {
-                            var comparator = new MethodsComparator();
+                            var comparator = new MethodNameComparer();
                             return comparator.Compare(declaration, other.declaration) == 0;
                         }
                     }
@@ -134,6 +140,11 @@ namespace warnings.conditions
                 public override RefactoringType RefactoringType
                 {
                     get { return RefactoringType.CHANGE_METHOD_SIGNATURE; }
+                }
+
+                public override RefactoringConditionType RefactoringConditionType
+                {
+                    get { return RefactoringConditionType.CHANGE_METHOD_SIGNATURE_UNUPDATED; }
                 }
             }
 
@@ -293,6 +304,11 @@ namespace warnings.conditions
                         return visitedInvocation;
                     }
                 }
+            }
+
+            public RefactoringConditionType RefactoringConditionType 
+            { 
+                get { return RefactoringConditionType.CHANGE_METHOD_SIGNATURE_UNUPDATED;}
             }
         }
     }

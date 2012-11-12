@@ -10,6 +10,7 @@ using Roslyn.Compilers.Common;
 using Roslyn.Services;
 using Roslyn.Services.Editor;
 using warnings.analyzer;
+using warnings.analyzer.comparators;
 using warnings.refactoring;
 using warnings.refactoring.detection;
 using warnings.resources;
@@ -28,8 +29,8 @@ namespace warnings.conditions
                 return n => n is StatementSyntax;
             }
 
-            public override ICodeIssueComputer CheckInlineMethodCondition(
-                IInlineMethodRefactoring refactoring)
+            public override IConditionCheckingResult CheckInlineMethodCondition(IInlineMethodRefactoring 
+                refactoring)
             {
                 var before = refactoring.BeforeDocument;
                 var after = refactoring.AfterDocument;
@@ -67,10 +68,14 @@ namespace warnings.conditions
                             refactoring.InlinedStatementsInMethodAfter,
                                 addedSymbols, missingSymbols, refactoring.MetaData);
                 }
-                return new NullCodeIssueComputer();
+                return new SingleDocumentCorrectRefactoringResult(refactoring, RefactoringConditionType);
             }
 
-    
+            public override RefactoringConditionType RefactoringConditionType
+            {
+                get { return RefactoringConditionType.INLINE_METHOD_MODIFIED_DATA;}
+            }
+
 
             private sealed class ModifiedFlowOutDataIssueComputer : SingleDocumentValidCodeIssueComputer
             {
@@ -119,9 +124,20 @@ namespace warnings.conditions
                     return false;
                 }
 
+
                 public override RefactoringType RefactoringType
                 {
                     get { return RefactoringType.INLINE_METHOD; }
+                }
+
+                public override RefactoringConditionType RefactoringConditionType
+                {
+                    get { return RefactoringConditionType.INLINE_METHOD_MODIFIED_DATA;}
+                }
+
+                public override bool IsIssueResolved(ICorrectRefactoringResult correctRefactoringResult)
+                {
+                    throw new NotImplementedException();
                 }
 
                 public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
@@ -319,7 +335,7 @@ namespace warnings.conditions
                     private SyntaxNode FindCurrentMethod(SyntaxNode root, SyntaxNode method)
                     {
                         var methods = ASTUtil.GetMethodsDeclarations(root);
-                        var comparer = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+                        var comparer = new MethodNameComparer();
                         return methods.First(m => comparer.Compare(m, method) == 0);
                     }
 

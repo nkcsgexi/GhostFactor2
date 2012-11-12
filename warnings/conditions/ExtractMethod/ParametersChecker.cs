@@ -35,7 +35,7 @@ namespace warnings.conditions
                 return n => n.Kind == SyntaxKind.MethodDeclaration;
             }
 
-            protected override ICodeIssueComputer CheckCondition(
+            protected override IConditionCheckingResult CheckCondition(
                 IManualExtractMethodRefactoring input)
             {
                 var before = input.BeforeDocument;
@@ -77,17 +77,21 @@ namespace warnings.conditions
                     return new ParameterCheckingCodeIssueComputer(input.ExtractedMethodDeclaration,
                         ConditionCheckersUtils.GetTypeNameTuples(missing), input.MetaData);
                 }
-                else
-                {
-                    // Otherwise, return no problem.
-                    return new NullCodeIssueComputer();
-                }
+             
+                // Otherwise, return no problem.
+                return new SingleDocumentCorrectRefactoringResult(input, this.RefactoringConditionType);
+            }
+
+            public override RefactoringConditionType RefactoringConditionType
+            {
+                get { return RefactoringConditionType.EXTRACT_METHOD_PARAMETER; }
             }
 
             /// <summary>
             /// Code issue computer for parameter checking results.
             /// </summary>
-            private class ParameterCheckingCodeIssueComputer : SingleDocumentValidCodeIssueComputer
+            private class ParameterCheckingCodeIssueComputer : SingleDocumentValidCodeIssueComputer,
+                IUpdatableCodeIssueComputer
             {
                 /* Declaration of the extracted method. */
                 private SyntaxNode declaration;
@@ -103,7 +107,12 @@ namespace warnings.conditions
                 {
                     this.declaration = declaration;
                     this.typeNameTuples = typeNameTuples;
-                    this.methodNameComparer = RefactoringDetectionUtils.GetMethodDeclarationNameComparer();
+                    this.methodNameComparer = new MethodNameComparer();
+                }
+
+                public override bool IsIssueResolved(ICorrectRefactoringResult correctRefactoringResult)
+                {
+                    throw new NotImplementedException();
                 }
 
                 public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
@@ -146,22 +155,40 @@ namespace warnings.conditions
                         if (another != null)
                         {
                             var other = (ParameterCheckingCodeIssueComputer) o;
-                            var methodsComparator = RefactoringDetectionUtils.
-                                GetMethodDeclarationNameComparer();
+                            var methodsComparator = new MethodNameComparer();
 
                             // If the method declarations are equal to each other, compare the missing 
                             // parameters.
                             if(methodsComparator.Compare(declaration, other.declaration) == 0)
                             {
                                 // First get the equality comparer of two string tuples.
-                                var tupleComparer = RefactoringDetectionUtils.
-                                    GetStringTuplesEqualityComparer();
+                                var tupleComparer = new StringTupleEqualityComparer();
 
                                 // Next get the equality comparer of two sets.
                                 var setsComparer = new SetsEqualityCompare<Tuple<string, string>>
                                     (tupleComparer);
                                 return setsComparer.Equals(typeNameTuples, another.typeNameTuples);
                             }
+                        }
+                    }
+                    return false;
+                }
+
+                public bool IsUpdatedComputer(ICodeIssueComputer o)
+                {
+                    var other = o as ParameterCheckingCodeIssueComputer;
+                    if(IsIssuedToSameDocument(o) && other != null)
+                    {
+                        if(methodNameComparer.Compare(declaration, other.declaration) == 0)
+                        {
+                            // Prepare the comparer for sets of string tuples. 
+                            var tupleComparer = new StringTupleEqualityComparer();
+                            var setsComparer = new SetsEqualityCompare<Tuple<string, string>>
+                                (tupleComparer);
+
+                            // If the parameter sets differ, this is an updated version of code issue
+                            // computer.
+                            return !setsComparer.Equals(typeNameTuples, other.typeNameTuples);
                         }
                     }
                     return false;
@@ -256,8 +283,7 @@ namespace warnings.conditions
                         {
                             this.originalMethod = originalMethod;
                             this.updatedMethod = updatedMethod;
-                            this.methodNameComparer = RefactoringDetectionUtils.
-                                GetMethodDeclarationNameComparer();
+                            this.methodNameComparer = new MethodNameComparer();
                         }
 
                         public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
@@ -333,6 +359,11 @@ namespace warnings.conditions
                 public override RefactoringType RefactoringType
                 {
                     get { return RefactoringType.EXTRACT_METHOD; }
+                }
+
+                public override RefactoringConditionType RefactoringConditionType
+                {
+                    get { return RefactoringConditionType.EXTRACT_METHOD_PARAMETER; }
                 }
             }
         }

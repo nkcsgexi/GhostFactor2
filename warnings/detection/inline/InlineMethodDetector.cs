@@ -6,6 +6,7 @@ using NLog;
 using Roslyn.Compilers.CSharp;
 using Roslyn.Services;
 using warnings.analyzer;
+using warnings.analyzer.comparators;
 using warnings.util;
 
 namespace warnings.refactoring.detection
@@ -52,7 +53,7 @@ namespace warnings.refactoring.detection
 
             // Get the class pairs with common class name
             var commonNodePairs = RefactoringDetectionUtils.GetCommonNodePairs(classesBefore, classesAfter,
-                RefactoringDetectionUtils.GetClassDeclarationNameComparer());
+                new ClassNameComparer());
             var inClassDetector = new InClassInlineMethodDetector(beforeDoc, afterDoc, inMethodDetector);
 
             // For each pair of common class.
@@ -141,7 +142,7 @@ namespace warnings.refactoring.detection
 
                 // Get the common methods in before and after class. Common means same name.
                 var commonMethodsPairs = RefactoringDetectionUtils.GetCommonNodePairs(methodsBefore, 
-                    methodsAfter, RefactoringDetectionUtils.GetMethodDeclarationNameComparer());
+                    methodsAfter, new MethodNameComparer());
 
                 // Get the methods that are in the before version but are not in the after version.
                 var removedMethodsBefore = methodsBefore.Except(commonMethodsPairs.Select(p => p.Key));

@@ -14,6 +14,15 @@ namespace warnings.refactoring
         UNKOWN
     }
 
+    public enum RefactoringConditionType
+    {
+        EXTRACT_METHOD_PARAMETER,
+        EXTRACT_METHOD_RETURN_VALUE,
+        CHANGE_METHOD_SIGNATURE_UNUPDATED,
+        INLINE_METHOD_MODIFIED_DATA
+    }
+
+
     public class RefactoringTypeUtil
     {
         public static IEnumerable<RefactoringType> GetAllValidRefactoringTypes()

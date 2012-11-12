@@ -16,8 +16,9 @@ namespace warnings.conditions
             get { return RefactoringType.RENAME; }
         }
 
-        public abstract ICodeIssueComputer CheckCondition(ManualRefactoring input);
+        public abstract IConditionCheckingResult CheckCondition(ManualRefactoring input);
         public abstract Predicate<SyntaxNode> GetIssuedNodeFilter();
+        public abstract RefactoringConditionType RefactoringConditionType { get; }
     }
 
     /* This class includes all the conditions to check for rename refactoring. */

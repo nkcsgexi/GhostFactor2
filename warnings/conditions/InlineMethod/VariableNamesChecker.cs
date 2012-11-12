@@ -17,10 +17,15 @@ namespace warnings.conditions
                 return n => n is StatementSyntax;
             }
 
-            public override ICodeIssueComputer CheckInlineMethodCondition(
-                IInlineMethodRefactoring refactoring)
+            public override IConditionCheckingResult CheckInlineMethodCondition(IInlineMethodRefactoring 
+                refactoring)
             {
-                return new NullCodeIssueComputer();
+                throw new NotImplementedException();
+            }
+
+            public override RefactoringConditionType RefactoringConditionType
+            {
+                get { throw new NotImplementedException(); }
             }
         }
     }

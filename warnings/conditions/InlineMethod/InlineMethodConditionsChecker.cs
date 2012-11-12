@@ -30,7 +30,7 @@ namespace warnings.conditions
             
             // Add all implemented condition checkers here.
             list.Add(new ChangedVariableValuesChecker());
-            list.Add(new VariableNamesCollisionChecker());
+           // list.Add(new VariableNamesCollisionChecker());
 
             return list;
         }
@@ -40,7 +40,9 @@ namespace warnings.conditions
             get { return RefactoringType.INLINE_METHOD; }
         }
 
-        /* Abstract class for checkers of inline method refactoring. */
+        /// <summary>
+        /// Abstract class for checkers of inline method refactoring.
+        /// </summary>
         private abstract class InlineMethodConditionsChecker : IRefactoringConditionChecker
         {
             public RefactoringType RefactoringType
@@ -48,16 +50,17 @@ namespace warnings.conditions
                 get { return RefactoringType.INLINE_METHOD; }
             }
 
-            public ICodeIssueComputer CheckCondition(ManualRefactoring input)
+            public IConditionCheckingResult CheckCondition(ManualRefactoring input)
             {
                 return CheckInlineMethodCondition((IInlineMethodRefactoring)input);
             }
 
             public abstract Predicate<SyntaxNode> GetIssuedNodeFilter();
 
-            public abstract ICodeIssueComputer CheckInlineMethodCondition(
-                IInlineMethodRefactoring refactoring);
+            public abstract IConditionCheckingResult CheckInlineMethodCondition(IInlineMethodRefactoring 
+                refactoring);
 
+            public abstract RefactoringConditionType RefactoringConditionType { get; }
         }
     }
 }

@@ -11,97 +11,6 @@ namespace warnings.refactoring.detection
 {
     internal class RefactoringDetectionUtils
     {
-        /* A comparer between two class declarations, return 0 if they have the same identifier. */
-        private class ClassNameComparer : IComparer<SyntaxNode>
-        {
-            public int Compare(SyntaxNode x, SyntaxNode y)
-            {
-                var classX = x as ClassDeclarationSyntax ;
-                var classY = y as ClassDeclarationSyntax;
-                if (classX != null && classY != null)
-                {
-                    if (classX.Identifier.ValueText.Equals(classY.Identifier.ValueText))
-                    {
-                        return 0;
-                    }
-                }
-                return 1;
-            }
-        }
-
-        /* A comparer between two method declarations, return 0 if they have the same method name. */
-        private class MethodNameComparer : IComparer<SyntaxNode>
-        {
-            public int Compare(SyntaxNode x, SyntaxNode y)
-            {
-                var methodX = x as MethodDeclarationSyntax;
-                var methodY = y as MethodDeclarationSyntax;
-                if (methodX != null && methodY != null)
-                {
-                    if (methodX.Identifier.ValueText.Equals(methodY.Identifier.ValueText))
-                    {
-                        return 0;
-                    }
-                }
-                return 1;
-            }
-        }
-
-        /* Compare the two nodes by the qualified name of the type enclosing these nodes. */
-         private class NodeOutsideTypeComparer : IComparer<SyntaxNode>
-         {
-             public int Compare(SyntaxNode x, SyntaxNode y)
-             {
-                 if (x != null && y != null)
-                 {
-                     var analyzer = AnalyzerFactory.GetQualifiedNameAnalyzer();
-                     analyzer.SetSyntaxNode(x);
-                     var nameX = analyzer.GetOutsideTypeQualifiedName();
-                     analyzer.SetSyntaxNode(y);
-                     var nameY = analyzer.GetOutsideTypeQualifiedName();
-                     return nameX.Equals(nameY) ? 0 : 1;
-                 }
-                 return 1;
-             }
-         }
-
-        /// <summary>
-        /// Equality comparer for tuples of two strings.
-        /// </summary>
-        private class StringTupleEqualityComparer : IEqualityComparer<Tuple<string,string>>
-        {
-            public bool Equals(Tuple<string, string> x, Tuple<string, string> y)
-            {
-                return x.Item1.Equals(y.Item1) && x.Item2.Equals(y.Item2);
-            }
-
-            public int GetHashCode(Tuple<string, string> obj)
-            {
-                return 1;
-            }
-        }
-
-        public static IComparer<SyntaxNode> GetClassDeclarationNameComparer()
-        {
-            return new ClassNameComparer();
-        }
-
-        public static IComparer<SyntaxNode> GetMethodDeclarationNameComparer()
-        {
-            return new MethodNameComparer();
-        }
-
-        public static IComparer<SyntaxNode> GetNodeOutSideTypeQualifiedNameComparer()
-        {
-            return new NodeOutsideTypeComparer();
-        }
-
-        public static IEqualityComparer<Tuple<string, string>> GetStringTuplesEqualityComparer()
-        {
-            return new StringTupleEqualityComparer();
-        }
-
-
         /// <summary>
         /// Get the common node pairs in before and after set of nodes.
         /// </summary>
@@ -177,7 +86,11 @@ namespace warnings.refactoring.detection
             return results;
         }
 
-        /* Convert a string to an instance of document. */
+       /// <summary>
+        /// Convert a string to an instance of document.
+       /// </summary>
+       /// <param name="code"></param>
+       /// <returns></returns>
         public static IDocument Convert2IDocument(string code)
         {
             var converter = new String2IDocumentConverter();

@@ -83,17 +83,30 @@ namespace warnings.components
 
             public override void Perform()
             {
-                IEnumerable<ICodeIssueComputer> computers = Enumerable.Empty<ICodeIssueComputer>();
+                IEnumerable<IConditionCheckingResult> results = Enumerable.Empty<ICodeIssueComputer>();
 
                 // Get the condition list corresponding to the refactoring type and check all 
                 // of the conditions.
                 var list = ConditionCheckingFactory.GetConditionsListByRefactoringType
                     (refactoring.RefactoringType);
-                computers = list.CheckAllConditions(refactoring);
+                results = list.CheckAllConditions(refactoring);
 
-                // Add issue computers to the issue component.
-                GhostFactorComponents.RefactoringCodeIssueComputerComponent.AddCodeIssueComputers
-                    (computers);
+                var correctRefactorings = results.OfType<ICorrectRefactoringResult>();
+                var issueComputers = results.OfType<ICodeIssueComputer>();
+
+                if(correctRefactorings.Any())
+                {
+                    // Try to resolve existing code issue computers by the correct refactorings.
+                    GhostFactorComponents.RefactoringCodeIssueComputerComponent.
+                        TryToResolveExistingIssueComputers(correctRefactorings);
+                }
+
+                if(issueComputers.Any())
+                {
+                    // Add issue computers to the issue component.
+                    GhostFactorComponents.RefactoringCodeIssueComputerComponent.AddCodeIssueComputers
+                        (issueComputers);
+                }
             }
         }
     }

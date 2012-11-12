@@ -1,5 +1,14 @@
-2012/11/12-00:18:41.390 2ed4 Recovering log #186
-2012/11/12-00:18:41.390 2ed4 Level-0 table #188: started
-2012/11/12-00:18:41.390 2ed4 Level-0 table #188: 0 bytes OK
-2012/11/12-00:18:41.393 2ed4 Delete type=0 #186
-2012/11/12-00:18:41.394 2ed4 Delete type=3 #184
+2012/11/12-15:03:04.165 1164 Recovering log #202
+2012/11/12-15:03:04.166 1164 Level-0 table #204: started
+2012/11/12-15:03:04.167 1164 Level-0 table #204: 44673 bytes OK
+2012/11/12-15:03:04.169 1164 Delete type=0 #202
+2012/11/12-15:03:04.169 1164 Delete type=3 #200
+2012/11/12-15:03:04.170 df4 Compacting 4@0 + 1@1 files
+2012/11/12-15:03:04.175 df4 Generated table #206: 667 keys, 112440 bytes
+2012/11/12-15:03:04.175 df4 Compacted 4@0 + 1@1 files => 112440 bytes
+2012/11/12-15:03:04.176 df4 Delete type=2 #193
+2012/11/12-15:03:04.176 df4 Delete type=2 #195
+2012/11/12-15:03:04.176 df4 Delete type=2 #198
+2012/11/12-15:03:04.176 df4 Delete type=2 #201
+2012/11/12-15:03:04.176 df4 Delete type=2 #204
+2012/11/12-15:03:04.177 df4 compacted to: files[ 0 1 0 0 0 0 0 ]

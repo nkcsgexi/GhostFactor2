@@ -69,7 +69,7 @@ namespace WarningTest.refactoring_detector_test
             Assert.IsNotNull(refactoring.AfterDocument);
             var computers = checkersList.CheckAllConditions(refactoring);
             Assert.IsTrue(computers.Count() == checkersList.GetCheckerCount());
-            Assert.IsTrue(computers.All(c => c is NullCodeIssueComputer));
+            Assert.IsTrue(computers.All(c => c is ICorrectRefactoringResult));
         }
 
         [TestMethod]
@@ -81,7 +81,7 @@ namespace WarningTest.refactoring_detector_test
             Assert.IsNotNull(refactoring.AfterDocument);
             var computers = checkersList.CheckAllConditions(refactoring);
             Assert.IsTrue(computers.Count() == checkersList.GetCheckerCount());
-            var validComputers = computers.Where(c => c is ValidCodeIssueComputer);
+            var validComputers = computers.OfType<ICodeIssueComputer>();
             Assert.IsTrue(validComputers.Any());
             var computer = validComputers.First();
             var issues = ComputerAllCodeIssues(computer, documentAfter).OrderBy(i => i.TextSpan.Start);
@@ -106,8 +106,7 @@ namespace WarningTest.refactoring_detector_test
             Assert.IsNotNull(refactoring.BeforeDocument);
             Assert.IsNotNull(refactoring.AfterDocument);
             Assert.IsNotNull(refactoring);
-            var computers = checkersList.CheckAllConditions(refactoring).
-                Where(c => c is ValidCodeIssueComputer);
+            var computers = checkersList.CheckAllConditions(refactoring).OfType<ICodeIssueComputer>();
             Assert.IsTrue(computers.Any());
             Assert.IsTrue(computers.Count() == 1);
             var issues = ComputerAllCodeIssues(computers.First(), documentAfter);
@@ -157,8 +156,10 @@ namespace WarningTest.refactoring_detector_test
         [TestMethod]
         public void TestMethod7()
         {
-            var before = FileUtil.ReadAllText(TestUtil.GetStudyFakeSourceFolder() + "ConsoleLibInlineBefore.txt");
-            var after = FileUtil.ReadAllText(TestUtil.GetStudyFakeSourceFolder() + "ConsoleLibInlineAfter.txt");
+            var before = FileUtil.ReadAllText(TestUtil.GetStudyFakeSourceFolder() + 
+                "ConsoleLibInlineBefore.txt");
+            var after = FileUtil.ReadAllText(TestUtil.GetStudyFakeSourceFolder() + 
+                "ConsoleLibInlineAfter.txt");
             Assert.IsNotNull(before);
             Assert.IsNotNull(after);
             dummyDetector.SetSourceBefore(before);
@@ -168,8 +169,7 @@ namespace WarningTest.refactoring_detector_test
             detector.SetSourceAfter(after);
             Assert.IsTrue(detector.HasRefactoring());
             var refactoring = detector.GetRefactorings().First();
-            var computers = checkersList.CheckAllConditions(refactoring).
-                Where(c => c is ValidCodeIssueComputer);
+            var computers = checkersList.CheckAllConditions(refactoring).OfType<ICodeIssueComputer>();
             Assert.IsTrue(computers.Any());
             var issues = ComputerAllCodeIssues(computers.First(), refactoring.AfterDocument);
             Assert.IsTrue(issues.Any());

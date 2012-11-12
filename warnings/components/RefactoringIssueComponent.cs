@@ -33,8 +33,8 @@ namespace warnings.components
         event AddGlobalRefactoringWarnings AddGlobalWarnings;
         event RemoveGlobalRefactoringWarnings RemoveGlobalWarnings;
         event ProblematicRefactoringsCountChanged ProblematicRefactoringCountChanged;
- 
-    
+
+        void TryToResolveExistingIssueComputers(IEnumerable<ICorrectRefactoringResult> correctRefactorings);
         void AddCodeIssueComputers(IEnumerable<ICodeIssueComputer> computers);
         void RemoveCodeIssueComputers(IEnumerable<ICodeIssueComputer> computers);
         IEnumerable<CodeIssue> GetCodeIssues(IDocument document, SyntaxNode node);
@@ -103,15 +103,54 @@ namespace warnings.components
         }
 
 
-        /* Add a list of code issue computers to the current list. */
-        public void AddCodeIssueComputers(IEnumerable<ICodeIssueComputer> computers)
+        /// <summary>
+        /// This method takes input of a list of correct refactorings and use these refactorings to query 
+        /// about existing code issue computers. If these refactorings successfully resolve an existing code
+        /// issue computer, then the code issue computer will be removed.
+        /// </summary>
+        /// <param name="correctRefactorings"></param>
+        public void TryToResolveExistingIssueComputers(IEnumerable<ICorrectRefactoringResult> 
+            correctRefactorings)
         {
-            // Create a code issue adding work item and push it to the work queue.
-            queue.Add(new AddCodeIssueComputersWorkItem(codeIssueComputers, computers, blackList,
-                codeIssueComputersAddedEvent, ProblematicRefactoringCountChanged));
+            queue.Add(new ResolveExistingIssueComputerWorkItem(codeIssueComputers, correctRefactorings));
         }
 
-        /* Remove a list of code issue computers from the current list. */
+        private class ResolveExistingIssueComputerWorkItem : WorkItem
+        {
+            private readonly IEnumerable<ICorrectRefactoringResult> correctRefactorings;
+            private readonly IList<ICodeIssueComputer> codeIssueComputers;
+
+            public ResolveExistingIssueComputerWorkItem(IList<ICodeIssueComputer> codeIssueComputers,
+                IEnumerable<ICorrectRefactoringResult> correctRefactorings)
+            {
+                this.codeIssueComputers = codeIssueComputers;
+                this.correctRefactorings = correctRefactorings;
+            }
+
+            public override void Perform()
+            {
+                var resolvedComputers = codeIssueComputers.Where(computer => correctRefactorings.Any
+                    (computer.IsIssueResolved));
+                foreach (var resolved in resolvedComputers)
+                {
+                    codeIssueComputers.Remove(resolved);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add a set of condition checking results.
+        /// </summary>
+        /// <param name="computers"></param>
+        public void AddCodeIssueComputers(IEnumerable<ICodeIssueComputer> computers)
+        {
+            queue.Add(new AddCodeIssueComputersWorkItem(codeIssueComputers, computers));
+        }
+
+        /// <summary>
+        /// Remove a list of code issue computers from the current list.
+        /// </summary>
+        /// <param name="computers"></param>
         public void RemoveCodeIssueComputers(IEnumerable<ICodeIssueComputer> computers)
         {
             queue.Add(new RemoveCodeIssueComputersWorkItem(codeIssueComputers, computers, 
@@ -168,44 +207,37 @@ namespace warnings.components
         {
             private readonly IList<ICodeIssueComputer> currentComputers;
             private readonly IEnumerable<ICodeIssueComputer> newComputers;
-            private readonly CodeIssueComputersAdded changeEvent;
-            private readonly ProblematicRefactoringsCountChanged countChangd;
-            private readonly CodeIssueComputersBlackList blackList;
-
+       
             public AddCodeIssueComputersWorkItem(IList<ICodeIssueComputer> currentComputers, 
-                IEnumerable<ICodeIssueComputer> newComputers, CodeIssueComputersBlackList blackList, 
-                CodeIssueComputersAdded changeEvent, ProblematicRefactoringsCountChanged countChanged)
+                IEnumerable<ICodeIssueComputer> newComputers)
             {
                 this.currentComputers = currentComputers;
                 this.newComputers = newComputers;
-                this.blackList = blackList;
-                this.changeEvent = changeEvent;
-                this.countChangd = countChanged;
             }
 
             public override void Perform()
             {
-                var addedComputers = new List<ICodeIssueComputer>();
-
-                // For every computer in the new computers list. 
                 foreach (var computer in newComputers)
                 {
-                    // If a computer is not already in the list.
-                    if (!currentComputers.Contains(computer) && 
-                        // And the computer is not null computer.
-                        !(computer is NullCodeIssueComputer) &&
-                        !blackList.IsBlack(computer))
+                    if(!currentComputers.Contains(computer))
                     {
-                        currentComputers.Add(computer);
-                        addedComputers.Add(computer);
-                    }
-                }
+                        // Try to update an old version of computer by this new one.
+                        var updatable = computer as IUpdatableCodeIssueComputer;
+                        if(updatable != null)
+                        {
+                            var staleComputers = currentComputers.Where(updatable.IsUpdatedComputer);
+                            if(staleComputers.Any()) 
+                            {
+                                foreach (var stale in staleComputers)
+                                {
+                                    currentComputers.Remove(stale);
+                                }
+                            }
+                        }
 
-                // If has added new computers, then send messages to listeners.
-                if (addedComputers.Any())
-                {
-                    changeEvent(addedComputers.AsEnumerable());
-                    countChangd(currentComputers.Count());
+                        // Add the computer.
+                        currentComputers.Add(computer);
+                    }
                 }
             }
         }

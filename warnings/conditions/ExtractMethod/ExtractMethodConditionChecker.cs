@@ -43,15 +43,16 @@ namespace warnings.conditions
                 get { return RefactoringType.EXTRACT_METHOD; }
             }
 
-            public ICodeIssueComputer CheckCondition(ManualRefactoring input)
+            public IConditionCheckingResult CheckCondition(ManualRefactoring input)
             {
                 return CheckCondition((IManualExtractMethodRefactoring)input);
             }
 
             public abstract Predicate<SyntaxNode> GetIssuedNodeFilter();
 
-            protected abstract ICodeIssueComputer CheckCondition(
+            protected abstract IConditionCheckingResult CheckCondition(
                 IManualExtractMethodRefactoring input);
+            public abstract RefactoringConditionType RefactoringConditionType { get; }
         }
     }
 

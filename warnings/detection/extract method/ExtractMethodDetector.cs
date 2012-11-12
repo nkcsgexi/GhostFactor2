@@ -7,6 +7,7 @@ using NLog;
 using Roslyn.Compilers.CSharp;
 using Roslyn.Services;
 using warnings.analyzer;
+using warnings.analyzer.comparators;
 using warnings.util;
 
 namespace warnings.refactoring.detection
@@ -83,7 +84,7 @@ namespace warnings.refactoring.detection
             
             // Get the pairs of class declaration in the code before and after class;
             var pairs = RefactoringDetectionUtils.GetCommonNodePairs(classesBefore, classesAfter,
-                RefactoringDetectionUtils.GetClassDeclarationNameComparer());
+                new ClassNameComparer());
             
             foreach (var pair in pairs)
             {
@@ -197,7 +198,7 @@ namespace warnings.refactoring.detection
                 var methodsBefore = ASTUtil.GetMethodsDeclarations(before);
                 var methodsAfter = ASTUtil.GetMethodsDeclarations(after);
                 return RefactoringDetectionUtils.GetCommonNodePairs(methodsBefore, methodsAfter, 
-                    RefactoringDetectionUtils.GetMethodDeclarationNameComparer());
+                    new MethodNameComparer());
             }
 
             private class MethodNameEqualityComparer : IEqualityComparer<SyntaxNode>

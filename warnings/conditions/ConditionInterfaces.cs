@@ -101,9 +101,19 @@ namespace warnings.conditions
 
 
     /// <summary>
+    /// Any condition checking results that are issued to a single document only shall implement this 
+    /// interface.
+    /// </summary>
+    public interface ISingleDocumentResult
+    {
+        DocumentId GetDocumentId();
+    }
+
+
+    /// <summary>
     /// The null code issue computer return no code issue at any time.
     /// </summary>
-    public class SingleDocumentCorrectRefactoringResult : ICorrectRefactoringResult
+    public class SingleDocumentCorrectRefactoringResult : ICorrectRefactoringResult, ISingleDocumentResult
     {
         public ManualRefactoring refactoring { get; private set; }
         public RefactoringConditionType RefactoringConditionType { get; private set; }
@@ -120,7 +130,12 @@ namespace warnings.conditions
         public bool IsDocumentCorrect(IDocument document)
         {
             return document.Id == refactoring.MetaData.DocumentId;
-        }      
+        }
+
+        public DocumentId GetDocumentId()
+        {
+            return refactoring.MetaData.DocumentId;
+        }
     }
 
     /// <summary>
@@ -133,7 +148,7 @@ namespace warnings.conditions
         bool IsUpdatedComputer(ICodeIssueComputer o);
     }
 
-    public abstract class SingleDocumentValidCodeIssueComputer : ICodeIssueComputer
+    public abstract class SingleDocumentValidCodeIssueComputer : ICodeIssueComputer, ISingleDocumentResult
     {
         private readonly RefactoringMetaData metaData;
 
@@ -163,14 +178,24 @@ namespace warnings.conditions
         /// </summary>
         /// <param name="a"></param>
         /// <returns></returns>
-        protected bool IsIssuedToSameDocument(ICodeIssueComputer a)
+        protected bool IsIssuedToSameDocument(ISingleDocumentResult a)
         {
-            var another = a as SingleDocumentValidCodeIssueComputer;
-            if (another != null)
+            return a.GetDocumentId() == GetDocumentId();
+        }
+
+        protected bool IsIssuedToSameDocument(ICodeIssueComputer c)
+        {
+            var single = c as ISingleDocumentResult;
+            if (single != null)
             {
-                return metaData.DocumentId.Equals(another.metaData.DocumentId);
+                return IsIssuedToSameDocument(single);
             }
             return false;
+        }
+
+        public DocumentId GetDocumentId()
+        {
+            return metaData.DocumentId;
         }
 
         public abstract bool Equals(ICodeIssueComputer other);

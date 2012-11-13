@@ -135,6 +135,29 @@ namespace warnings.components
             }
         }
 
+
+        /// <summary>
+        /// Whether current running support quick fix of refactoring warnings.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public bool SupportQuickFix(RefactoringConditionType type)
+        {
+            switch (type)
+            {
+                case RefactoringConditionType.EXTRACT_METHOD_RETURN_VALUE:
+                    return false;
+                case RefactoringConditionType.EXTRACT_METHOD_PARAMETER:
+                    return false;
+                case RefactoringConditionType.INLINE_METHOD_MODIFIED_DATA:
+                    return false;
+                case RefactoringConditionType.CHANGE_METHOD_SIGNATURE_UNUPDATED:
+                    return false;
+                default:
+                    throw new Exception("Unknown Refactoring Type.");
+            }
+        }
+
         /// <summary>
         /// Get the number of maximum meaningful versions of a same source file.
         /// </summary>

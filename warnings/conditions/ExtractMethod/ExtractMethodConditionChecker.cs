@@ -51,7 +51,7 @@ namespace warnings.conditions
             public abstract Predicate<SyntaxNode> GetIssuedNodeFilter();
 
             protected abstract IConditionCheckingResult CheckCondition(
-                IManualExtractMethodRefactoring input);
+                IManualExtractMethodRefactoring refactoring);
             public abstract RefactoringConditionType RefactoringConditionType { get; }
         }
     }

@@ -30,8 +30,8 @@ namespace warnings
 
                 // Add the new record to the history component.
                 GhostFactorComponents.historyComponent.UpdateDocument(document);
-                return GhostFactorComponents.RefactoringCodeIssueComputerComponent.
-                    GetCodeIssues(document, (SyntaxNode) node);
+                return GhostFactorComponents.RefactoringCodeIssueComputerComponent.GetCodeIssues(document, 
+                    (SyntaxNode) node);
             }
             return null;
         }

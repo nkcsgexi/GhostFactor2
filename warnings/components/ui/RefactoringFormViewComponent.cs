@@ -51,16 +51,10 @@ namespace warnings.components.ui
             form = new RefactoringWariningsForm();
             longRunningQueue = new WorkQueue() {ConcurrentLimit = 1};
             shortTaskQueue = new WorkQueue(){ConcurrentLimit = 1};
-            GhostFactorComponents.RefactoringCodeIssueComputerComponent.AddGlobalWarnings += 
-                OnAddGlobalWarnings;
-            GhostFactorComponents.RefactoringCodeIssueComputerComponent.RemoveGlobalWarnings += 
-                OnRemoveGlobalWarnings;
-            GhostFactorComponents.RefactoringCodeIssueComputerComponent.
-                ProblematicRefactoringCountChanged += OnProblematicRefactoringsCountChanged;
+         
             GhostFactorComponents.historyComponent.OnWorkDocumentChanged += OnWorkDocumentChanged;
             GhostFactorComponents.configurationComponent.supportedRefactoringTypesChangedEvent += 
                 RefactoringTypesChangedEvent;
-
 
             // Create an work item for showing dialog and add this work item
             // to the work longRunningQueue.

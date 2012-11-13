@@ -51,7 +51,6 @@ namespace warnings.components
         }
 
         private readonly IList<ICodeIssueComputer> codeIssueComputers;
-        private readonly CodeIssueComputersBlackList blackList;
         private readonly WorkQueue queue;
         private readonly Logger logger;
         private readonly IEnumerable<Predicate<SyntaxNode>> nodeFilter;
@@ -83,7 +82,6 @@ namespace warnings.components
             // Add a listener for failed work item.
             queue.FailedWorkItem += OnItemFailed;
             logger = NLoggerUtil.GetNLogger(typeof (RefactoringCodeIssueComputersComponent));
-            blackList = new CodeIssueComputersBlackList(5);
             nodeFilter = GhostFactorComponents.configurationComponent.GetIssuedNodeFilters();
             codeIssueComputersAddedEvent += OnCodeIssueComputersAdded;
         }
@@ -153,8 +151,7 @@ namespace warnings.components
         /// <param name="computers"></param>
         public void RemoveCodeIssueComputers(IEnumerable<ICodeIssueComputer> computers)
         {
-            queue.Add(new RemoveCodeIssueComputersWorkItem(codeIssueComputers, computers, 
-                blackList, RemoveGlobalWarnings, ProblematicRefactoringCountChanged));
+            queue.Add(new RemoveCodeIssueComputersWorkItem(codeIssueComputers, computers));
         }
 
         /* Get the code issues in the given node of the given document. */
@@ -172,34 +169,6 @@ namespace warnings.components
         }
 
 
-        private class CodeIssueComputersBlackList
-        {
-            private readonly int maxCount;
-            private readonly IList<ICodeIssueComputer> blackList; 
-            
-            internal CodeIssueComputersBlackList(int maxCount)
-            {
-                this.maxCount = maxCount;
-                this.blackList = new List<ICodeIssueComputer>();
-            }
-
-            public void Add(ICodeIssueComputer computer)
-            {
-                if (blackList.Count() == maxCount)
-                {
-                    blackList.RemoveAt(0);
-                }
-                blackList.Add(computer);
-            }
-
-            public bool IsBlack(ICodeIssueComputer computer)
-            {
-                return blackList.Contains(computer);
-            }
-        }
-
-
-
         /// <summary>
         /// Work item to add new issue computers to the repository.
         /// </summary>
@@ -207,6 +176,7 @@ namespace warnings.components
         {
             private readonly IList<ICodeIssueComputer> currentComputers;
             private readonly IEnumerable<ICodeIssueComputer> newComputers;
+            private readonly Logger logger = NLoggerUtil.GetNLogger(typeof (AddCodeIssueComputersWorkItem));
        
             public AddCodeIssueComputersWorkItem(IList<ICodeIssueComputer> currentComputers, 
                 IEnumerable<ICodeIssueComputer> newComputers)
@@ -225,9 +195,10 @@ namespace warnings.components
                         var updatable = computer as IUpdatableCodeIssueComputer;
                         if(updatable != null)
                         {
-                            var staleComputers = currentComputers.Where(updatable.IsUpdatedComputer);
+                            var staleComputers = currentComputers.Where(updatable.IsUpdatedComputer).ToList();
                             if(staleComputers.Any()) 
                             {
+                                logger.Debug("Code issue computer updated.");
                                 foreach (var stale in staleComputers)
                                 {
                                     currentComputers.Remove(stale);
@@ -249,38 +220,20 @@ namespace warnings.components
         {
             private readonly IList<ICodeIssueComputer> currentComputers;
             private readonly IEnumerable<ICodeIssueComputer> toRemoveComputers;
-            private readonly RemoveGlobalRefactoringWarnings removeWarningEvent;
-            private readonly ProblematicRefactoringsCountChanged countChangedEvent;
-            private readonly CodeIssueComputersBlackList blackList;
-            private readonly Logger logger;
 
             internal RemoveCodeIssueComputersWorkItem(IList<ICodeIssueComputer> currentComputers,
-                IEnumerable<ICodeIssueComputer> toRemoveComputers, CodeIssueComputersBlackList blackList,
-                RemoveGlobalRefactoringWarnings removeWarningEvent, 
-                ProblematicRefactoringsCountChanged countChangedEvent)
+                IEnumerable<ICodeIssueComputer> toRemoveComputers)
             {
                 this.currentComputers = currentComputers;
                 this.toRemoveComputers = toRemoveComputers;
-                this.blackList = blackList;
-                this.removeWarningEvent = removeWarningEvent;
-                this.countChangedEvent = countChangedEvent;
-                this.logger = NLoggerUtil.GetNLogger(typeof (RemoveCodeIssueComputersWorkItem));
-            }
+             }
 
             public override void Perform()
             {
                 foreach (ICodeIssueComputer computer in toRemoveComputers)
                 {
                     currentComputers.Remove(computer);
-
-                    // Add the removed computer to the black list.
-                    blackList.Add(computer);
                 }
-
-                // Invoke the event, the remove condition is any messages whose code issue computer is in 
-                // the toRemove list.
-                removeWarningEvent(n => toRemoveComputers.Contains(n.CodeIssueComputer));
-                countChangedEvent(currentComputers.Count);
             }
         }
 

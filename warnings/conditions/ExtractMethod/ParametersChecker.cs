@@ -12,6 +12,7 @@ using Roslyn.Services;
 using Roslyn.Services.Editor;
 using warnings.analyzer;
 using warnings.analyzer.comparators;
+using warnings.components;
 using warnings.refactoring;
 using warnings.refactoring.detection;
 using warnings.resources;
@@ -36,20 +37,20 @@ namespace warnings.conditions
             }
 
             protected override IConditionCheckingResult CheckCondition(
-                IManualExtractMethodRefactoring input)
+                IManualExtractMethodRefactoring refactoring)
             {
-                var before = input.BeforeDocument;
-                var after = input.AfterDocument;
+                var before = refactoring.BeforeDocument;
+                var after = refactoring.AfterDocument;
 
-                var invocation = (InvocationExpressionSyntax) input.ExtractMethodInvocation;
+                var invocation = (InvocationExpressionSyntax) refactoring.ExtractMethodInvocation;
 
                 // Calculate the needed typeNameTuples, depending on what to extract.
                 IEnumerable<ISymbol> needed;
-                if (input.ExtractedStatements != null)
-                    needed = ConditionCheckersUtils.GetUsedButNotDeclaredData(input.ExtractedStatements, 
+                if (refactoring.ExtractedStatements != null)
+                    needed = ConditionCheckersUtils.GetUsedButNotDeclaredData(refactoring.ExtractedStatements, 
                         before);
                 else
-                    needed = ConditionCheckersUtils.GetFlowInData(input.ExtractedExpression, before);
+                    needed = ConditionCheckersUtils.GetFlowInData(refactoring.ExtractedExpression, before);
 
                 // Logging the needed typeNameTuples.
                 logger.Info("Needed typeNameTuples: " + StringUtil.ConcatenateAll(",", needed.Select(s => 
@@ -70,17 +71,44 @@ namespace warnings.conditions
                 var missing = ConditionCheckersUtils.RemoveThisSymbol(
                     ConditionCheckersUtils.GetSymbolListExceptByName(needed, used));
 
+                // Among the missing parameters, some of them are already by a parameter of the newly 
+                // extracted method.
+                var parameterNames = GetParameterNames(refactoring.ExtractedMethodDeclaration);
+                missing = missing.Where(s => !parameterNames.Contains(s.Name));
+
                 // if missing is not empty, then some typeNameTuples are needed. 
                 if (missing.Any())
                 {
                     logger.Info("Missing Parameters Issue Found.");
-                    return new ParameterCheckingCodeIssueComputer(input.ExtractedMethodDeclaration,
-                        ConditionCheckersUtils.GetTypeNameTuples(missing), input.MetaData);
+                    return new ParameterCheckingCodeIssueComputer(refactoring.ExtractedMethodDeclaration,
+                        ConditionCheckersUtils.GetTypeNameTuples(missing), refactoring.MetaData);
                 }
              
                 // Otherwise, return no problem.
-                return new SingleDocumentCorrectRefactoringResult(input, this.RefactoringConditionType);
+                return new SingleDocumentCorrectRefactoringResult(refactoring, this.RefactoringConditionType);
             }
+
+            /// <summary>
+            /// Get the names of the parameters for a given method declaration.
+            /// </summary>
+            /// <param name="method">the given method declaration</param>
+            /// <returns></returns>
+            private IEnumerable<string> GetParameterNames(SyntaxNode method)
+            {
+                var names = new List<string>();
+                var analyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
+                analyzer.SetMethodDeclaration(method);
+                var parameters = analyzer.GetParameters();
+                var parameterAnalyzer = AnalyzerFactory.GetParameterAnalyzer();
+                foreach (var parameter in parameters)
+                {
+                    parameterAnalyzer.SetParameter(parameter);
+                    names.Add(parameterAnalyzer.GetIdentifier().GetText());
+                }
+                return names;
+            }
+
+
 
             public override RefactoringConditionType RefactoringConditionType
             {
@@ -93,13 +121,11 @@ namespace warnings.conditions
             private class ParameterCheckingCodeIssueComputer : SingleDocumentValidCodeIssueComputer,
                 IUpdatableCodeIssueComputer
             {
-                /* Declaration of the extracted method. */
-                private SyntaxNode declaration;
-
-                /* The missing typeNameTuples' RefactoringType and name tuples. */
-                private IEnumerable<Tuple<string, string>> typeNameTuples;
-
+                private readonly SyntaxNode declaration;
+                private readonly IEnumerable<Tuple<string, string>> typeNameTuples;
                 private readonly IComparer<SyntaxNode> methodNameComparer;
+                private readonly Logger logger = NLoggerUtil.GetNLogger(typeof 
+                    (ParameterCheckingCodeIssueComputer));
 
                 public ParameterCheckingCodeIssueComputer(SyntaxNode declaration,
                     IEnumerable<Tuple<string, string>> typeNameTuples, 
@@ -112,7 +138,17 @@ namespace warnings.conditions
 
                 public override bool IsIssueResolved(ICorrectRefactoringResult correctRefactoringResult)
                 {
-                    throw new NotImplementedException();
+                    var single = correctRefactoringResult as ISingleDocumentResult;
+                    var refactoring = correctRefactoringResult.refactoring as IManualExtractMethodRefactoring;
+                    if(single != null && refactoring != null)
+                    {
+                        if(IsIssuedToSameDocument(single))
+                        {
+                            return methodNameComparer.Compare(declaration, refactoring.
+                                ExtractedMethodDeclaration) == 0;
+                        }
+                    }
+                    return false;
                 }
 
                 public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
@@ -139,9 +175,18 @@ namespace warnings.conditions
                 private CodeIssue GetMissingParameterIssue(IDocument document, SyntaxNode node, 
                     Tuple<string, string> typeNameTuple)
                 {
-                    return new CodeIssue(CodeIssue.Severity.Error, node.Span, "Missing parameter: " +
-                      typeNameTuple.Item2, new ICodeAction[] {new AddParamterCodeAction(document, node,
-                          typeNameTuple, this)});
+                    if (GhostFactorComponents.configurationComponent.SupportQuickFix
+                        (RefactoringConditionType.EXTRACT_METHOD_PARAMETER))
+                    {
+                        return new CodeIssue(CodeIssue.Severity.Error, node.Span, "Missing parameter: " +
+                            typeNameTuple.Item2, new ICodeAction[] {new AddParamterCodeAction(document, node,
+                                typeNameTuple, this)});
+                    }
+                    else
+                    {
+                        return new CodeIssue(CodeIssue.Severity.Error, node.Span, "Missing parameter: " +
+                            typeNameTuple.Item2);
+                    }
                 }
 
 
@@ -161,13 +206,8 @@ namespace warnings.conditions
                             // parameters.
                             if(methodsComparator.Compare(declaration, other.declaration) == 0)
                             {
-                                // First get the equality comparer of two string tuples.
-                                var tupleComparer = new StringTupleEqualityComparer();
-
-                                // Next get the equality comparer of two sets.
-                                var setsComparer = new SetsEqualityCompare<Tuple<string, string>>
-                                    (tupleComparer);
-                                return setsComparer.Equals(typeNameTuples, another.typeNameTuples);
+                                return ConditionCheckersUtils.AreStringTuplesSame(typeNameTuples, 
+                                    other.typeNameTuples);
                             }
                         }
                     }
@@ -176,19 +216,16 @@ namespace warnings.conditions
 
                 public bool IsUpdatedComputer(ICodeIssueComputer o)
                 {
-                    var other = o as ParameterCheckingCodeIssueComputer;
-                    if(IsIssuedToSameDocument(o) && other != null)
+                    if (IsIssuedToSameDocument(o))
                     {
-                        if(methodNameComparer.Compare(declaration, other.declaration) == 0)
+                        var other = o as ParameterCheckingCodeIssueComputer;
+                        if (other != null)
                         {
-                            // Prepare the comparer for sets of string tuples. 
-                            var tupleComparer = new StringTupleEqualityComparer();
-                            var setsComparer = new SetsEqualityCompare<Tuple<string, string>>
-                                (tupleComparer);
-
-                            // If the parameter sets differ, this is an updated version of code issue
-                            // computer.
-                            return !setsComparer.Equals(typeNameTuples, other.typeNameTuples);
+                            if (methodNameComparer.Compare(declaration, other.declaration) == 0)
+                            {
+                                return !ConditionCheckersUtils.AreStringTuplesSame(typeNameTuples,
+                                    other.typeNameTuples);
+                            }
                         }
                     }
                     return false;

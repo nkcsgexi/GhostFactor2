@@ -8,6 +8,7 @@ using Roslyn.Compilers.Common;
 using Roslyn.Services;
 using Roslyn.Services.Editor;
 using warnings.analyzer;
+using warnings.analyzer.comparators;
 using warnings.components;
 
 namespace warnings.conditions
@@ -163,6 +164,19 @@ namespace warnings.conditions
             {
                 return null;
             }
+        }
+
+        public static bool AreStringTuplesSame(IEnumerable<Tuple<string, string>> tuples1,
+                IEnumerable<Tuple<string, string>> tuples2)
+        {
+            // Prepare the comparer for sets of string tuples. 
+            var tupleComparer = new StringTupleEqualityComparer();
+            var setsComparer = new SetsEqualityCompare<Tuple<string, string>>
+                (tupleComparer);
+
+            // If the parameter sets differ, this is an updated version of code issue
+            // computer.
+            return setsComparer.Equals(tuples1, tuples2);
         }
     }
 }

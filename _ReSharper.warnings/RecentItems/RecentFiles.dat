@@ -22,20 +22,19 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:ChangedVariablesChecker.cs" caret="5261" fromTop="48" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:InlineMethodRefactoringTests.cs" caret="1735" fromTop="0" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ReturnTypeChecker.cs" caret="11027" fromTop="184" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ParametersChecker.cs" caret="19461" fromTop="266" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:RefactoringIssueComponent.cs" caret="13994" fromTop="212" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:history/f:CodeHistory.cs" caret="2417" fromTop="73" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/f:CodeIssueProvider.cs" caret="870" fromTop="16" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:HistorySavingComponent.cs" caret="3804" fromTop="74" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="4258" fromTop="51" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:extract method/f:ExtractMethodDetector.cs" caret="0" fromTop="0" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:extract method/f:InMethodExtractMethodDetector.cs" caret="4152" fromTop="0" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:extract method/f:InMethodExtractMethodDetector.cs" caret="4975" fromTop="82" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:HistorySavingComponent.cs" caret="2490" fromTop="36" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/f:CodeIssueProvider.cs" caret="1170" fromTop="21" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ParametersChecker.cs" caret="0" fromTop="0" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:RefactoringIssueComponent.cs" caret="7488" fromTop="4" />
   </RecentFiles>
   <RecentEdits>
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:SearchRefactoringComponent.cs" caret="2052" fromTop="27" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringWariningsForm.cs" caret="2438" fromTop="29" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:ui/f:RefactoringWariningsForm.Designer.cs" caret="4193" fromTop="26" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:HistorySavingComponent.cs" caret="1697" fromTop="18" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:util/d:ASTUtil/f:MethodBodyRetriever.cs" caret="2443" fromTop="20" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:util/d:ASTUtil/f:ASTUtil.cs" caret="3209" fromTop="28" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:MethodDeclarationAnalyzer.cs" caret="393" fromTop="16" />
@@ -57,10 +56,11 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionInterfaces.cs" caret="7041" fromTop="38" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionCheckersUtils.cs" caret="6804" fromTop="26" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/d:ui/f:RefactoringFormViewComponent.cs" caret="1985" fromTop="26" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:RefactoringIssueComponent.cs" caret="8880" fromTop="35" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="5031" fromTop="37" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ParametersChecker.cs" caret="8818" fromTop="29" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ReturnTypeChecker.cs" caret="10895" fromTop="34" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:HistorySavingComponent.cs" caret="2490" fromTop="21" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/f:CodeIssueProvider.cs" caret="1170" fromTop="21" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:RefactoringIssueComponent.cs" caret="6902" fromTop="17" />
   </RecentEdits>
 </RecentFiles>

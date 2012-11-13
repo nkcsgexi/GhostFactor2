@@ -135,9 +135,16 @@ namespace warnings.conditions
                     get { return RefactoringConditionType.INLINE_METHOD_MODIFIED_DATA;}
                 }
 
-                public override bool IsIssueResolved(ICorrectRefactoringResult correctRefactoringResult)
+                public override bool IsIssueResolved(ICorrectRefactoringResult result)
                 {
-                    throw new NotImplementedException();
+                    var refactoring = result.refactoring as IInlineMethodRefactoring;
+                    var singleDoc = result as ISingleDocumentResult;
+                    if(singleDoc != null && refactoring != null && IsIssuedToSameDocument(singleDoc))
+                    {
+                        var methodNameComparer = new MethodNameComparer();
+                        return methodNameComparer.Compare(inlinedMethod, refactoring.InlinedMethod) == 0;
+                    }
+                    return false;
                 }
 
                 public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)

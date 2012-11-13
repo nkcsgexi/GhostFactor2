@@ -55,18 +55,15 @@ namespace warnings.components
         private readonly Logger logger;
         private readonly IEnumerable<Predicate<SyntaxNode>> nodeFilter;
 
-        /* Used for any listener to the event of code issue computers added or removed. */
         private delegate void CodeIssueComputersAdded(IEnumerable<ICodeIssueComputer> newCodeIssueComputers);
+        private event CodeIssueComputersAdded codeIssueComputersAdded;
 
-        /* Event when new code issues are added.*/
-        private event CodeIssueComputersAdded codeIssueComputersAddedEvent;
+        private delegate void CodeIssueComputersRemoved(IEnumerable<ICodeIssueComputer> removedComputers);
+        private event CodeIssueComputersRemoved codeIssueComputersRemoved;
 
-        /* Event when new global refactoring addWarningsEvent are ready to be added. */
+
         public event AddGlobalRefactoringWarnings AddGlobalWarnings;
-
-        /* Event when old global refactoring addWarningsEvent are ready to be removed. */
         public event RemoveGlobalRefactoringWarnings RemoveGlobalWarnings;
-
         public event ProblematicRefactoringsCountChanged ProblematicRefactoringCountChanged;
 
 
@@ -83,21 +80,26 @@ namespace warnings.components
             queue.FailedWorkItem += OnItemFailed;
             logger = NLoggerUtil.GetNLogger(typeof (RefactoringCodeIssueComputersComponent));
             nodeFilter = GhostFactorComponents.configurationComponent.GetIssuedNodeFilters();
-            codeIssueComputersAddedEvent += OnCodeIssueComputersAdded;
+
+            codeIssueComputersAdded += OnCodeIssueComputersAdded;
+            codeIssueComputersRemoved += OnCodeIssueComputersRemoved;
         }
 
-        /* When code issue computers are added, this method will be called. */
-        private void OnCodeIssueComputersAdded(IEnumerable<ICodeIssueComputer> computers)
+        private void OnCodeIssueComputersRemoved(IEnumerable<ICodeIssueComputer> removedComputers)
         {
-            var item = new GetSolutionRefactoringWarningsWorkItem(GhostFactorComponents.configurationComponent
-                .GetSolution(), computers, AddGlobalWarnings);
-            queue.Add(item);
+            logger.Info("Removed " + removedComputers.Count() +" code issue computers.");
         }
+
+        private void OnCodeIssueComputersAdded(IEnumerable<ICodeIssueComputer> newCodeIssueComputers)
+        {
+            logger.Info("Added " + newCodeIssueComputers.Count() + " code issue computers.");
+        }
+
 
         private void OnItemFailed(object sender, WorkItemEventArgs workItemEventArgs)
         {
             logger.Fatal("Work item failed: " + workItemEventArgs.WorkItem);
-            logger.Fatal(workItemEventArgs.WorkItem.FailedException.StackTrace);
+            logger.Fatal(workItemEventArgs.WorkItem.FailedException);
         }
 
 
@@ -110,29 +112,39 @@ namespace warnings.components
         public void TryToResolveExistingIssueComputers(IEnumerable<ICorrectRefactoringResult> 
             correctRefactorings)
         {
-            queue.Add(new ResolveExistingIssueComputerWorkItem(codeIssueComputers, correctRefactorings));
+            queue.Add(new ResolveExistingIssueComputerWorkItem(codeIssueComputers, correctRefactorings, 
+                codeIssueComputersRemoved));
         }
 
         private class ResolveExistingIssueComputerWorkItem : WorkItem
         {
             private readonly IEnumerable<ICorrectRefactoringResult> correctRefactorings;
             private readonly IList<ICodeIssueComputer> codeIssueComputers;
+            private readonly CodeIssueComputersRemoved codeIssueComputersRemoved;
 
             public ResolveExistingIssueComputerWorkItem(IList<ICodeIssueComputer> codeIssueComputers,
-                IEnumerable<ICorrectRefactoringResult> correctRefactorings)
+                IEnumerable<ICorrectRefactoringResult> correctRefactorings, CodeIssueComputersRemoved 
+                codeIssueComputersRemoved)
             {
                 this.codeIssueComputers = codeIssueComputers;
                 this.correctRefactorings = correctRefactorings;
+                this.codeIssueComputersRemoved = codeIssueComputersRemoved;
             }
 
             public override void Perform()
             {
+                // Using the correct refactorings to resolve existing code issue computers.
                 var resolvedComputers = codeIssueComputers.Where(computer => correctRefactorings.Any
-                    (computer.IsIssueResolved));
+                    (computer.IsIssueResolved)).ToList();
+
+                // Remove these resolved code issue computers.
                 foreach (var resolved in resolvedComputers)
                 {
                     codeIssueComputers.Remove(resolved);
                 }
+
+                // Triger the event of removed computers.
+                codeIssueComputersRemoved(resolvedComputers);
             }
         }
 
@@ -142,19 +154,26 @@ namespace warnings.components
         /// <param name="computers"></param>
         public void AddCodeIssueComputers(IEnumerable<ICodeIssueComputer> computers)
         {
-            queue.Add(new AddCodeIssueComputersWorkItem(codeIssueComputers, computers));
+            queue.Add(new AddCodeIssueComputersWorkItem(codeIssueComputers, computers, 
+                codeIssueComputersAdded, codeIssueComputersRemoved));
         }
 
         /// <summary>
         /// Remove a list of code issue computers from the current list.
         /// </summary>
-        /// <param name="computers"></param>
+        /// <param name="computers">The computers to be removed.</param>
         public void RemoveCodeIssueComputers(IEnumerable<ICodeIssueComputer> computers)
         {
-            queue.Add(new RemoveCodeIssueComputersWorkItem(codeIssueComputers, computers));
+            queue.Add(new RemoveCodeIssueComputersWorkItem(codeIssueComputers, computers, 
+                codeIssueComputersRemoved));
         }
 
-        /* Get the code issues in the given node of the given document. */
+        /// <summary>
+        /// Get the code issues in the given node of the given document. 
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="node"></param>
+        /// <returns></returns>
         public IEnumerable<CodeIssue> GetCodeIssues(IDocument document, SyntaxNode node)
         {
             // Check if an issue is likely to happen to the node.
@@ -174,41 +193,69 @@ namespace warnings.components
         /// </summary>
         private class AddCodeIssueComputersWorkItem : WorkItem
         {
+            private static readonly Logger logger = NLoggerUtil.GetNLogger(typeof
+                (AddCodeIssueComputersWorkItem)); 
+
             private readonly IList<ICodeIssueComputer> currentComputers;
             private readonly IEnumerable<ICodeIssueComputer> newComputers;
-            private readonly Logger logger = NLoggerUtil.GetNLogger(typeof (AddCodeIssueComputersWorkItem));
-       
-            public AddCodeIssueComputersWorkItem(IList<ICodeIssueComputer> currentComputers, 
-                IEnumerable<ICodeIssueComputer> newComputers)
+            
+            private readonly CodeIssueComputersAdded codeIssueComputersAdded;
+            private readonly CodeIssueComputersRemoved codeIssueComputersRemoved;
+
+           
+            internal AddCodeIssueComputersWorkItem(IList<ICodeIssueComputer> currentComputers, 
+                IEnumerable<ICodeIssueComputer> newComputers, CodeIssueComputersAdded codeIssueComputersAdded,
+                CodeIssueComputersRemoved codeIssueComputersRemoved)
             {
                 this.currentComputers = currentComputers;
                 this.newComputers = newComputers;
+                this.codeIssueComputersAdded = codeIssueComputersAdded;
+                this.codeIssueComputersRemoved = codeIssueComputersRemoved;
             }
 
             public override void Perform()
             {
+                var addedComputers = new List<ICodeIssueComputer>();
+                var removedComputers = new List<ICodeIssueComputer>();
+
+                var updatables = currentComputers.OfType<IUpdatableCodeIssueComputer>().ToList();
                 foreach (var computer in newComputers)
                 {
-                    if(!currentComputers.Contains(computer))
+                    if (!currentComputers.Contains(computer))
                     {
-                        // Try to update an old version of computer by this new one.
                         var updatable = computer as IUpdatableCodeIssueComputer;
-                        if(updatable != null)
+
+                        // Try to update an old version of computer by this new one.
+                        if (updatables.Any() && updatable != null)
                         {
-                            var staleComputers = currentComputers.Where(updatable.IsUpdatedComputer).ToList();
-                            if(staleComputers.Any()) 
+                            var staleComputers = updatables.Where(u => u.IsUpdatedComputer(updatable)).
+                                ToList();
+                            if (staleComputers.Any())
                             {
-                                logger.Debug("Code issue computer updated.");
-                                foreach (var stale in staleComputers)
+                                foreach (ICodeIssueComputer stale in staleComputers)
                                 {
                                     currentComputers.Remove(stale);
+                                    removedComputers.Add(stale);
                                 }
                             }
                         }
 
                         // Add the computer.
                         currentComputers.Add(computer);
+                        addedComputers.Add(computer);
                     }
+                }
+             
+                // Triger the event of added code issue computers.
+                if (addedComputers.Any())
+                {
+                    codeIssueComputersAdded(addedComputers);
+                }
+
+                // Trigger removed computers event if any.
+                if(removedComputers.Any())
+                {
+                    codeIssueComputersRemoved(removedComputers);
                 }
             }
         }
@@ -220,20 +267,28 @@ namespace warnings.components
         {
             private readonly IList<ICodeIssueComputer> currentComputers;
             private readonly IEnumerable<ICodeIssueComputer> toRemoveComputers;
+            private readonly CodeIssueComputersRemoved codeIssueComputersRemoved;
 
             internal RemoveCodeIssueComputersWorkItem(IList<ICodeIssueComputer> currentComputers,
-                IEnumerable<ICodeIssueComputer> toRemoveComputers)
+                IEnumerable<ICodeIssueComputer> toRemoveComputers, CodeIssueComputersRemoved 
+                codeIssueComputersRemoved)
             {
                 this.currentComputers = currentComputers;
                 this.toRemoveComputers = toRemoveComputers;
-             }
+                this.codeIssueComputersRemoved = codeIssueComputersRemoved;
+            }
 
             public override void Perform()
             {
+                var removedComputers = new List<ICodeIssueComputer>();
                 foreach (ICodeIssueComputer computer in toRemoveComputers)
                 {
-                    currentComputers.Remove(computer);
+                    if(currentComputers.Remove(computer))
+                    {
+                        removedComputers.Add(computer);
+                    }
                 }
+                codeIssueComputersRemoved(removedComputers);
             }
         }
 

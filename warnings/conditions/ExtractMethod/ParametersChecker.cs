@@ -214,18 +214,15 @@ namespace warnings.conditions
                     return false;
                 }
 
-                public bool IsUpdatedComputer(ICodeIssueComputer o)
+                public bool IsUpdatedComputer(IUpdatableCodeIssueComputer o)
                 {
-                    if (IsIssuedToSameDocument(o))
+                    var other = o as ParameterCheckingCodeIssueComputer;
+                    if (other != null && other.GetDocumentId() == GetDocumentId())
                     {
-                        var other = o as ParameterCheckingCodeIssueComputer;
-                        if (other != null)
+                        if (methodNameComparer.Compare(declaration, other.declaration) == 0)
                         {
-                            if (methodNameComparer.Compare(declaration, other.declaration) == 0)
-                            {
-                                return !ConditionCheckersUtils.AreStringTuplesSame(typeNameTuples,
-                                    other.typeNameTuples);
-                            }
+                            return !ConditionCheckersUtils.AreStringTuplesSame(typeNameTuples,
+                                other.typeNameTuples);
                         }
                     }
                     return false;

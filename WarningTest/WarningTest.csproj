@@ -65,7 +65,13 @@
     <Compile Include="component test\GhostWorkQueueTests.cs" />
     <Compile Include="component test\SearchRefactoringComponentTests.cs" />
     <Compile Include="DummyTests.cs" />
+    <Content Include="fakesource\studycases\ExtractMethod6.txt" />
+    <Content Include="fakesource\studycases\ExtractMethod5.txt" />
+    <Content Include="fakesource\studycases\ExtractMethod1.txt" />
+    <Content Include="fakesource\studycases\ExtractMethod2.txt" />
+    <Content Include="fakesource\studycases\ExtractMethod3.txt" />
     <Compile Include="fakesource\TypeHierarchyFakeSource.cs" />
+    <Compile Include="issue resolve tests\ExtractMethodIssueResolveTests.cs" />
     <Compile Include="refactoring detector test\InlineMethodRefactoringTests.cs" />
     <Compile Include="refactoring detector test\SimpleExtractMethodTests.cs" />
     <Compile Include="retriever test\MethodInvocationRetrieverTests.cs" />
@@ -113,6 +119,7 @@
     <Content Include="fakesource\SimpleExtractMethodBefore.txt" />
     <Content Include="fakesource\studycases\ConsoleLibInlineafter.txt" />
     <Content Include="fakesource\studycases\ConsoleLibInlinebefore.txt" />
+    <Content Include="fakesource\studycases\ExtractMethod4.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Threading\Threading.csproj">

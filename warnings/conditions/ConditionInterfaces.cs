@@ -145,7 +145,7 @@ namespace warnings.conditions
     /// </summary>
     public interface IUpdatableCodeIssueComputer
     {
-        bool IsUpdatedComputer(ICodeIssueComputer o);
+        bool IsUpdatedComputer(IUpdatableCodeIssueComputer o);
     }
 
     public abstract class SingleDocumentValidCodeIssueComputer : ICodeIssueComputer, ISingleDocumentResult

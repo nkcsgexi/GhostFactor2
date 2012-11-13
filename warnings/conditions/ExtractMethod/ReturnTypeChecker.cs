@@ -244,10 +244,10 @@ namespace warnings.conditions
                     return false;
                 }
 
-                public bool IsUpdatedComputer(ICodeIssueComputer o)
+                public bool IsUpdatedComputer(IUpdatableCodeIssueComputer o)
                 {
                     var other = o as ReturnTypeCheckingResult;
-                    if (other != null && IsIssuedToSameDocument(o))
+                    if (other != null && other.GetDocumentId() == GetDocumentId())
                     {
                         if (methodNameComparer.Compare(declaration, other.declaration) == 0)
                         {

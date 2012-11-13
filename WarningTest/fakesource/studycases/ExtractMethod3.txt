@@ -1,0 +1,117 @@
+﻿#region Copyright © 2009 Jose Antonio De Santiago-Castillo.
+
+
+#endregion
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace DotNumerics.FortranLibrary
+{
+    public class ConsoleLib
+    {
+
+        public static void ConsoleReadLine(Characters destination, int length)
+        {
+            string s = Console.ReadLine();
+            if (s.Length > length) s = s.Substring(0, length);
+            destination.ToBlanks(length);
+            FortranLib.Copy(destination, s);
+        }
+
+        public static void WriteInt(Characters destination, int number, int width, int m)
+        {
+            destination.ToBlanks(width);
+
+            char[] formatCharArray = new char[width];
+            for (int i = 0; i < formatCharArray.Length; i++) formatCharArray[i] = '#';
+            for (int i = 0; i < m; i++) formatCharArray[i] = '0';
+            Array.Reverse(formatCharArray);
+            string format = new string(formatCharArray);
+            string s = number.ToString(format);
+
+
+            if (s.Length > width)
+            {
+                s = new string('*', width);
+            }
+            else
+            {
+                s = new string(' ', width - s.Length) + s;
+            }
+            FortranLib.Copy(destination, s);
+        }
+
+
+
+        public static void WriteFloat(Characters destination, float number, int width, int d)
+        {
+
+            destination.ToBlanks(width);
+
+            string s = "";
+            if (width <= d + 2)
+            {
+                s = new string('*', width);
+            }
+            else
+            {
+                method(width);
+            }
+            method1(s, width);
+
+            FortranLib.Copy(destination, s);
+        }
+
+        private static void method1(string s, int width)
+        {
+            if (s.Length > width)
+            {
+                s = new string('*', width);
+            }
+            else
+            {
+                s = new string(' ', width - s.Length) + s;
+            }
+        }
+
+		private static void method(int width)
+		{
+			char[] formatCharArray = new char[width];
+            for (int i = 0; i < formatCharArray.Length; i++) formatCharArray[i] = '#';
+            for (int i = 0; i < d; i++) formatCharArray[i] = '0';
+            formatCharArray[d] = '.';
+            Array.Reverse(formatCharArray);
+            string format = new string(formatCharArray);
+            s = number.ToString(format);
+		}
+
+        public static bool ReadFloat(Characters source, int width, int d, out float destination)
+        {
+            string numberStg = source.Substring(1, width).ToString();
+            float internalValue;
+            bool isOK = float.TryParse(numberStg, out internalValue);
+
+            destination = internalValue;
+
+            if (numberStg.Contains(".") == false)
+            {
+                destination *= (float)Math.Pow(10, -d);
+            }
+            return isOK;
+        }
+
+
+        public static void Date_And_Time(Characters date, Characters time)
+        {
+            DateTime _dateTime = DateTime.Now;
+            date.ToBlanks(8);
+            time.ToBlanks(10);
+            FortranLib.Copy(date, _dateTime.ToString("yyyyMMdd"));
+            FortranLib.Copy(time, _dateTime.ToString("hhmmss.fff"));
+        }
+
+
+    }
+}

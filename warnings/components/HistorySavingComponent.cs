@@ -73,7 +73,11 @@ namespace warnings.components
 
         private void onCompleteWorkItem(object sender, WorkItemEventArgs e)
         {
-
+            var timable = e.WorkItem as TimableWorkItem;
+            if(timable != null)
+            {
+                logger.Info("History saving work item time: " + timable.GetProcessingTime());
+            }
         }
 
         /// <summary>

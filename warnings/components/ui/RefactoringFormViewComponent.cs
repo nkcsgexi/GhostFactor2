@@ -37,20 +37,17 @@ namespace warnings.components.ui
             return instance;
         }
 
-        /* A work queue for long running task, such as keeping the windows displaying. */
-        private WorkQueue longRunningQueue;
-
+        
         /* A work queue for short running task, such as updating items to the form. */
         private WorkQueue shortTaskQueue;
-    
+       
         /* The form instance where new warnings should be added to. */
         private RefactoringWariningsForm form;
 
         private RefactoringFormViewComponent()
         {
             form = new RefactoringWariningsForm();
-            longRunningQueue = new WorkQueue() {ConcurrentLimit = 1};
-            shortTaskQueue = new WorkQueue(){ConcurrentLimit = 1};
+            shortTaskQueue = GhostFactorComponents.configurationComponent.GetGlobalWorkQueue();
          
             GhostFactorComponents.historyComponent.OnWorkDocumentChanged += OnWorkDocumentChanged;
             GhostFactorComponents.configurationComponent.supportedRefactoringTypesChangedEvent += 
@@ -58,7 +55,12 @@ namespace warnings.components.ui
 
             // Create an work item for showing dialog and add this work item
             // to the work longRunningQueue.
-            longRunningQueue.Add(new ShowingFormWorkItem(form));
+            new Thread(ShowingForm).Start();
+        }
+
+        private void ShowingForm()
+        {
+            form.ShowDialog();
         }
 
         private void RefactoringTypesChangedEvent(IEnumerable<RefactoringType> currentTypes)
@@ -69,21 +71,6 @@ namespace warnings.components.ui
         private void OnWorkDocumentChanged(IDocument document)
         {
             shortTaskQueue.Add(new UpdateWorkDocumentWorkItem(form, document));
-        }
-
-        private void OnProblematicRefactoringsCountChanged(int newCount)
-        {
-            shortTaskQueue.Add(new ResetRefactoringCountWorkItem(form, newCount));
-        }
-
-        private void OnRemoveGlobalWarnings(Predicate<IRefactoringWarningMessage> removeCondition)
-        {
-            shortTaskQueue.Add(new RemoveWarningsWorkItem(form, removeCondition));
-        }
-
-        private void OnAddGlobalWarnings(IEnumerable<IRefactoringWarningMessage> messages)
-        {
-            shortTaskQueue.Add(new AddWarningsWorkItem(form, messages));
         }
 
         /* Work item for adding refactoring errors in the form. */
@@ -211,26 +198,5 @@ namespace warnings.components.ui
                 form.SetSupportedRefactoringTypes(currentTypes);
             }
         }
-
-
-       /// <summary>
-        /// Work item for showing the form, unlike other workitem, this work item does not stop.
-       /// </summary>
-        private class ShowingFormWorkItem : WorkItem
-        {
-            private readonly Form form;
-
-            internal ShowingFormWorkItem(Form form)
-            {
-                this.form = form;
-            }
-
-            public override void Perform()
-            {
-                form.ShowDialog();
-            }
-        }
     }
-
-  
 }

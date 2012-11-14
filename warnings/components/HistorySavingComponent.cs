@@ -49,35 +49,15 @@ namespace warnings.components
 
         private HistorySavingComponent()
         {
-            this.queue = new WorkQueue {ConcurrentLimit = 1};
-            this.queue.FailedWorkItem += onFailedWorkItem;
-            this.queue.CompletedWorkItem += onCompleteWorkItem;
+            this.queue = GhostFactorComponents.configurationComponent.GetGlobalWorkQueue();           
             logger = NLoggerUtil.GetNLogger(typeof (HistorySavingComponent));         
         }
-
 
         public event WorkOnDocumentChanged OnWorkDocumentChanged;
 
         public void UpdateDocument(IDocument newDoc)
         {
-            queue.Clear();
             queue.Add(new HistorySavingWorkItem(newDoc, OnWorkDocumentChanged));
-        }
-
-        
-        private void onFailedWorkItem(object sender, WorkItemEventArgs workItemEventArgs)
-        {
-            logger.Fatal("Save code history record failed:\n" + 
-                workItemEventArgs.WorkItem.FailedException);
-        }
-
-        private void onCompleteWorkItem(object sender, WorkItemEventArgs e)
-        {
-            var timable = e.WorkItem as TimableWorkItem;
-            if(timable != null)
-            {
-                logger.Info("History saving work item time: " + timable.GetProcessingTime());
-            }
         }
 
         /// <summary>

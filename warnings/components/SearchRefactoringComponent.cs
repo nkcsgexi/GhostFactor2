@@ -33,32 +33,12 @@ namespace warnings.components
 
         private SearchRefactoringComponent()
         {
-            queue = new WorkQueue {ConcurrentLimit = 1};
-            queue.FailedWorkItem += onFailedWorkItem;
-            queue.CompletedWorkItem += onCompletedWorkItem;
-
+            queue = GhostFactorComponents.configurationComponent.GetGlobalWorkQueue();
             logger = NLoggerUtil.GetNLogger(typeof (ISearchRefactoringComponent));
-        }
-
-        private void onCompletedWorkItem(object sender, WorkItemEventArgs workItemEventArgs)
-        {
-            var timable = workItemEventArgs.WorkItem as TimableWorkItem;
-            if(timable != null)
-            {
-                logger.Info("Search item time: " + timable.GetProcessingTime().
-                    TotalMilliseconds);
-            }
-        }
-
-        private void onFailedWorkItem(object sender, WorkItemEventArgs e)
-        {
-            logger.Fatal("Search refactoring work item failed.\n" + 
-                e.WorkItem.FailedException);
         }
 
         public void StartRefactoringSearch(ICodeHistoryRecord record, DocumentId documentId)
         {
-            queue.Clear();
             queue.Add(new SearchRefactoringWorkitem(record, documentId));
         }
 

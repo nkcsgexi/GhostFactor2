@@ -4,10 +4,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using BlackHen.Threading;
+using NLog;
 using Roslyn.Compilers.CSharp;
 using Roslyn.Services;
 using warnings.conditions;
 using warnings.refactoring;
+using warnings.util;
 
 namespace warnings.components
 {
@@ -24,14 +26,29 @@ namespace warnings.components
             return instance ?? (instance = new GlobalConfigurationComponent());
         }
 
+        public SupportedRefactoringTypesChanged supportedRefactoringTypesChangedEvent;
+        
+        private readonly List<RefactoringType> supportedTypes;
+        private readonly WorkQueue queue;
+        private readonly Logger logger;
+        private ISolution solution;
+
         private GlobalConfigurationComponent()
         {
             supportedTypes = new List<RefactoringType>();
+
+            queue = new WorkQueue() { ConcurrentLimit = 1};
+            queue.WorkerPool = new WorkThreadPool(1, 1);
+            queue.FailedWorkItem += OnItemFailed;
+
+            logger = NLoggerUtil.GetNLogger(typeof (GlobalConfigurationComponent));
         }
 
-        public SupportedRefactoringTypesChanged supportedRefactoringTypesChangedEvent;
-        private readonly List<RefactoringType> supportedTypes;
-        private ISolution solution;
+        private void OnItemFailed(object sender, WorkItemEventArgs workItemEventArgs)
+        {
+            logger.Fatal("Work item failed: " + workItemEventArgs.WorkItem);
+            logger.Fatal(workItemEventArgs.WorkItem.FailedException);
+        }
 
         /// <summary>
         /// Add a supported refactoring type.
@@ -196,6 +213,12 @@ namespace warnings.components
         public ISolution GetSolution()
         {
             return solution;
+        }
+
+        
+        public WorkQueue GetGlobalWorkQueue()
+        {
+            return queue;
         }
     }
 }

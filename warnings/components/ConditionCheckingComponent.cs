@@ -30,33 +30,10 @@ namespace warnings.components
         }
    
         private readonly WorkQueue queue;
-        private readonly Logger logger;
-
+       
         private ConditionCheckingComponent()
         {
-            queue = new WorkQueue();
-            queue.ConcurrentLimit = 1;
-            
-            queue.FailedWorkItem += onFailedItem;
-            queue.CompletedWorkItem += OnCompletedWorkItem;
-
-
-            logger = NLoggerUtil.GetNLogger(typeof (ConditionCheckingComponent));
-        }
-
-        private void OnCompletedWorkItem(object sender, WorkItemEventArgs workItemEventArgs)
-        {
-            var timable = workItemEventArgs.WorkItem as TimableWorkItem;
-            if(timable != null)
-            {
-                logger.Info("Condition checking processing time:" + timable.GetProcessingTime());
-            }
-        }
-
-        private void onFailedItem(object sender, WorkItemEventArgs workItemEventArgs)
-        {
-            logger.Fatal("Condition checking work item failed:\n" + 
-                workItemEventArgs.WorkItem.FailedException);
+            queue = GhostFactorComponents.configurationComponent.GetGlobalWorkQueue();
         }
 
         public void CheckRefactoringCondition(ManualRefactoring 
@@ -83,7 +60,7 @@ namespace warnings.components
 
             public override void Perform()
             {
-                IEnumerable<IConditionCheckingResult> results = Enumerable.Empty<ICodeIssueComputer>();
+                IEnumerable<IConditionCheckingResult> results = Enumerable.Empty<IConditionCheckingResult>();
 
                 // Get the condition list corresponding to the refactoring type and check all 
                 // of the conditions.

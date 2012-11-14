@@ -72,12 +72,8 @@ namespace warnings.components
         private RefactoringCodeIssueComputersComponent()
         {
             codeIssueComputers = new List<ICodeIssueComputer>();
-
-            // Single thread workqueue.
-            queue = new WorkQueue {ConcurrentLimit = 1};
-
-            // Add a listener for failed work item.
-            queue.FailedWorkItem += OnItemFailed;
+            queue = GhostFactorComponents.configurationComponent.GetGlobalWorkQueue();
+    
             logger = NLoggerUtil.GetNLogger(typeof (RefactoringCodeIssueComputersComponent));
             nodeFilter = GhostFactorComponents.configurationComponent.GetIssuedNodeFilters();
 
@@ -94,14 +90,6 @@ namespace warnings.components
         {
             logger.Info("Added " + newCodeIssueComputers.Count() + " code issue computers.");
         }
-
-
-        private void OnItemFailed(object sender, WorkItemEventArgs workItemEventArgs)
-        {
-            logger.Fatal("Work item failed: " + workItemEventArgs.WorkItem);
-            logger.Fatal(workItemEventArgs.WorkItem.FailedException);
-        }
-
 
         /// <summary>
         /// This method takes input of a list of correct refactorings and use these refactorings to query 
@@ -309,6 +297,9 @@ namespace warnings.components
                 this.node = node;
                 this.computers = computers;
                 results = new List<CodeIssue>();
+
+                // This is in user interface, so needs to have the highest priority.
+                this.Priority = ThreadPriority.Highest;
             }
 
             public override void Perform()

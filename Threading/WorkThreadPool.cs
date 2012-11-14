@@ -418,9 +418,8 @@ namespace BlackHen.Threading
                   // Perform the work.
                   if (work != null)
                      DoWork(work);
-
-                  // Yield to other threads, including the User Interface (if any).
-                  Thread.Sleep(0);
+                  else
+                    Thread.Sleep(10);
                }
             }
             catch (ThreadAbortException)

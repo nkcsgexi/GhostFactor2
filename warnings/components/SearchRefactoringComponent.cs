@@ -143,7 +143,7 @@ namespace warnings.components
             private void OnRefactoringDetected(ManualRefactoring refactoring)
             {
                 logger.Info("Refactoring detected:");
-                logger.Info(refactoring.ToString);
+                logger.Info(refactoring.ToString());
                 GhostFactorComponents.conditionCheckingComponent.CheckRefactoringCondition
                     (refactoring);
             }

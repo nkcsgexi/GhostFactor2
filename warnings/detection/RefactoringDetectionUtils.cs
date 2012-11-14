@@ -37,7 +37,13 @@ namespace warnings.refactoring.detection
             return result;
         }
 
-        /* Get the longest common statements list between the given two statements list. */
+        /// <summary>
+        /// Get the longest common statements list between the given two statements list.
+        /// </summary>
+        /// <param name="statements1"></param>
+        /// <param name="statements2"></param>
+        /// <param name="comparer"></param>
+        /// <returns></returns>
         public static IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetLongestCommonStatements
             (IEnumerable<SyntaxNode> statements1, 
             IEnumerable<SyntaxNode> statements2, IComparer<SyntaxNode> comparer)

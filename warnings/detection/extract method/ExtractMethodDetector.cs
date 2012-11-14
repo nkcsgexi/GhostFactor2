@@ -161,22 +161,19 @@ namespace warnings.refactoring.detection
                     {
                         logger.Info("Caller: " + methodAfter.Identifier.ValueText);
                         logger.Info("Callee: " + addedMethod.Identifier.ValueText);
-                        if (ASTUtil.IsInvoking(methodAfter, addedMethod, 
-                            (SyntaxTree) docAfter.GetSyntaxTree()))
-                        {
-                            // Configure the in method extract method detector.
-                            inMethodDetector.SetCallerBefore(methodBefore);
-                            inMethodDetector.SetCallerAfter(methodAfter);
-                            inMethodDetector.SetCalleeAfter(addedMethod);
-                            inMethodDetector.SetDocumentBefore(docBefore);
-                            inMethodDetector.SetDocumentAfter(docAfter);
+                      
+                        // Configure the in method extract method detector.
+                        inMethodDetector.SetCallerBefore(methodBefore);
+                        inMethodDetector.SetCallerAfter(methodAfter);
+                        inMethodDetector.SetCalleeAfter(addedMethod);
+                        inMethodDetector.SetDocumentBefore(docBefore);
+                        inMethodDetector.SetDocumentAfter(docAfter);
 
-                            // Start to detect.
-                            if (inMethodDetector.HasRefactoring())
-                            {
-                                refactorings = refactorings.Union(inMethodDetector.GetRefactorings());
-                                return true;
-                            }
+                        // Start to detect.
+                        if (inMethodDetector.HasRefactoring())
+                        {
+                            refactorings = refactorings.Union(inMethodDetector.GetRefactorings());
+                            return true;
                         }
                     }
                 }

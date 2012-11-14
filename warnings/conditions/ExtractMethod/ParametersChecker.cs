@@ -40,9 +40,6 @@ namespace warnings.conditions
                 IManualExtractMethodRefactoring refactoring)
             {
                 var before = refactoring.BeforeDocument;
-                var after = refactoring.AfterDocument;
-
-                var invocation = (InvocationExpressionSyntax) refactoring.ExtractMethodInvocation;
 
                 // Calculate the needed typeNameTuples, depending on what to extract.
                 IEnumerable<ISymbol> needed;
@@ -56,25 +53,14 @@ namespace warnings.conditions
                 logger.Info("Needed typeNameTuples: " + StringUtil.ConcatenateAll(",", needed.Select(s => 
                     s.Name)));
 
-                // Calculate the used symbols in the method declaration.
-                var expressionDataFlowAnalyzer = AnalyzerFactory.GetExpressionDataFlowAnalyzer();
-                expressionDataFlowAnalyzer.SetDocument(after);
-                expressionDataFlowAnalyzer.SetExpression(invocation);
-                var used = expressionDataFlowAnalyzer.GetFlowInData();
-
-                // Logging the used typeNameTuples.
-                logger.Info("Used typeNameTuples: " + StringUtil.ConcatenateAll(",", used.Select(s => 
-                    s.Name)));
-
                 // Calculate the missing symbols and the extra symbols, also, trivial to show 'this' so 
                 // remove.
-                var missing = ConditionCheckersUtils.RemoveThisSymbol(
-                    ConditionCheckersUtils.GetSymbolListExceptByName(needed, used));
+                needed = ConditionCheckersUtils.RemoveThisSymbol(needed);
 
                 // Among the missing parameters, some of them are already by a parameter of the newly 
                 // extracted method.
                 var parameterNames = GetParameterNames(refactoring.ExtractedMethodDeclaration);
-                missing = missing.Where(s => !parameterNames.Contains(s.Name));
+                var missing = needed.Where(s => !parameterNames.Contains(s.Name));
 
                 // if missing is not empty, then some typeNameTuples are needed. 
                 if (missing.Any())
@@ -140,9 +126,10 @@ namespace warnings.conditions
                 {
                     var single = correctRefactoringResult as ISingleDocumentResult;
                     var refactoring = correctRefactoringResult.refactoring as IManualExtractMethodRefactoring;
-                    if(single != null && refactoring != null)
+                    if(single != null && single.GetDocumentId() == GetDocumentId() && refactoring != null)
                     {
-                        if(IsIssuedToSameDocument(single))
+                        if (correctRefactoringResult.RefactoringConditionType == RefactoringConditionType.
+                            EXTRACT_METHOD_PARAMETER)
                         {
                             return methodNameComparer.Compare(declaration, refactoring.
                                 ExtractedMethodDeclaration) == 0;
@@ -178,15 +165,18 @@ namespace warnings.conditions
                     if (GhostFactorComponents.configurationComponent.SupportQuickFix
                         (RefactoringConditionType.EXTRACT_METHOD_PARAMETER))
                     {
-                        return new CodeIssue(CodeIssue.Severity.Error, node.Span, "Missing parameter: " +
-                            typeNameTuple.Item2, new ICodeAction[] {new AddParamterCodeAction(document, node,
+                        return new CodeIssue(CodeIssue.Severity.Error, node.Span, GetErrorDescription
+                            (typeNameTuple), new ICodeAction[] {new AddParamterCodeAction(document, node, 
                                 typeNameTuple, this)});
                     }
-                    else
-                    {
-                        return new CodeIssue(CodeIssue.Severity.Error, node.Span, "Missing parameter: " +
-                            typeNameTuple.Item2);
-                    }
+                    return new CodeIssue(CodeIssue.Severity.Error, node.Span, GetErrorDescription
+                        (typeNameTuple));
+                }
+
+                
+                private string GetErrorDescription(Tuple<string, string> typeNameTuple)
+                {
+                    return "Missing parameter: " + typeNameTuple.Item1 + " " + typeNameTuple.Item2;
                 }
 
 

@@ -70,7 +70,56 @@ namespace warnings.refactoring.detection
             return new InMethodExtractMethodDectectorByStringDistances();
         }
 
-        /* In method extract method detector that is based on the common statements count. */
+        public static InMethodExtractMethodDetector GetInMethodExtractMethodDetectorWithoutInvocation()
+        {
+            return new InMethodExtractMethodDetectorWithoutInvocation();
+        }
+
+        private class InMethodExtractMethodDetectorWithoutInvocation : InMethodExtractMethodDetector
+        {
+            private const int COMMON_STATEMENTS_COUNT = 3;
+
+            public override bool HasRefactoring()
+            {
+                refactoring = null;
+
+                // Get all the blocks in the caller before, including the method body.
+                var blocks = callerBefore.Body.DescendantNodesAndSelf().OfType<BlockSyntax>();
+
+                if(blocks.Any())
+                {
+                    // Find the longest common statements by comparing each of these blocks and the body of the 
+                    // newly added method declaration.
+                    int maxCommon = int.MinValue;
+                    IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> longestCommonStatements = null;
+                    foreach (var block in blocks)
+                    {
+                        var pairs = RefactoringDetectionUtils.GetLongestCommonStatements(block.Statements,
+                            calleeAfter.Body.Statements, new SyntaxNodeExactComparer());
+                        if (pairs.Count() > maxCommon)
+                        {
+                            maxCommon = pairs.Count();
+                            longestCommonStatements = pairs.ToList();
+                        }
+                    }
+
+                    // If the longest common statements are found and the number of common statements 
+                    if (longestCommonStatements != null && longestCommonStatements.Count() >
+                        COMMON_STATEMENTS_COUNT)
+                    {
+                        refactoring = ManualRefactoringFactory.CreateManualExtractMethodRefactoring
+                            (documentBefore, documentAfter, calleeAfter, null, longestCommonStatements.Select
+                                (p => p.Key));
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// In method extract method detector that is based on the common statements count. 
+        /// </summary>
         private class InMethodExtractMethodDetectorByCommonStatements : InMethodExtractMethodDetector
         {
             private readonly static int MAX_COMMON_STATEMENTS = 0;
@@ -86,33 +135,39 @@ namespace warnings.refactoring.detection
             {
                 refactoring = null;
 
-                // Get the first invocation of the new method in the after-version of method.
-                var invocation = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, 
-                    (SyntaxTree) documentAfter.GetSyntaxTree()).First();
-                var changedBlockPairs = RefactoringDetectionUtils.GetChangedBlocks(callerBefore.Body,
-                    callerAfter.Body);
-                LogChangedBlocks(changedBlockPairs);
-                
-                if (changedBlockPairs.Count() == 1)
+                // Get all the invocations of the added method in the body of common method after.
+                var invocations = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, 
+                    (SyntaxTree) documentAfter.GetSyntaxTree());
+
+                if (invocations.Any())
                 {
-                    // Get the statements in the method after and the new method.
-                    var statements1 = ((BlockSyntax)changedBlockPairs.First().NodeBefore).Statements;
-                    var statements2 = calleeAfter.Body.Statements;
+                    // Get the first invocation.
+                    var invocation = invocations.First();
+                    var changedBlockPairs = RefactoringDetectionUtils.GetChangedBlocks(callerBefore.Body,
+                        callerAfter.Body);
+                    LogChangedBlocks(changedBlockPairs);
 
-                    // Get their longest common statements.
-                    var commons = RefactoringDetectionUtils.GetLongestCommonStatements(statements1,
-                        statements2, new SyntaxNodeExactComparer());
-
-                    logger.Info("Common statements count: " + commons.Count());
-                    
-                    // If the number of common statements is larger than the threshhold, a refactoring 
-                    // is detected.
-                    if (commons.Count() > MAX_COMMON_STATEMENTS)
+                    if (changedBlockPairs.Count() == 1)
                     {
-                        refactoring = ManualRefactoringFactory.CreateManualExtractMethodRefactoring
-                            (documentBefore, documentAfter, calleeAfter, invocation, 
-                            commons.Select(p => p.Key));
-                        return true;
+                        // Get the statements in the method after and the new method.
+                        var statements1 = ((BlockSyntax) changedBlockPairs.First().NodeBefore).Statements;
+                        var statements2 = calleeAfter.Body.Statements;
+
+                        // Get their longest common statements.
+                        var commons = RefactoringDetectionUtils.GetLongestCommonStatements(statements1,
+                            statements2, new SyntaxNodeExactComparer());
+
+                        logger.Info("Common statements count: " + commons.Count());
+
+                        // If the number of common statements is larger than the threshhold, a refactoring 
+                        // is detected.
+                        if (commons.Count() > MAX_COMMON_STATEMENTS)
+                        {
+                            refactoring = ManualRefactoringFactory.CreateManualExtractMethodRefactoring
+                                (documentBefore, documentAfter, calleeAfter, invocation,
+                                 commons.Select(p => p.Key));
+                            return true;
+                        }
                     }
                 }
                 return false;
@@ -129,7 +184,9 @@ namespace warnings.refactoring.detection
             }
         }
 
-        /* Extract method detector for a given caller and an added callee. */
+        /// <summary>
+        /// Extract method detector for a given caller and an added callee.
+        /// </summary>
         private class InMethodExtractMethodDectectorByStringDistances : InMethodExtractMethodDetector
         {
             private readonly Logger logger;
@@ -142,44 +199,50 @@ namespace warnings.refactoring.detection
 
             public override bool HasRefactoring()
             {
-                // Get the first invocation of callee in the caller method body.
-                var invocation = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter, 
-                    (SyntaxTree) documentAfter.GetSyntaxTree()).First();
- 
-                 //Flatten the caller after by replacing callee invocation with the code in the calle 
-                 //method body.                 
-                String callerAfterFlattenned = ASTUtil.FlattenMethodInvocation(callerAfter, 
-                    calleeAfter, invocation);
+                // Get all the invocations of the added method in the after method.
+                var invocations = ASTUtil.GetAllInvocationsInMethod(callerAfter, calleeAfter,
+                    (SyntaxTree) documentAfter.GetSyntaxTree());
 
-                var beforeWithoutSpace = callerBefore.GetFullText().Replace(" ", "");
-
-                // The distance between flattened caller after and the caller before.
-                int dis1 = StringUtil.GetStringDistance(callerAfterFlattenned.Replace(" ", ""), 
-                    beforeWithoutSpace);
-
-                // The distance between caller after and the caller before.
-                int dis2 = StringUtil.GetStringDistance(callerAfter.GetFullText().Replace(" ", ""), 
-                    beforeWithoutSpace);
-                logger.Info("Distance Gain by Flattening:" + (dis2 - dis1));
-
-                // Check whether the distance is shortened by flatten. 
-                if (dis2 > dis1)
+                if (invocations.Any())
                 {
-                    // If similar enough, a manual refactoring instance is likely to be detected 
-                    // and created.
-                    var analyzer = RefactoringAnalyzerFactory.CreateManualExtractMethodAnalyzer();
-                    analyzer.SetDocumentBefore(documentBefore);
-                    analyzer.SetDocumentAfter(documentAfter);
-                    analyzer.SetMethodDeclarationBeforeExtracting(callerBefore);
-                    analyzer.SetExtractedMethodDeclaration(calleeAfter);
-                    analyzer.SetInvocationExpression(invocation);
+                    // Only consider the first invocation among them.
+                    var invocation = invocations.First();
 
-                    // If the analyzer can get a refactoring from the given information, 
-                    // get the refactoring and return true.
-                    if (analyzer.CanGetRefactoring())
+                    //Flatten the caller after by replacing callee invocation with the code in the calle 
+                    //method body.                 
+                    String callerAfterFlattenned = ASTUtil.FlattenMethodInvocation(callerAfter,
+                                                                                   calleeAfter, invocation);
+
+                    var beforeWithoutSpace = callerBefore.GetFullText().Replace(" ", "");
+
+                    // The distance between flattened caller after and the caller before.
+                    int dis1 = StringUtil.GetStringDistance(callerAfterFlattenned.Replace(" ", ""),
+                                                            beforeWithoutSpace);
+
+                    // The distance between caller after and the caller before.
+                    int dis2 = StringUtil.GetStringDistance(callerAfter.GetFullText().Replace(" ", ""),
+                                                            beforeWithoutSpace);
+                    logger.Info("Distance Gain by Flattening:" + (dis2 - dis1));
+
+                    // Check whether the distance is shortened by flatten. 
+                    if (dis2 > dis1)
                     {
-                        refactoring = analyzer.GetRefactoring();
-                        return true;
+                        // If similar enough, a manual refactoring instance is likely to be detected 
+                        // and created.
+                        var analyzer = RefactoringAnalyzerFactory.CreateManualExtractMethodAnalyzer();
+                        analyzer.SetDocumentBefore(documentBefore);
+                        analyzer.SetDocumentAfter(documentAfter);
+                        analyzer.SetMethodDeclarationBeforeExtracting(callerBefore);
+                        analyzer.SetExtractedMethodDeclaration(calleeAfter);
+                        analyzer.SetInvocationExpression(invocation);
+
+                        // If the analyzer can get a refactoring from the given information, 
+                        // get the refactoring and return true.
+                        if (analyzer.CanGetRefactoring())
+                        {
+                            refactoring = analyzer.GetRefactoring();
+                            return true;
+                        }
                     }
                 }
                 return false;

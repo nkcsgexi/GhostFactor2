@@ -62,7 +62,7 @@ namespace warnings.refactoring.detection
                     return new InlineMethodDetector(InMethodInlineDetectorFactory.GetInlineDetectorByStatement());
                 case RefactoringType.EXTRACT_METHOD:
                     return new ExtractMethodDetector(InMethodExtractMethodDetectorFactory.
-                        GetInMethodExtractMethodDetectorByCommonStatements());
+                        GetInMethodExtractMethodDetectorWithoutInvocation());
                 case RefactoringType.CHANGE_METHOD_SIGNATURE:
                     return new ChangeMethodSignatureDetector();
                 default:

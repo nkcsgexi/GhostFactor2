@@ -215,15 +215,17 @@ namespace warnings.conditions
                     if (GhostFactorComponents.configurationComponent.SupportQuickFix
                         (RefactoringConditionType.EXTRACT_METHOD_RETURN_VALUE))
                     {
-                        return new CodeIssue(CodeIssue.Severity.Error, node.Span, "Missing return value: "
-                            + typeNameTuple.Item2, new ICodeAction[]{new AddReturnValueCodeAction(document, 
-                            declaration, invocation, typeNameTuple, this)});
-                    }
-                    else
-                    {
-                        return new CodeIssue(CodeIssue.Severity.Error, node.Span, "Missing return value: "
-                         + typeNameTuple.Item2);
-                    }
+                        return new CodeIssue(CodeIssue.Severity.Error, node.Span, GetErrorDescription
+                            (typeNameTuple), new ICodeAction[]{new AddReturnValueCodeAction(document, 
+                                declaration, invocation, typeNameTuple, this)});
+                    }           
+                    return new CodeIssue(CodeIssue.Severity.Error, node.Span, GetErrorDescription
+                        (typeNameTuple));
+                }
+
+                private string GetErrorDescription(Tuple<string, string> typeNameTuple)
+                {
+                    return "Missing return value: " + typeNameTuple.Item1 + " " + typeNameTuple.Item2;
                 }
 
                 public override bool Equals(ICodeIssueComputer o)
@@ -364,18 +366,21 @@ namespace warnings.conditions
 
                     public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node)
                     {
-                        methodInvocationAnalyzer.SetMethodInvocation(node);
-                        if(methodInvocationAnalyzer.HasSameMethodName(invocation))
+                        if (invocation != null)
                         {
-                            if (NeedAssignment(invocation))
+                            methodInvocationAnalyzer.SetMethodInvocation(node);
+                            if (methodInvocationAnalyzer.HasSameMethodName(invocation))
                             {
-                                // Return an expression with the assignment to the missed return value.
-                                return Syntax.ParseExpression(returnSymbolName + " = " + node.GetText()).
-                                    WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(
-                                        node.GetTrailingTrivia());
+                                if (NeedAssignment(invocation))
+                                {
+                                    // Return an expression with the assignment to the missed return value.
+                                    return Syntax.ParseExpression(returnSymbolName + " = " + node.GetText()).
+                                        WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(
+                                            node.GetTrailingTrivia());
+                                }
                             }
                         }
-                        return node;
+                        return null;
                     }
 
                     private SyntaxNode GetOutSideMethod(SyntaxNode node)

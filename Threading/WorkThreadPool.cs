@@ -419,7 +419,7 @@ namespace BlackHen.Threading
                   if (work != null)
                      DoWork(work);
                   else
-                    Thread.Sleep(10);
+                    Thread.Sleep(0);
                }
             }
             catch (ThreadAbortException)

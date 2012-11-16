@@ -77,43 +77,72 @@ namespace warnings.refactoring.detection
 
         private class InMethodExtractMethodDetectorWithoutInvocation : InMethodExtractMethodDetector
         {
-            private const int COMMON_STATEMENTS_COUNT = 3;
+            private const double THRESHHOLD = 0.5;
+            private static Logger Logger =NLoggerUtil.GetNLogger(typeof
+                (InMethodExtractMethodDetectorWithoutInvocation));
+
 
             public override bool HasRefactoring()
             {
                 refactoring = null;
-
-                // Get all the blocks in the caller before, including the method body.
-                var blocks = callerBefore.Body.DescendantNodesAndSelf().OfType<BlockSyntax>();
-
-                if(blocks.Any())
+                if (IsMethodWithStatements(callerBefore) && IsMethodWithStatements(calleeAfter))
                 {
-                    // Find the longest common statements by comparing each of these blocks and the body of the 
-                    // newly added method declaration.
-                    int maxCommon = int.MinValue;
-                    IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> longestCommonStatements = null;
-                    foreach (var block in blocks)
+                    // Get all the blocks in the caller before, including the method body.
+                    var blocks = callerBefore.Body.DescendantNodesAndSelf().OfType<BlockSyntax>().ToList();
+                    if (blocks.Any())
                     {
-                        var pairs = RefactoringDetectionUtils.GetLongestCommonStatements(block.Statements,
-                            calleeAfter.Body.Statements, new SyntaxNodeExactComparer());
-                        if (pairs.Count() > maxCommon)
-                        {
-                            maxCommon = pairs.Count();
-                            longestCommonStatements = pairs.ToList();
-                        }
-                    }
-
-                    // If the longest common statements are found and the number of common statements 
-                    if (longestCommonStatements != null && longestCommonStatements.Count() >
-                        COMMON_STATEMENTS_COUNT)
-                    {
-                        refactoring = ManualRefactoringFactory.CreateManualExtractMethodRefactoring
-                            (documentBefore, documentAfter, calleeAfter, null, longestCommonStatements.Select
-                                (p => p.Key));
-                        return true;
+                        var longestCommonStatements = GetLongestCommonStatements(blocks);
+                        refactoring = TryGetRefactoring(longestCommonStatements);
                     }
                 }
-                return false;
+                return refactoring != null;
+            }
+
+            private ManualRefactoring TryGetRefactoring(IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> 
+                longestCommonStatements)
+            {
+                // If the longest common statements are found and the number of common statements exceeds 
+                // the threshhold.
+                if (AreMostStatementsCommon(longestCommonStatements, calleeAfter.Body.Statements))
+                {
+                    return ManualRefactoringFactory.CreateManualExtractMethodRefactoring
+                        (documentBefore, documentAfter, calleeAfter, null, longestCommonStatements.Select
+                            (p => p.Key));
+                }
+                return null;
+            }
+
+            private bool AreMostStatementsCommon(IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> 
+                commonStatements, SyntaxList<StatementSyntax> statements)
+            {
+                return (float)commonStatements.Count()/statements.Count() > THRESHHOLD;
+            }
+
+            private IEnumerable<KeyValuePair<SyntaxNode, SyntaxNode>> GetLongestCommonStatements
+                (IEnumerable<BlockSyntax> blocks)
+            {
+                // Find the longest common statements by comparing each of these blocks and the body of the 
+                // newly added method declaration.
+                int maxCommon = 0;
+                var comparer = new SyntaxNodeExactComparer();
+                var longestCommonStatements = Enumerable.Empty<KeyValuePair<SyntaxNode, SyntaxNode>>();
+                foreach (var block in blocks)
+                {
+                    var pairs = RefactoringDetectionUtils.GetLongestCommonStatements(block.Statements,
+                        calleeAfter.Body.Statements, comparer);
+                    if (pairs.Count() > maxCommon)
+                    {
+                        maxCommon = pairs.Count();
+                        longestCommonStatements = pairs.ToList();
+                    }                   
+                }
+                return longestCommonStatements;
+            }
+
+            private bool IsMethodWithStatements(SyntaxNode m)
+            {
+                var method = (MethodDeclarationSyntax) m;
+                return method.Body != null && method.Body.Statements != null;
             }
         }
 

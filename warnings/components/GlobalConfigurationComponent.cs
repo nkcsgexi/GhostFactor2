@@ -36,18 +36,15 @@ namespace warnings.components
         private GlobalConfigurationComponent()
         {
             supportedTypes = new List<RefactoringType>();
-
-            queue = new WorkQueue() { ConcurrentLimit = 1};
-            queue.WorkerPool = new WorkThreadPool(1, 1);
+            queue = new WorkQueue {ConcurrentLimit = 1, WorkerPool = new WorkThreadPool(1, 1)};            
             queue.FailedWorkItem += OnItemFailed;
-
             logger = NLoggerUtil.GetNLogger(typeof (GlobalConfigurationComponent));
         }
 
         private void OnItemFailed(object sender, WorkItemEventArgs workItemEventArgs)
         {
             logger.Fatal("Work item failed: " + workItemEventArgs.WorkItem);
-            logger.Fatal(workItemEventArgs.WorkItem.FailedException);
+            logger.Fatal(Environment.NewLine + workItemEventArgs.WorkItem.FailedException);
         }
 
         /// <summary>

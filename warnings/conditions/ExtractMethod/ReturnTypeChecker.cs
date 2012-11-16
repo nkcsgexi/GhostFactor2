@@ -31,7 +31,7 @@ namespace warnings.conditions
 
             public override Predicate<SyntaxNode> GetIssuedNodeFilter()
             {
-                return n => n.Kind == SyntaxKind.MethodDeclaration;
+                return n => n is TypeSyntax;
             }
 
             protected override IConditionCheckingResult CheckCondition(
@@ -191,22 +191,27 @@ namespace warnings.conditions
 
                 public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
                 {
-                    return ((SyntaxNode)document.GetSyntaxRoot()).DescendantNodes(n => n.Kind != SyntaxKind.
-                        MethodDeclaration).Where(n => n.Kind == SyntaxKind.MethodDeclaration);
+                    return ((SyntaxNode) document.GetSyntaxRoot()).DescendantNodes(n => n.Kind != SyntaxKind.
+                        MethodDeclaration).OfType<MethodDeclarationSyntax>().Select(m => m.ReturnType);
                 }
 
                 public override IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
                 {
-                    // If the given node is not method invocation, return directly.
-                    if (node.Kind == SyntaxKind.MethodDeclaration)
+                    var type = node as TypeSyntax;
+                    if (type != null)
                     {
-                        // If the method is the with the same name, then issue the issue to this method.
-                        if (methodNameComparer.Compare(node, declaration) == 0)
+                        var method = (MethodDeclarationSyntax)ConditionCheckersUtils.TryGetOutsideMethod
+                            (node);
+                        if(method != null && methodNameComparer.Compare(method, declaration) == 0)
                         {
-                            return typeNameTuples.Select(t => GetReturnValueCodeIssue(document, node, t));
+                            if (method.ReturnType.Span.Equals(node.Span))
+                            {
+                                return typeNameTuples.Select(t => GetReturnValueCodeIssue(document, 
+                                    node, t));
+                            }
                         }
                     }
-                    return Enumerable.Empty<CodeIssue>();
+                    return Enumerable.Empty<CodeIssue>();                   
                 }
 
                 private CodeIssue GetReturnValueCodeIssue(IDocument document, SyntaxNode node, Tuple<string, 

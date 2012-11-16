@@ -178,5 +178,20 @@ namespace warnings.conditions
             // computer.
             return setsComparer.Equals(tuples1, tuples2);
         }
+
+        /// <summary>
+        /// Try to get the method declaration that is outside of the given node.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public static SyntaxNode TryGetOutsideMethod(SyntaxNode node)
+        {
+            var methods = node.Ancestors().OfType<MethodDeclarationSyntax>().ToList();
+            if (methods.Any())
+            {
+                return methods.First();
+            }
+            return null;
+        }
     }
 }

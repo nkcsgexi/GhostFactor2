@@ -33,7 +33,7 @@ namespace warnings.conditions
 
             public override Predicate<SyntaxNode> GetIssuedNodeFilter()
             {
-                return n => n.Kind == SyntaxKind.MethodDeclaration;
+                return n => n.Kind == SyntaxKind.ParameterList;
             }
 
             protected override IConditionCheckingResult CheckCondition(
@@ -141,32 +141,33 @@ namespace warnings.conditions
                 public override IEnumerable<SyntaxNode> GetPossibleSyntaxNodes(IDocument document)
                 {
                     return ((SyntaxNode)document.GetSyntaxRoot()).DescendantNodes(n => n.Kind != 
-                        SyntaxKind.MethodDeclaration).Where(n => n.Kind == SyntaxKind.MethodDeclaration);
+                        SyntaxKind.MethodDeclaration).OfType<MethodDeclarationSyntax>().Select(m => m.
+                            ParameterList);
                 }
 
                 public override IEnumerable<CodeIssue> ComputeCodeIssues(IDocument document, SyntaxNode node)
                 {
-                    // If the node is not method declaration, does not proceed.
-                    if (node.Kind == SyntaxKind.MethodDeclaration)
+                    if(node.Kind == SyntaxKind.ParameterList)
                     {
-                        // If the given node is the declaration, return a new issue.
-                        if (methodNameComparer.Compare(node, declaration) == 0)
+                        var method = ConditionCheckersUtils.TryGetOutsideMethod(node);
+                        if(method != null && methodNameComparer.Compare(method, declaration) == 0)
                         {
-                            // For each type name tuple, generate one issue with it.
-                            return typeNameTuples.Select(t => GetMissingParameterIssue(document, node, t));
+                            return typeNameTuples.Select(t => GetMissingParameterIssue(document, method, node, 
+                                t));
                         }
                     }
                     return Enumerable.Empty<CodeIssue>();
                 }
 
-                private CodeIssue GetMissingParameterIssue(IDocument document, SyntaxNode node, 
-                    Tuple<string, string> typeNameTuple)
+
+                private CodeIssue GetMissingParameterIssue(IDocument document, SyntaxNode method, 
+                    SyntaxNode node, Tuple<string, string> typeNameTuple)
                 {
                     if (GhostFactorComponents.configurationComponent.SupportQuickFix
                         (RefactoringConditionType.EXTRACT_METHOD_PARAMETER))
                     {
                         return new CodeIssue(CodeIssue.Severity.Error, node.Span, GetErrorDescription
-                            (typeNameTuple), new ICodeAction[] {new AddParamterCodeAction(document, node, 
+                            (typeNameTuple), new ICodeAction[] {new AddParamterCodeAction(document, method, 
                                 typeNameTuple, this)});
                     }
                     return new CodeIssue(CodeIssue.Severity.Error, node.Span, GetErrorDescription

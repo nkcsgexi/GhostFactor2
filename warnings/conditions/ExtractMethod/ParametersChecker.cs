@@ -177,7 +177,8 @@ namespace warnings.conditions
                 
                 private string GetErrorDescription(Tuple<string, string> typeNameTuple)
                 {
-                    return "Missing parameter: " + typeNameTuple.Item1 + " " + typeNameTuple.Item2;
+                    return "Extracted method needs parameter: " + typeNameTuple.Item1 + " " + typeNameTuple.
+                        Item2;
                 }
 
 

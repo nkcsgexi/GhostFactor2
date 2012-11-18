@@ -104,10 +104,7 @@ namespace warnings.ui
             var messageElements = new List<string>();
             messageElements.Add(message.File);
             messageElements.Add(message.Line.ToString());
-
-            // Convert the refactoring type to the name that describes it.
-            var converter = new RefactoringType2StringConverter();
-            var typeName = (string)converter.Convert(message.RefactoringType, null, null, null);
+            var typeName = RefactoringTypeUtil.GetRefactoringTypeName(message.RefactoringType);
 
             messageElements.Add(typeName);
             messageElements.Add(message.Description);
@@ -199,10 +196,9 @@ namespace warnings.ui
         /// <param name="types"></param>
         public void SetSupportedRefactoringTypes(IEnumerable<RefactoringType> types)
         {
-            var converter = new RefactoringType2StringConverter(); 
             SupportedRefactoringsListBox.Items.Clear();
-            SupportedRefactoringsListBox.Items.AddRange(types.Select(t => converter.Convert
-                (t, null, null, null)).ToArray());
+            SupportedRefactoringsListBox.Items.AddRange(types.Select(RefactoringTypeUtil.
+                GetRefactoringTypeName).ToArray());
         }
 
 

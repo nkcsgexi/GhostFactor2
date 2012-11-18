@@ -70,8 +70,10 @@
     <Content Include="fakesource\studycases\ExtractMethod1.txt" />
     <Content Include="fakesource\studycases\ExtractMethod2.txt" />
     <Content Include="fakesource\studycases\ExtractMethod3.txt" />
+    <Content Include="fakesource\studycases\ConsoleLibInlineResolved.txt" />
     <Compile Include="fakesource\TypeHierarchyFakeSource.cs" />
     <Compile Include="issue resolve tests\ExtractMethodIssueResolveTests.cs" />
+    <Compile Include="issue resolve tests\InlineMethodIssueResolver.cs" />
     <Compile Include="refactoring detector test\InlineMethodRefactoringTests.cs" />
     <Compile Include="refactoring detector test\SimpleExtractMethodTests.cs" />
     <Compile Include="retriever test\MethodInvocationRetrieverTests.cs" />

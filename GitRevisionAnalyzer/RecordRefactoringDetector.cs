@@ -194,8 +194,7 @@ namespace GitRevisionAnalyzer
 
         private string GetRefactoringType(ManualRefactoring refactoring)
         {
-            var converter = new RefactoringType2StringConverter();
-            return (string)converter.Convert(refactoring.RefactoringType, null, null, null);
+            return RefactoringTypeUtil.GetRefactoringTypeName(refactoring.RefactoringType);
         }
 
         private string GetSolutionName()

@@ -48,8 +48,7 @@ namespace warnings.components.ui
 
             public String ToString()
             {
-                var converter = new RefactoringType2StringConverter();
-                var type = (string) converter.Convert(RefactoringType, null, null, null);
+                var type = RefactoringTypeUtil.GetRefactoringTypeName(CodeIssueComputer.RefactoringType);
                 var sb = new StringBuilder();
                 sb.AppendLine(File);
                 sb.AppendLine(Line.ToString());

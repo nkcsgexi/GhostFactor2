@@ -230,7 +230,8 @@ namespace warnings.conditions
 
                 private string GetErrorDescription(Tuple<string, string> typeNameTuple)
                 {
-                    return "Missing return value: " + typeNameTuple.Item1 + " " + typeNameTuple.Item2;
+                    return "Extracted method needs return value: " + typeNameTuple.Item1 + " " + 
+                        typeNameTuple.Item2;
                 }
 
                 public override bool Equals(ICodeIssueComputer o)

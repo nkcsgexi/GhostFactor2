@@ -23,13 +23,13 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:SearchRefactoringComponent.cs" caret="6275" fromTop="19" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/f:RefactoringDetectionUtils.cs" caret="1390" fromTop="11" />
     <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:WorkThreadPool.cs" caret="14147" fromTop="12" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:extract method/f:InMethodExtractMethodDetector.cs" caret="1181" fromTop="0" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/d:ui/f:RefactoringFormViewComponent.cs" caret="6966" fromTop="85" />
     <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:WorkQueue.cs" caret="3680" fromTop="0" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ParametersChecker.cs" caret="8309" fromTop="49" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionCheckersUtils.cs" caret="7853" fromTop="42" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ReturnTypeChecker.cs" caret="4925" fromTop="36" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="4652" fromTop="7" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionCheckersUtils.cs" caret="7853" fromTop="42" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:extract method/f:InMethodExtractMethodDetector.cs" caret="3071" fromTop="12" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="5687" fromTop="12" />
   </RecentFiles>
   <RecentEdits>
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ExtractMethodConditionChecker.cs" caret="1752" fromTop="31" />
@@ -57,10 +57,10 @@
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:SearchRefactoringComponent.cs" caret="6272" fromTop="19" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/f:RefactoringDetectionUtils.cs" caret="1390" fromTop="11" />
     <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:WorkThreadPool.cs" caret="14147" fromTop="12" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:extract method/f:InMethodExtractMethodDetector.cs" caret="4179" fromTop="28" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/f:ConditionCheckersUtils.cs" caret="7838" fromTop="41" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ParametersChecker.cs" caret="8064" fromTop="31" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ReturnTypeChecker.cs" caret="10319" fromTop="27" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="5349" fromTop="27" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/d:extract method/f:InMethodExtractMethodDetector.cs" caret="3071" fromTop="12" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="5350" fromTop="18" />
   </RecentEdits>
 </RecentFiles>

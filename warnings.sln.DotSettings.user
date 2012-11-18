@@ -7,6 +7,9 @@
 	
 	
 	<s:Boolean x:Key="/Default/Environment/SearchAndNavigation/MergeOccurences/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/Housekeeping/UnitTestingMru/UnitTestSessionPersistentData/=67270B77E32D4427B27F39ABCA7C71B8/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/Housekeeping/UnitTestingMru/UnitTestSessionPersistentData/=67270B77E32D4427B27F39ABCA7C71B8/Name/@EntryValue">TestMethod3</s:String>
+	<s:String x:Key="/Default/Housekeeping/UnitTestingMru/UnitTestSessionPersistentData/=67270B77E32D4427B27F39ABCA7C71B8/XmlSerializedElements/@EntryValue">&lt;Session&gt;&lt;Elements&gt;&lt;UnitTestElement Provider="MSTest" Id="MsTest:WarningTest.issue_resolve_tests.InlineMethodIssueResolver" type="MsTestTestClassElement" TypeName="WarningTest.issue_resolve_tests.InlineMethodIssueResolver" Project="EA60B585-BD4A-4667-863C-21FFFB2599B4" /&gt;&lt;UnitTestElement Provider="MSTest" Id="MsTest:WarningTest.issue_resolve_tests.InlineMethodIssueResolver.TestMethod3" ParentId="MsTest:WarningTest.issue_resolve_tests.InlineMethodIssueResolver" type="MsTestTestMethodElement" MethodName="TestMethod3" TypeName="WarningTest.issue_resolve_tests.InlineMethodIssueResolver" Project="EA60B585-BD4A-4667-863C-21FFFB2599B4" /&gt;&lt;/Elements&gt;&lt;/Session&gt;</s:String>
 	
 	
 	

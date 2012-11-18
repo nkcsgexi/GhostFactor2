@@ -66,39 +66,5 @@ namespace warnings.util
             return doc.GetText();
         }
     }
-
-    /* Convert a refactoring type to a string to describe this type. */
-    public class RefactoringType2StringConverter : IValueConverter
-    {
-        /* Static strings to describe refactoring type names. */
-        private static string EXTRACT_METHOD = "Extract method";
-        private static string RENAME = "Rename";
-        private static string CHANGE_METHOD_SIGNATURE = "Change method signature";
-        private static string INLINE_METHOD = "Inline method";
-        private static string UNKNOW = "Unknown refactoring type";
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var type = (RefactoringType) value;
-            switch (type)
-            {
-                case RefactoringType.RENAME:
-                    return RENAME;
-                case RefactoringType.EXTRACT_METHOD:
-                    return EXTRACT_METHOD;
-                case RefactoringType.CHANGE_METHOD_SIGNATURE:
-                    return CHANGE_METHOD_SIGNATURE;
-                case RefactoringType.INLINE_METHOD:
-                    return INLINE_METHOD;
-                default:
-                    return UNKNOW;
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
    
 }

@@ -11,6 +11,7 @@ using Roslyn.Services;
 using Roslyn.Services.Editor;
 using warnings.analyzer;
 using warnings.analyzer.comparators;
+using warnings.components;
 using warnings.refactoring;
 using warnings.refactoring.detection;
 using warnings.resources;
@@ -36,17 +37,16 @@ namespace warnings.conditions
                 var after = refactoring.AfterDocument;
 
                 // Get the out going symbols before the method is inlined.
-                var writtenSymbolsBeforeInline = ConditionCheckersUtils.GetFlowOutData(
-                    ConditionCheckersUtils.GetStatementEnclosingNode
-                        (refactoring.InlinedMethodInvocation), before);
+                var writtenSymbolsBeforeInline = ConditionCheckersUtils.GetFlowOutData(ConditionCheckersUtils.
+                    GetStatementEnclosingNode(refactoring.InlinedMethodInvocation), before);
 
                 // Get the out going symbols after the method is inlined.
                 var writtenSymbolsAfterInline = ConditionCheckersUtils.GetFlowOutData(refactoring.
                     InlinedStatementsInMethodAfter, after);
                 
                 // Calculate the symbols that are added by inlining method.
-                var addedSymbols = ConditionCheckersUtils.GetSymbolListExceptByName(
-                    writtenSymbolsAfterInline, writtenSymbolsBeforeInline);
+                var addedSymbols = ConditionCheckersUtils.GetSymbolListExceptByName(writtenSymbolsAfterInline, 
+                    writtenSymbolsBeforeInline);
 
                 // Calculate the symbols that are removed by inlining method.
                 var missingSymbols = ConditionCheckersUtils.GetSymbolListExceptByName(
@@ -174,13 +174,23 @@ namespace warnings.conditions
                             // node.
                             if(statements.Contains(node))
                             {
-                                yield return new CodeIssue(CodeIssue.Severity.Error, node.Span, 
-                                    GetIssueDescription(), new ICodeAction[]{new ModifiedFlowOutDataFix(
-                                        document, methodAfter, inlinedMethod, inlinedMethodInvocation, 
-                                        inlinedStatements, addedSymbols, missingSymbols, this)});
+                                yield return CreateCodeIssue(document, node);
                             }
                         }
                     }
+                }
+
+                private CodeIssue CreateCodeIssue(IDocument document, SyntaxNode node)
+                {
+                    if (GhostFactorComponents.configurationComponent.SupportQuickFix(RefactoringConditionType.
+                        INLINE_METHOD_MODIFIED_DATA))
+                    {
+                        return new CodeIssue(CodeIssue.Severity.Error, node.Span, GetIssueDescription(),
+                            new ICodeAction[]{new ModifiedFlowOutDataFix(document, methodAfter, inlinedMethod,
+                                inlinedMethodInvocation, inlinedStatements, addedSymbols, missingSymbols, 
+                                    this)});
+                    }
+                    return new CodeIssue(CodeIssue.Severity.Error, node.Span, GetIssueDescription());
                 }
 
                 private string GetIssueDescription()
@@ -293,8 +303,7 @@ namespace warnings.conditions
                         {
                             foreach (var s in addedSymbols)
                             {
-                                modifidStatements = AddAddedSymbolsFixStatements(modifidStatements, 
-                                    s);
+                                modifidStatements = AddAddedSymbolsFixStatements(modifidStatements, s);
                             }
                         }
 

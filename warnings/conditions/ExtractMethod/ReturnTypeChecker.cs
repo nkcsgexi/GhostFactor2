@@ -38,27 +38,18 @@ namespace warnings.conditions
                 IManualExtractMethodRefactoring refactoring)
             {
                 var before = refactoring.BeforeDocument;
-                var after = refactoring.AfterDocument;
-
+            
                 // Calculate the outflow data
-                IEnumerable<ISymbol> flowOuts;
-                if (refactoring.ExtractedStatements != null)
-                    flowOuts = GetFlowOutData(refactoring.ExtractedStatements, before);
-                else
-                    flowOuts = GetFlowOutData(refactoring.ExtractedExpression, before);
-
-                // Get the returning data of the return statements.
-                var delaration = refactoring.ExtractedMethodDeclaration;
-                var methodAnalyzer = AnalyzerFactory.GetMethodDeclarationAnalyzer();
-                methodAnalyzer.SetMethodDeclaration(delaration);
-
-                // Get the returning data in the return statements of the extracted method, also log them.
-                var returningData = GetMethodReturningData(methodAnalyzer, after);
+                var flowOuts = refactoring.ExtractedStatements != null ? GetFlowOutData(refactoring.
+                    ExtractedStatements, before) : GetFlowOutData(refactoring.ExtractedExpression, before);
 
                 // Missing symbols that are in the flow out before but not in the returning data.
                 // Remove this symbol.
-                var missing = ConditionCheckersUtils.RemoveThisSymbol(
-                    ConditionCheckersUtils.GetSymbolListExceptByName(flowOuts, returningData));
+                var missing = ConditionCheckersUtils.RemoveThisSymbol(flowOuts).ToList();
+
+                // Remove the returned symbol from the method declaration.
+                missing = missing.Where(s => !GetReturnedIdentifiers(refactoring.ExtractedMethodDeclaration).
+                    Contains(s.Name)).ToList();
 
                 if (missing.Any())
                 {
@@ -66,7 +57,7 @@ namespace warnings.conditions
                         refactoring.ExtractMethodInvocation, ConditionCheckersUtils.GetTypeNameTuples(missing)
                             ,refactoring.MetaData);
                 }
-                return new SingleDocumentCorrectRefactoringResult(refactoring, this.RefactoringConditionType);
+                return new SingleDocumentCorrectRefactoringResult(refactoring, RefactoringConditionType);
             }
 
             public override RefactoringConditionType RefactoringConditionType
@@ -109,7 +100,7 @@ namespace warnings.conditions
                 if (methodDeclarationAnalyzer.HasReturnStatement())
                 {
                     // Get all the return statements.
-                    var return_statements = methodDeclarationAnalyzer.GetReturnStatements();
+                    var returnStatements = methodDeclarationAnalyzer.GetReturnStatements();
 
                     // Get the data flow analyzer for statements.
                     var dataFlowAnalyzer = AnalyzerFactory.GetStatementsDataFlowAnalyzer();
@@ -120,7 +111,7 @@ namespace warnings.conditions
                     // A list containing one statement.
                     var stats = new List<SyntaxNode>();
 
-                    foreach (var s in return_statements)
+                    foreach (var s in returnStatements)
                     {
                         // make the list empty first.
                         stats.Clear();
@@ -137,6 +128,14 @@ namespace warnings.conditions
                     s.Name)));
                 return returningData;
             }
+
+
+            private IEnumerable<string> GetReturnedIdentifiers(SyntaxNode method)
+            {
+                var returnStatements = method.DescendantNodes().OfType<ReturnStatementSyntax>();
+                return returnStatements.Select(s => s.Expression.GetText());
+            }
+
 
             /// <summary>
             /// Code issue computers for the checking results of retrun RefactoringType.

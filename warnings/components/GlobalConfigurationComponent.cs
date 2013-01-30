@@ -160,7 +160,7 @@ namespace warnings.components
             switch (type)
             {
                 case RefactoringConditionType.EXTRACT_METHOD_RETURN_VALUE:
-                    return false;
+                    return true;
                 case RefactoringConditionType.EXTRACT_METHOD_PARAMETER:
                     return false;
                 case RefactoringConditionType.INLINE_METHOD_MODIFIED_DATA:

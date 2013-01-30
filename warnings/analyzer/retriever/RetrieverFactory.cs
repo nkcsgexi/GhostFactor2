@@ -23,5 +23,10 @@ namespace warnings.retriever
         {
             return new MethodInvocationsRetriever();
         }
+
+        public static ICommentsRetriever GetCommentsRetriever()
+        {
+            return new CommentsRetriever();
+        }
     }
 }

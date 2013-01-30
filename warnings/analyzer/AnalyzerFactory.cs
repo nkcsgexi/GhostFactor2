@@ -5,7 +5,7 @@ using System.Text;
 
 namespace warnings.analyzer
 {
-    /* Factory method for returning different types of analyzer, one instance of each anlayzer is enough. */
+    /* Factory method for returning different types of _retriever, one instance of each anlayzer is enough. */
     public class AnalyzerFactory
     {
         public static IMethodDeclarationAnalyzer GetMethodDeclarationAnalyzer()

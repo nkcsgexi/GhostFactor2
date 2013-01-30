@@ -1,11 +1,5 @@
 ﻿<RecentFiles>
   <RecentFiles>
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:refactoring/d:manual/f:ManualRefactoringFactory.cs" caret="6274" fromTop="64" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:refactoring/d:manual/f:ManualRefactoring.cs" caret="1734" fromTop="25" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:ConditionCheckingComponent.cs" caret="2971" fromTop="27" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:SearchRefactoringComponent.cs" caret="6275" fromTop="19" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:detection/f:RefactoringDetectionUtils.cs" caret="1390" fromTop="11" />
-    <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:WorkThreadPool.cs" caret="14147" fromTop="12" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/d:ui/f:RefactoringFormViewComponent.cs" caret="6966" fromTop="85" />
     <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:WorkQueue.cs" caret="3680" fromTop="0" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:refactoring detector test/f:InlineMethodRefactoringTests.cs" caret="2467" fromTop="0" />
@@ -29,11 +23,15 @@
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:conditions checking test/f:ExtractMethodConditionCheckTests.cs" caret="1719" fromTop="25" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ParametersChecker.cs" caret="0" fromTop="0" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ReturnTypeChecker.cs" caret="2432" fromTop="53" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="5119" fromTop="21" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/f:CodeIssueProvider.cs" caret="0" fromTop="0" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:IfStatementAnalyzer.cs" caret="1572" fromTop="0" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:DeclaratorAnalyzer.cs" caret="0" fromTop="0" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:QualifiedNameAnalyzer.cs" caret="297" fromTop="11" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:ReturnStatementAnalyzer.cs" caret="0" fromTop="0" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:HistorySavingComponent.cs" caret="307" fromTop="8" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="3420" fromTop="29" />
   </RecentFiles>
   <RecentEdits>
-    <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:fakesource/d:studycases/f:ExtractMethod5.txt" caret="1684" fromTop="23" />
-    <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:fakesource/d:studycases/f:ExtractMethod6.txt" caret="1687" fromTop="35" />
     <File id="EA60B585-BD4A-4667-863C-21FFFB2599B4/d:issue resolve tests/f:ExtractMethodIssueResolveTests.cs" caret="6450" fromTop="36" />
     <File id="D25188E3-079A-4D53-9EBC-CCE721391322/f:WorkQueue.cs" caret="6575" fromTop="45" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/d:ui/f:RefactoringFormViewComponent.cs" caret="1230" fromTop="12" />
@@ -61,6 +59,8 @@
     <File id="9802AC35-3AE5-4908-A25A-FA07D6658912/f:RecordRefactoringDetector.cs" caret="7967" fromTop="22" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:InlineMethod/f:ChangedVariablesChecker.cs" caret="15023" fromTop="18" />
     <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:conditions/d:ExtractMethod/f:ReturnTypeChecker.cs" caret="2432" fromTop="11" />
-    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="5349" fromTop="27" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:IfStatementAnalyzer.cs" caret="1631" fromTop="23" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:analyzer/f:QualifiedNameAnalyzer.cs" caret="297" fromTop="11" />
+    <File id="D607D17A-326A-47B2-91BD-F4DAD09C55CE/d:components/f:GlobalConfigurationComponent.cs" caret="5349" fromTop="11" />
   </RecentEdits>
 </RecentFiles>

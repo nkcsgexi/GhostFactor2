@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="analyzer test\BlockAnalyzerTests.cs" />
+    <Compile Include="analyzer test\CommentsAnalyzerTests.cs" />
     <Compile Include="analyzer test\ForEachStatementsAnalyzerTests.cs" />
     <Compile Include="analyzer test\IfStatementAnalyzerTests.cs" />
     <Compile Include="analyzer test\MethodInvocationAnalyzerTests.cs" />
@@ -71,6 +72,7 @@
     <Content Include="fakesource\studycases\ExtractMethod2.txt" />
     <Content Include="fakesource\studycases\ExtractMethod3.txt" />
     <Content Include="fakesource\studycases\ConsoleLibInlineResolved.txt" />
+    <Compile Include="fakesource\CommentsAnalyzerSource.cs" />
     <Compile Include="fakesource\TypeHierarchyFakeSource.cs" />
     <Compile Include="issue resolve tests\ExtractMethodIssueResolveTests.cs" />
     <Compile Include="issue resolve tests\InlineMethodIssueResolver.cs" />

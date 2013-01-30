@@ -1,5 +1,5 @@
-2012/11/18-23:16:55.062 23ac Recovering log #244
-2012/11/18-23:16:55.062 23ac Level-0 table #247: started
-2012/11/18-23:16:55.065 23ac Level-0 table #247: 48307 bytes OK
-2012/11/18-23:16:55.067 23ac Delete type=0 #244
-2012/11/18-23:16:55.068 23ac Delete type=3 #242
+2012/12/18-16:52:55.221 20e4 Recovering log #305
+2012/12/18-16:52:55.221 20e4 Level-0 table #307: started
+2012/12/18-16:52:55.221 20e4 Level-0 table #307: 0 bytes OK
+2012/12/18-16:52:55.225 20e4 Delete type=0 #305
+2012/12/18-16:52:55.226 20e4 Delete type=3 #303

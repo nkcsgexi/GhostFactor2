@@ -8,7 +8,9 @@ using warnings.util;
 
 namespace warnings.analyzer
 {
-    /* public analyzer for name scope for a declaration, such as a method declaration. */
+    /// <summary>
+    /// public analyzer for name scope for a declaration, such as a method declaration.
+    /// </summary>
     public interface IQualifiedNameAnalyzer
     {
         void SetSyntaxNode(SyntaxNode declaration);
@@ -26,20 +28,21 @@ namespace warnings.analyzer
             this.node = node;
         }
 
-        /*
-         * For a given node, get the qualified name of the RefactoringType that contains in this node. For example,
-         * if given this method as input, the output shall be warnings.analyzer.QualifiedNameAnalyzer.
-         */
+        /// <summary>
+        /// For a given node, get the qualified name of the RefactoringType that contains in this node. For 
+        /// example,if given this method as input, the output shall be warnings.analyzer.QualifiedNameAnalyzer.
+        /// </summary>
+        /// <returns></returns>
         public string GetOutsideTypeQualifiedName()
         {
             return GetOutsideTypeQualifiedName(node);
         }
-
-        /* 
-         * For a given node, get the qualified names of the types that are contained in this node. For example,
-         * if given this document as input, the output shall be warnings.analyzer.QualifiedNameAnalyzer and
-         * warnings.analyzer.IQualifiedNameAnalyzer.
-         */
+        /// <summary>
+        /// For a given node, get the qualified names of the types that are contained in this node. For example,
+        /// if given this document as input, the output shall be warnings.analyzer.QualifiedNameAnalyzer and
+        /// warnings.analyzer.IQualifiedNameAnalyzer.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<string> GetInsideQualifiedNames()
         {
             // For all the decendent nodes.

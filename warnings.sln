@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "warnings", "warnings\warnin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitRevisionAnalyzer", "GitRevisionAnalyzer\GitRevisionAnalyzer.csproj", "{9802AC35-3AE5-4908-A25A-FA07D6658912}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceCommentAnalyzer", "SourceCommentAnalyzer\SourceCommentAnalyzer.csproj", "{BF7883C6-55BE-4361-A14B-B6E084241DA2}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = warnings.vsmdi
@@ -70,6 +72,16 @@ Global
 		{9802AC35-3AE5-4908-A25A-FA07D6658912}.Release|Mixed Platforms.Build.0 = Release|x86
 		{9802AC35-3AE5-4908-A25A-FA07D6658912}.Release|x86.ActiveCfg = Release|x86
 		{9802AC35-3AE5-4908-A25A-FA07D6658912}.Release|x86.Build.0 = Release|x86
+		{BF7883C6-55BE-4361-A14B-B6E084241DA2}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{BF7883C6-55BE-4361-A14B-B6E084241DA2}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{BF7883C6-55BE-4361-A14B-B6E084241DA2}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{BF7883C6-55BE-4361-A14B-B6E084241DA2}.Debug|x86.ActiveCfg = Debug|x86
+		{BF7883C6-55BE-4361-A14B-B6E084241DA2}.Debug|x86.Build.0 = Debug|x86
+		{BF7883C6-55BE-4361-A14B-B6E084241DA2}.Release|Any CPU.ActiveCfg = Release|x86
+		{BF7883C6-55BE-4361-A14B-B6E084241DA2}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{BF7883C6-55BE-4361-A14B-B6E084241DA2}.Release|Mixed Platforms.Build.0 = Release|x86
+		{BF7883C6-55BE-4361-A14B-B6E084241DA2}.Release|x86.ActiveCfg = Release|x86
+		{BF7883C6-55BE-4361-A14B-B6E084241DA2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

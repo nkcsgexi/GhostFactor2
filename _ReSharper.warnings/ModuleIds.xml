@@ -3,5 +3,5 @@
   <Module PersistentId="EA60B585-BD4A-4667-863C-21FFFB2599B4" ModuleId="WarningTest" />
   <Module PersistentId="D25188E3-079A-4D53-9EBC-CCE721391322" ModuleId="Threading" />
   <Module PersistentId="9802AC35-3AE5-4908-A25A-FA07D6658912" ModuleId="GitRevisionAnalyzer" />
-  <Module PersistentId="6E295625-6867-468B-90FB-939A0D83AC68" ModuleId="GhostExtension" />
+  <Module PersistentId="BF7883C6-55BE-4361-A14B-B6E084241DA2" ModuleId="SourceCommentAnalyzer" />
 </Modules>

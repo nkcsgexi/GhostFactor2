@@ -110,7 +110,14 @@ namespace warnings.analyzer
         }
 
 
-        /* algorithm copied from http://stackoverflow.com/questions/1649027/how-do-i-print-out-a-tree-structure . */
+        /// <summary>
+        ///algorithm copied from 
+        /// http://stackoverflow.com/questions/1649027/how-do-i-print-out-a-tree-structure.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="indent"></param>
+        /// <param name="last"></param>
+        /// <returns></returns>
         private string PrintPretty(SyntaxNode node,string indent, bool last)
         {
             var sb = new StringBuilder();

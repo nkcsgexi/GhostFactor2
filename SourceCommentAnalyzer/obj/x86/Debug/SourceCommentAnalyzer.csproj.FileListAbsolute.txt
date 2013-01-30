@@ -1,0 +1,14 @@
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\SourceCommentAnalyzer.exe.config
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\SourceCommentAnalyzer.exe
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\SourceCommentAnalyzer.pdb
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\BlackHen.Threading.dll
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\warnings.dll
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\NLog.dll
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\BlackHen.Threading.pdb
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\BlackHen.Threading.xml
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\warnings.pdb
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\NLog.pdb
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\NLog.xml
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\obj\x86\Debug\SourceCommentAnalyzer.exe
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\obj\x86\Debug\SourceCommentAnalyzer.pdb

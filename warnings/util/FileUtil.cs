@@ -132,5 +132,16 @@ namespace warnings.util
                 return false;
             }
         }
+
+        /// <summary>
+        /// Get file paths in a directory. The file shall be consistent with the given filter, such as "*.cs".
+        /// </summary>
+        /// <param name="directory"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public static string[] GetFilesFromDirectory(string directory, string filter )
+        {
+            return Directory.GetFiles(directory, filter);   
+        }
     }
 }

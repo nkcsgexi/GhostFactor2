@@ -124,6 +124,7 @@
     <Compile Include="change\ASTChange.cs" />
     <Compile Include="change\TextChange.cs" />
     <Compile Include="CodeIssueProvider.cs" />
+    <Compile Include="analyzer\retriever\CommentsRetriever.cs" />
     <Compile Include="components\ConditionCheckingComponent.cs" />
     <Compile Include="components\HistorySavingComponent.cs" />
     <Compile Include="components\IFactorComponent.cs" />

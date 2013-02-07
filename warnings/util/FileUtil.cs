@@ -141,7 +141,7 @@ namespace warnings.util
         /// <returns></returns>
         public static string[] GetFilesFromDirectory(string directory, string filter )
         {
-            return Directory.GetFiles(directory, filter);   
+            return Directory.GetFiles(directory, filter, SearchOption.AllDirectories);   
         }
     }
 }

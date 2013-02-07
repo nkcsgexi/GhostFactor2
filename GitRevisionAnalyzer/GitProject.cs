@@ -23,7 +23,7 @@ namespace GitRevisionAnalyzer
         IEnumerable<ICodeHistoryRecord> GetHeadHitoryRecords(ICodeHistory history);
     }
 
-    class GitProject : IGitProject
+    public class GitProject : IGitProject
     {
         // Default namespace name for all files.
         private static readonly string NAMESPACE_NAME = "namespace";

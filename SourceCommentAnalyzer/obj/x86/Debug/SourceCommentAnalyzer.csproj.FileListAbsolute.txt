@@ -12,3 +12,10 @@ C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\NLog.pdb
 C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\NLog.xml
 C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\obj\x86\Debug\SourceCommentAnalyzer.exe
 C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\obj\x86\Debug\SourceCommentAnalyzer.pdb
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\GitRevisionAnalyzer.exe
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\GitSharp.dll
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\GitSharp.Core.dll
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\Tamir.SharpSSH.dll
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\ICSharpCode.SharpZipLib.dll
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\Winterdom.IO.FileMap.dll
+C:\programming\VSWorkspace\ghostfactor\SourceCommentAnalyzer\bin\Debug\GitRevisionAnalyzer.pdb
